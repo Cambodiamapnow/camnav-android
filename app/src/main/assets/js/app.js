@@ -12,22 +12,31 @@
   // =====================================================================
   const DEFAULTS = {
     voice: "km", kmVoice: "natural", lang: "km", rate: 1.0, headingUp: true, simKmh: 50, forceKm: false,
-    tiles: "voyager", nightAuto: true, vehicle: "car", speedWarn: 5,
+    tiles: "clean", nightAuto: true, vehicle: "car", speedWarn: 5,
     showSignals: true, showCameras: true, showReports: true,
     router: "https://router.project-osrm.org",
     overpass: "https://overpass-api.de/api/interpreter",
   };
+  // Map pictures: free OpenStreetMap tiles (no key needed; Khmer street names drawn correctly).
+  // "clean" softens the colours for a Google-like look, "dark" inverts them for night driving.
+  const OSM = ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png", "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png", "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png"];
+  const HOT = ["https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", "https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"];
+  const ATTR = "© OpenStreetMap contributors";
   const TILES = {
-    voyager: { url: "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png", max: 20, attr: "© OpenStreetMap contributors © CARTO", thumb: "linear-gradient(90deg,transparent 44%,#fff 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#fbd38d 38% 52%,transparent 52%),linear-gradient(135deg,#cfe8c4 0 22%,transparent 22%),#f5f3ee" },
-    osm: { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", max: 19, attr: "© OpenStreetMap contributors", thumb: "linear-gradient(90deg,transparent 44%,#fff 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#f7b29c 38% 52%,transparent 52%),linear-gradient(135deg,#add19e 0 22%,transparent 22%),#f2efe9" },
-    dark: { url: "https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}@2x.png", max: 20, attr: "© OpenStreetMap contributors © CARTO", thumb: "linear-gradient(90deg,transparent 44%,#4a4f57 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#5f6368 38% 52%,transparent 52%),#262626" },
+    clean: { urls: OSM, max: 19, attr: ATTR, paint: { "raster-saturation": -0.45, "raster-contrast": -0.08, "raster-brightness-min": 0.06 },
+      thumb: "linear-gradient(90deg,transparent 44%,#fff 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#f1d9a6 38% 52%,transparent 52%),linear-gradient(135deg,#d3e4cc 0 22%,transparent 22%),#f4f2ee" },
+    osm: { urls: OSM, max: 19, attr: ATTR, paint: {},
+      thumb: "linear-gradient(90deg,transparent 44%,#fff 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#f7b29c 38% 52%,transparent 52%),linear-gradient(135deg,#add19e 0 22%,transparent 22%),#f2efe9" },
+    dark: { urls: OSM, max: 19, attr: ATTR, paint: { "raster-brightness-min": 1, "raster-brightness-max": 0.08, "raster-hue-rotate": 180, "raster-saturation": -0.55, "raster-contrast": 0.05 },
+      thumb: "linear-gradient(90deg,transparent 44%,#4a4f57 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#5f6368 38% 52%,transparent 52%),#262626" },
+    hot: { urls: HOT, max: 19, attr: ATTR + " · HOT", paint: { "raster-saturation": -0.3 }, thumb: "#f2efe9" }, // automatic backup
   };
   const store = {
     get(k, d) { try { const v = localStorage.getItem("camnav." + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem("camnav." + k, JSON.stringify(v)); } catch {} },
   };
   const S = Object.assign({}, DEFAULTS, store.get("settings", {}));
-  if (!TILES[S.tiles]) S.tiles = "voyager";
+  if (!TILES[S.tiles] || S.tiles === "hot") S.tiles = "clean"; // old "voyager" (CARTO) setting → clean
   const saveSettings = () => store.set("settings", S);
   const L = () => I.UI[S.lang] || I.UI.en;
   const t = (k) => (L()[k] != null ? L()[k] : I.UI.en[k] != null ? I.UI.en[k] : k);
@@ -56,16 +65,24 @@
   // =====================================================================
   let currentTiles = S.tiles;
   function styleFor(key) {
-    const tl = TILES[key] || TILES.voyager;
+    const tl = TILES[key] || TILES.clean;
     return {
       version: 8,
-      sources: { base: { type: "raster", tiles: [tl.url], tileSize: 256, maxzoom: tl.max, attribution: tl.attr } },
-      layers: [{ id: "base", type: "raster", source: "base" }],
+      sources: { base: { type: "raster", tiles: tl.urls, tileSize: 256, maxzoom: tl.max, attribution: tl.attr } },
+      layers: [{ id: "base", type: "raster", source: "base", paint: Object.assign({ "raster-fade-duration": 150 }, tl.paint) }],
     };
   }
   const map = new maplibregl.Map({
     container: "map", style: styleFor(S.tiles), center: store.get("lastCenter", PHNOM_PENH), zoom: 13,
-    attributionControl: { compact: true }, pitchWithRotate: false, dragRotate: false,
+    attributionControl: false, pitchWithRotate: false, dragRotate: false,
+  });
+  map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
+  // if the OpenStreetMap tile server refuses us, switch to the Humanitarian (HOT) style automatically
+  let tileErrors = 0;
+  map.on("error", (e) => {
+    const src = e && (e.sourceId || (e.source && e.source.id));
+    if (src !== "base" || currentTiles === "hot" || currentTiles === "dark") return;
+    if (++tileErrors > 12) { tileErrors = 0; currentTiles = "hot"; map.setStyle(styleFor("hot")); }
   });
   map.touchZoomRotate.disableRotation();
 
@@ -905,7 +922,7 @@
   function openLayers() {
     const opt = (k, label) => `<button data-t="${k}" class="${S.tiles === k ? "on" : ""}"><span class="mapThumb" style="background:${TILES[k].thumb}"></span>${esc(label)}</button>`;
     const sw = (k, label) => `<label class="switch"><span>${esc(label)}</span><input type="checkbox" data-sw="${k}" ${S[k] ? "checked" : ""}></label>`;
-    $("modalPanel").innerHTML = `<h3>${esc(t("layers"))}</h3><div class="grid3">${opt("voyager", t("mapDefault"))}${opt("osm", t("mapOsm"))}${opt("dark", t("mapDark"))}</div>
+    $("modalPanel").innerHTML = `<h3>${esc(t("layers"))}</h3><div class="grid3">${opt("clean", t("mapDefault"))}${opt("osm", t("mapOsm"))}${opt("dark", t("mapDark"))}</div>
       <div class="secTitle">${esc(t("mapDetails"))}</div>${sw("showCameras", t("showCameras"))}${sw("showSignals", t("showSignals"))}${sw("showReports", t("showReports"))}${sw("nightAuto", t("nightAuto"))}
       <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
     $("modalPanel").querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { S.tiles = b.dataset.t; saveSettings(); setTiles(S.tiles); openLayers(); }));
@@ -939,7 +956,7 @@
         <div class="small">${esc(!BLE.supported() ? t("bleNotSupported") : BLE.isConnected() ? "🟢 " + t("bleOn") : "⚪ " + t("bleOff"))}</div></div>
       <div class="field"><label>${esc(t("routerUrl"))}</label><input type="text" id="sRouter" value="${esc(S.router)}" spellcheck="false"></div>
       <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>
-      <div class="note">CamNAV – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · CARTO · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
+      <div class="note">CamNAV – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
     const P = $("modalPanel");
     P.querySelectorAll("[data-lang]").forEach((b) => (b.onclick = () => { S.lang = b.dataset.lang; saveSettings(); relabel(); openSettings(); }));
     P.querySelectorAll("[data-kmv]").forEach((b) => (b.onclick = () => { S.kmVoice = b.dataset.kmv; saveSettings(); openSettings(); }));
