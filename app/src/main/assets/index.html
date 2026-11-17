@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>CamNAV – នាំផ្លូវ</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<link href="css/app.css" rel="stylesheet">
+</head>
+<body>
+<div id="map"></div>
+
+<!-- welcome splash -->
+<div id="splash">
+  <img src="icons/icon-192.png" alt="">
+  <div class="spName">CamNAV <span>– នាំផ្លូវ</span></div>
+  <div class="spSlogan">បើកបរដោយសុវត្ថិភាព</div>
+  <div class="spSub">Drive safely</div>
+</div>
+
+<!-- ============ TOP: search + category chips ============ -->
+<div id="top">
+  <form id="searchPill" autocomplete="off">
+    <button type="button" class="pillIcon" id="btnBackSearch" aria-label="Back"><span class="msr">arrow_back</span></button>
+    <span class="pillLogo" id="pillLogo"><svg viewBox="0 0 24 24"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z" fill="#e53935"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg></span>
+    <input id="q" type="search" enterkeyhint="search">
+    <button type="button" class="pillIcon" id="btnClearQ" aria-label="Clear"><span class="msr">close</span></button>
+    <button type="button" class="avatar" id="btnSettings" aria-label="Settings"><span class="msr">settings</span></button>
+  </form>
+  <div id="chips" class="chips"></div>
+  <div id="weather" class="weather hidden"></div>
+</div>
+
+<!-- directions header -->
+<div id="dirHead" class="hidden">
+  <button class="pillIcon" id="btnDirBack" aria-label="Back"><span class="msr">arrow_back</span></button>
+  <div class="dirFields">
+    <div class="dirRow"><span class="dot from"></span><span id="dirFrom"></span></div>
+    <div class="dirRow"><span class="dot to"></span><span id="dirTo"></span></div>
+  </div>
+  <div class="vehSeg" id="vehSeg"></div>
+</div>
+
+<!-- right side buttons (browse) -->
+<div id="mapFabs">
+  <button class="fab small" id="btnLayers" aria-label="Layers"><span class="msr">layers</span></button>
+  <button class="fab" id="btnLocate" aria-label="My location"><span class="msr blue">my_location</span></button>
+</div>
+
+<!-- ============ BOTTOM SHEET (home / results / place / directions) ============ -->
+<div id="sheet" class="sheet">
+  <div class="handle" id="sheetHandle"></div>
+  <div id="sheetBody"></div>
+</div>
+
+<!-- ============ NAVIGATION ============ -->
+<div id="navTop" class="hidden">
+  <div id="banner">
+    <div id="bIcon"></div>
+    <div class="bTexts"><div id="bDist"></div><div id="bText"></div></div>
+  </div>
+  <div id="bThen" class="hidden"></div>
+  <div id="alerts"></div>
+</div>
+<div id="navLeft" class="hidden">
+  <div id="limitSign" class="limit hidden" title=""><b id="limitVal"></b></div>
+  <div id="speedBox"><b id="spdVal">0</b><small id="spdUnit"></small></div>
+</div>
+<div id="navFabs" class="hidden">
+  <button class="fab" id="btnMute" aria-label="Mute"><span class="msr">volume_up</span></button>
+  <button class="fab" id="btnShareEta" aria-label="Share"><span class="msr">share</span></button>
+  <button class="fab report" id="btnReport" aria-label="Report"><span class="msr fill">warning</span></button>
+</div>
+<button id="btnRecenter" class="recenter hidden"><span class="msr">navigation</span><span id="recenterTxt"></span></button>
+<div id="navBottom" class="hidden">
+  <button class="circle" id="btnExit" aria-label="Exit"><span class="msr">close</span></button>
+  <div class="nbMid" id="nbMid">
+    <div id="nbTime"></div>
+    <div id="nbRest"></div>
+  </div>
+  <button class="circle" id="btnSteps" aria-label="Steps"><span class="msr">format_list_bulleted</span></button>
+</div>
+
+<!-- steps panel -->
+<div id="stepsPanel" class="panelFull hidden">
+  <div class="panelHead"><button class="pillIcon" id="btnStepsClose"><span class="msr">arrow_back</span></button><b id="stepsTitle"></b></div>
+  <div id="stepsList"></div>
+</div>
+
+<!-- ============ MODALS ============ -->
+<div id="modal" class="modal hidden"><div class="panel" id="modalPanel"></div></div>
+
+<div id="toast"></div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="js/navcore.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/roadinfo.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/ble.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
