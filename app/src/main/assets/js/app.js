@@ -5,13 +5,13 @@
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const NC = window.NavCore, I = window.I18N, RI = window.RoadInfo, V = window.Voice, BLE = window.CarScreen;
+  const NC = window.NavCore, I = window.I18N, RI = window.RoadInfo, V = window.Voice, BLE = window.CarScreen, VC = window.VoiceClips;
 
   // =====================================================================
   // settings & storage
   // =====================================================================
   const DEFAULTS = {
-    voice: "km", lang: "km", rate: 1.0, headingUp: true, simKmh: 50, forceKm: false,
+    voice: "km", kmVoice: "natural", lang: "km", rate: 1.0, headingUp: true, simKmh: 50, forceKm: false,
     tiles: "voyager", nightAuto: true, vehicle: "car", speedWarn: 5,
     showSignals: true, showCameras: true, showReports: true,
     router: "https://router.project-osrm.org",
@@ -195,13 +195,15 @@
   // =====================================================================
   // voice
   // =====================================================================
-  function voiceParts(builder) {
+  /** Khmer uses the natural recorded voice when all its clips exist, else the phone voice. */
+  function voiceParts(builder, clips) {
     if (S.voice === "off" || !V.supported) return [];
-    const kmOk = V.hasKhmer() || S.forceKm;
+    const natural = S.kmVoice !== "phone" && V.hasClips(clips);
+    const kmOk = natural || V.hasKhmer() || S.forceKm;
     const langs = S.voice === "both" ? (kmOk ? ["km", "en"] : ["en"]) : S.voice === "km" ? [kmOk ? "km" : "en"] : ["en"];
-    return langs.map((lang) => ({ lang, text: builder(lang) }));
+    return langs.map((lang) => (lang === "km" && natural ? { lang, clips } : { lang, text: builder(lang) }));
   }
-  const speak = (builder, urgent) => V.say(voiceParts(builder), urgent);
+  const speak = (builder, urgent, clips) => V.say(voiceParts(builder, clips), urgent);
 
   // =====================================================================
   // GPS
@@ -578,7 +580,7 @@
     applyNightMode();
     requestWakeLock();
     const first = route.steps[0];
-    speak((lang) => I.action(first, lang) + (lang === "km" ? "។ " : ". ") + I.ALERTS[lang].start, true);
+    speak((lang) => I.action(first, lang) + (lang === "km" ? "។ " : ". ") + I.ALERTS[lang].start, true, VC.alertClips.start(first));
     loadRoadInfo(route, 0, 40000);
     if (demo) startSim();
     else if (fix) navTick({ lon: fix.lon, lat: fix.lat, speed: fix.speed || 0, acc: fix.acc, heading });
@@ -634,14 +636,14 @@
     if (pr) {
       nav.spoken.add(nav.stepIdx + ":" + pr.stage);
       const nx = route.steps[nav.stepIdx + 1], d = nav.distTo;
-      speak((lang) => I.sentence(step, lang, pr.stage, pr.withDist ? d : null, nx), pr.stage === "now");
+      speak((lang) => I.sentence(step, lang, pr.stage, pr.withDist ? d : null, nx), pr.stage === "now", VC.sentenceClips(step, pr.stage, pr.withDist ? d : null, nx));
     }
 
     nav.remaining = Math.max(0, route.total - nav.along);
     nav.speed = p.speed || 0;
     if (!nav.arrived && (nav.remaining < 25 || (step.type === "arrive" && nav.distTo < 20))) {
       nav.arrived = true;
-      if (!nav.spoken.has(nav.stepIdx + ":now")) speak((lang) => I.action(route.steps[route.steps.length - 1], lang), true);
+      if (!nav.spoken.has(nav.stepIdx + ":now")) speak((lang) => I.action(route.steps[route.steps.length - 1], lang), true, VC.actionClips(route.steps[route.steps.length - 1]));
       const sess = nav;
       setTimeout(() => { if (nav === sess) endNav(true); }, 4000);
     }
@@ -664,7 +666,7 @@
   async function reroute(p) {
     nav.rerouting = true;
     toast(t("rerouting"));
-    speak((lang) => I.ALERTS[lang].reroute, true);
+    speak((lang) => I.ALERTS[lang].reroute, true, VC.alertClips.reroute());
     try {
       const rs = await fetchRoutes([p.lon, p.lat], [dest.lon, dest.lat], p.heading, false);
       route = rs[0]; route.road = RI.create(); routes = [route]; sel = 0;
@@ -685,7 +687,7 @@
     $("speedBox").classList.toggle("over", !!warnNow);
     if (warnNow && now - nav.lastOverWarn > 45000) {
       nav.lastOverWarn = now;
-      speak((lang) => I.ALERTS[lang].overspeed(lim.v), false);
+      speak((lang) => I.ALERTS[lang].overspeed(lim.v), false, VC.alertClips.overspeed(lim.v));
     }
   }
 
@@ -706,8 +708,8 @@
         nav.alerted.add(it.id);
         if (it.kind === "camera") {
           const v = it.v || (nav.limit && nav.limit.v) || null;
-          speak((lang) => I.ALERTS[lang].camera(ahead, v), false);
-        } else speak((lang) => I.ALERTS[lang].report[it.kind], false);
+          speak((lang) => I.ALERTS[lang].camera(ahead, v), false, VC.alertClips.camera(ahead, v));
+        } else speak((lang) => I.ALERTS[lang].report[it.kind], false, VC.alertClips.report(it.kind));
       }
     }
     shownAlerts.sort((a, b) => a.ahead - b.ahead);
@@ -918,11 +920,13 @@
   }
   function openSettings() {
     const n = V.voiceNames();
-    const needKm = (S.voice === "km" || S.voice === "both") && V.supported && !V.hasKhmer() && !S.forceKm;
+    const needKm = (S.voice === "km" || S.voice === "both") && V.supported && !V.hasKhmer() && !S.forceKm && !(S.kmVoice !== "phone" && V.clipCount() > 0);
     $("modalPanel").innerHTML = `<h3>${esc(t("settings"))}</h3>
       <div class="field"><label>${esc(t("textLang"))}</label>${seg([["km", "ខ្មែរ"], ["en", "English"]], S.lang, "lang")}</div>
       <div class="field"><label>${esc(t("voice"))}</label>${seg([["km", t("voiceKm")], ["en", t("voiceEn")], ["both", t("voiceBoth")], ["off", t("voiceOff")]], S.voice, "voice")}
         <div class="small">km: ${esc(n.km || "—")} · en: ${esc(n.en || "—")}</div>
+        <div class="field" style="margin:12px 0 4px"><label>${esc(t("kmVoiceType"))}</label>${seg([["natural", t("kmNatural")], ["phone", t("kmPhone")]], S.kmVoice, "kmv")}
+          <div class="small">${V.clipCount() ? esc(t("naturalReady").replace("{n}", num(V.clipCount()))) : esc(t("naturalMissing"))}</div></div>
         ${needKm ? `<div class="warnBox">${esc(t("noKmVoice"))}${V.openSettings ? `<div class="btnLine"><button id="sOpenTts">${esc(t("openVoiceSettings"))}</button></div>` : ""}</div>` : ""}
         <label class="switch"><span>${esc(t("forceKm"))}</span><input type="checkbox" id="sForce" ${S.forceKm ? "checked" : ""}></label>
         <div class="btnLine"><button id="sTest">${icon("volume_up")} ${esc(t("testVoice"))}</button></div></div>
@@ -938,11 +942,12 @@
       <div class="note">CamNAV – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · CARTO · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
     const P = $("modalPanel");
     P.querySelectorAll("[data-lang]").forEach((b) => (b.onclick = () => { S.lang = b.dataset.lang; saveSettings(); relabel(); openSettings(); }));
+    P.querySelectorAll("[data-kmv]").forEach((b) => (b.onclick = () => { S.kmVoice = b.dataset.kmv; saveSettings(); openSettings(); }));
     P.querySelectorAll("[data-voice]").forEach((b) => (b.onclick = () => { S.voice = b.dataset.voice; saveSettings(); openSettings(); }));
     P.querySelectorAll("[data-veh]").forEach((b) => (b.onclick = () => { S.vehicle = b.dataset.veh; saveSettings(); openSettings(); }));
     P.querySelectorAll("[data-warn]").forEach((b) => (b.onclick = () => { S.speedWarn = +b.dataset.warn; saveSettings(); openSettings(); }));
     $("sForce").onchange = (e) => { S.forceKm = e.target.checked; saveSettings(); openSettings(); };
-    $("sTest").onclick = () => { V.unlock(); speak((lang) => I.ALERTS[lang].test, true); };
+    $("sTest").onclick = () => { V.unlock(); speak((lang) => I.ALERTS[lang].test, true, VC.alertClips.test()); };
     if ($("sOpenTts")) $("sOpenTts").onclick = () => V.openSettings();
     $("sRate").oninput = (e) => { S.rate = +e.target.value; V.setRate(S.rate); saveSettings(); };
     $("sHead").onchange = (e) => { S.headingUp = e.target.checked; saveSettings(); };

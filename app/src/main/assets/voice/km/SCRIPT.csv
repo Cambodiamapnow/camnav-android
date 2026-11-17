@@ -1,0 +1,86 @@
+﻿file_name,khmer_text,english_meaning
+dist_50m.mp3,ក្នុងចម្ងាយ ហាសិបម៉ែត្រទៀត,In 50 meters
+dist_100m.mp3,ក្នុងចម្ងាយ មួយរយម៉ែត្រទៀត,In 100 meters
+dist_150m.mp3,ក្នុងចម្ងាយ មួយរយហាសិបម៉ែត្រទៀត,In 150 meters
+dist_200m.mp3,ក្នុងចម្ងាយ ពីររយម៉ែត្រទៀត,In 200 meters
+dist_250m.mp3,ក្នុងចម្ងាយ ពីររយហាសិបម៉ែត្រទៀត,In 250 meters
+dist_300m.mp3,ក្នុងចម្ងាយ បីរយម៉ែត្រទៀត,In 300 meters
+dist_350m.mp3,ក្នុងចម្ងាយ បីរយហាសិបម៉ែត្រទៀត,In 350 meters
+dist_400m.mp3,ក្នុងចម្ងាយ បួនរយម៉ែត្រទៀត,In 400 meters
+dist_450m.mp3,ក្នុងចម្ងាយ បួនរយហាសិបម៉ែត្រទៀត,In 450 meters
+dist_500m.mp3,ក្នុងចម្ងាយ ប្រាំរយម៉ែត្រទៀត,In 500 meters
+dist_550m.mp3,ក្នុងចម្ងាយ ប្រាំរយហាសិបម៉ែត្រទៀត,In 550 meters
+dist_600m.mp3,ក្នុងចម្ងាយ ប្រាំមួយរយម៉ែត្រទៀត,In 600 meters
+dist_650m.mp3,ក្នុងចម្ងាយ ប្រាំមួយរយហាសិបម៉ែត្រទៀត,In 650 meters
+dist_700m.mp3,ក្នុងចម្ងាយ ប្រាំពីររយម៉ែត្រទៀត,In 700 meters
+dist_750m.mp3,ក្នុងចម្ងាយ ប្រាំពីររយហាសិបម៉ែត្រទៀត,In 750 meters
+dist_800m.mp3,ក្នុងចម្ងាយ ប្រាំបីរយម៉ែត្រទៀត,In 800 meters
+dist_850m.mp3,ក្នុងចម្ងាយ ប្រាំបីរយហាសិបម៉ែត្រទៀត,In 850 meters
+dist_900m.mp3,ក្នុងចម្ងាយ ប្រាំបួនរយម៉ែត្រទៀត,In 900 meters
+dist_950m.mp3,ក្នុងចម្ងាយ ប្រាំបួនរយហាសិបម៉ែត្រទៀត,In 950 meters
+dist_1km.mp3,ក្នុងចម្ងាយ មួយគីឡូម៉ែត្រទៀត,In 1 kilometers
+dist_1_5km.mp3,ក្នុងចម្ងាយ មួយគីឡូម៉ែត្រកន្លះទៀត,In 1.5 kilometers
+dist_2km.mp3,ក្នុងចម្ងាយ ពីរគីឡូម៉ែត្រទៀត,In 2 kilometers
+dist_2_5km.mp3,ក្នុងចម្ងាយ ពីរគីឡូម៉ែត្រកន្លះទៀត,In 2.5 kilometers
+dist_3km.mp3,ក្នុងចម្ងាយ បីគីឡូម៉ែត្រទៀត,In 3 kilometers
+dist_4km.mp3,ក្នុងចម្ងាយ បួនគីឡូម៉ែត្រទៀត,In 4 kilometers
+dist_5km.mp3,ក្នុងចម្ងាយ ប្រាំគីឡូម៉ែត្រទៀត,In 5 kilometers
+dist_6km.mp3,ក្នុងចម្ងាយ ប្រាំមួយគីឡូម៉ែត្រទៀត,In 6 kilometers
+dist_7km.mp3,ក្នុងចម្ងាយ ប្រាំពីរគីឡូម៉ែត្រទៀត,In 7 kilometers
+dist_8km.mp3,ក្នុងចម្ងាយ ប្រាំបីគីឡូម៉ែត្រទៀត,In 8 kilometers
+dist_9km.mp3,ក្នុងចម្ងាយ ប្រាំបួនគីឡូម៉ែត្រទៀត,In 9 kilometers
+dist_10km.mp3,ក្នុងចម្ងាយ ដប់គីឡូម៉ែត្រទៀត,In 10 kilometers
+turn_left.mp3,បត់ឆ្វេង,Turn left
+turn_right.mp3,បត់ស្តាំ,Turn right
+slight_left.mp3,បត់ឆ្វេងបន្តិច,Bear left
+slight_right.mp3,បត់ស្តាំបន្តិច,Bear right
+sharp_left.mp3,បត់ឆ្វេងខ្លាំង,Turn sharp left
+sharp_right.mp3,បត់ស្តាំខ្លាំង,Turn sharp right
+uturn.mp3,បកក្រោយ,Make a U-turn
+straight.mp3,បន្តទៅត្រង់,Continue straight
+keep_left.mp3,នៅផ្លូវបំបែក សូមរក្សាខាងឆ្វេង,"At the fork, keep left"
+keep_right.mp3,នៅផ្លូវបំបែក សូមរក្សាខាងស្តាំ,"At the fork, keep right"
+merge.mp3,បញ្ចូលផ្លូវ,Merge
+merge_left.mp3,បញ្ចូលផ្លូវទៅខាងឆ្វេង,Merge left
+merge_right.mp3,បញ្ចូលផ្លូវទៅខាងស្តាំ,Merge right
+ramp_left.mp3,ឡើងផ្លូវខាងឆ្វេង,Take the ramp on the left
+ramp_right.mp3,ឡើងផ្លូវខាងស្តាំ,Take the ramp on the right
+exit_left.mp3,ចេញតាមផ្លូវខាងឆ្វេង,Take the exit on the left
+exit_right.mp3,ចេញតាមផ្លូវខាងស្តាំ,Take the exit on the right
+end_of_road.mp3,ដល់ចុងផ្លូវ,At the end of the road
+roundabout.mp3,ចូលរង្វង់មូល,Enter the roundabout
+roundabout_1.mp3,នៅរង្វង់មូល សូមចេញតាមផ្លូវទីមួយ,"At the roundabout, take exit 1"
+roundabout_2.mp3,នៅរង្វង់មូល សូមចេញតាមផ្លូវទីពីរ,"At the roundabout, take exit 2"
+roundabout_3.mp3,នៅរង្វង់មូល សូមចេញតាមផ្លូវទីបី,"At the roundabout, take exit 3"
+roundabout_4.mp3,នៅរង្វង់មូល សូមចេញតាមផ្លូវទីបួន,"At the roundabout, take exit 4"
+roundabout_5.mp3,នៅរង្វង់មូល សូមចេញតាមផ្លូវទីប្រាំ,"At the roundabout, take exit 5"
+roundabout_6.mp3,នៅរង្វង់មូល សូមចេញតាមផ្លូវទីប្រាំមួយ,"At the roundabout, take exit 6"
+roundabout_exit.mp3,ចេញពីរង្វង់មូល,Exit the roundabout
+depart.mp3,ចាប់ផ្តើមធ្វើដំណើរ,Let's go
+arrive.mp3,អ្នកបានមកដល់គោលដៅហើយ,You have arrived
+arrive_left.mp3,គោលដៅរបស់អ្នកនៅខាងឆ្វេង,Your destination is on the left
+arrive_right.mp3,គោលដៅរបស់អ្នកនៅខាងស្តាំ,Your destination is on the right
+now.mp3,ឥឡូវនេះ,now
+then.mp3,បន្ទាប់មក,then
+slogan.mp3,បើកបរដោយសុវត្ថិភាព,Drive safely
+reroute.mp3,កំពុងរកផ្លូវថ្មី,Rerouting
+gps_lost.mp3,បាត់សញ្ញា ជីភីអេស,GPS signal lost
+camera.mp3,កាមេរ៉ាល្បឿននៅខាងមុខ,Speed camera ahead
+slow_down.mp3,សូមបន្ថយល្បឿន,Please slow down
+limit_20.mp3,ល្បឿនកំណត់ ម្ភៃគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 20
+limit_30.mp3,ល្បឿនកំណត់ សាមសិបគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 30
+limit_40.mp3,ល្បឿនកំណត់ សែសិបគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 40
+limit_50.mp3,ល្បឿនកំណត់ ហាសិបគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 50
+limit_60.mp3,ល្បឿនកំណត់ ហុកសិបគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 60
+limit_70.mp3,ល្បឿនកំណត់ ចិតសិបគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 70
+limit_80.mp3,ល្បឿនកំណត់ ប៉ែតសិបគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 80
+limit_90.mp3,ល្បឿនកំណត់ កៅសិបគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 90
+limit_100.mp3,ល្បឿនកំណត់ មួយរយគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 100
+limit_110.mp3,ល្បឿនកំណត់ មួយរយដប់គីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 110
+limit_120.mp3,ល្បឿនកំណត់ មួយរយម្ភៃគីឡូម៉ែត្រក្នុងមួយម៉ោង,Speed limit 120
+report_police.mp3,មានប៉ូលិសនៅខាងមុខ,Police ahead
+report_accident.mp3,មានគ្រោះថ្នាក់នៅខាងមុខ,Crash ahead
+report_jam.mp3,ស្ទះចរាចរណ៍នៅខាងមុខ,Traffic jam ahead
+report_hazard.mp3,មានឧបសគ្គនៅលើផ្លូវខាងមុខ,Hazard on the road ahead
+report_flood.mp3,ផ្លូវលិចទឹកនៅខាងមុខ,Flooded road ahead
+test.mp3,សួស្តី! នេះជាសំឡេងណែនាំផ្លូវរបស់ ខេមណាវ។ សូមបើកបរដោយសុវត្ថិភាព,Hello! This is the CamNAV voice. Please drive safely

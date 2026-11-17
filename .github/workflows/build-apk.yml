@@ -27,6 +27,22 @@ jobs:
           yes | "$SDKM" --licenses > /dev/null || true
           "$SDKM" "platforms;android-34" "build-tools;34.0.0" > /dev/null
 
+      # ---- natural Khmer voice (Azure neural TTS → MP3 clips inside the APK) ----
+      - name: Restore Khmer voice cache
+        uses: actions/cache@v4
+        with:
+          path: .voice-cache
+          key: khmer-voice-${{ vars.KHMER_VOICE || 'km-KH-SreymomNeural' }}-${{ hashFiles('app/src/main/assets/js/voiceclips.js') }}
+          restore-keys: khmer-voice-${{ vars.KHMER_VOICE || 'km-KH-SreymomNeural' }}-
+
+      - name: Make Khmer voice clips
+        env:
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+          KHMER_VOICE: ${{ vars.KHMER_VOICE }}
+          KHMER_VOICE_RATE: ${{ vars.KHMER_VOICE_RATE }}
+        run: python3 tools/make_khmer_voice.py
+
       - name: Build the APK
         run: |
           chmod +x ./gradlew

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.view.WindowManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
@@ -132,6 +133,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         if (n.endsWith(".png")) return "image/png";
         if (n.endsWith(".svg")) return "image/svg+xml";
         if (n.endsWith(".jpg") || n.endsWith(".jpeg")) return "image/jpeg";
+        if (n.endsWith(".mp3")) return "audio/mpeg";
+        if (n.endsWith(".wav")) return "audio/wav";
+        if (n.endsWith(".ogg")) return "audio/ogg";
         return "application/octet-stream";
     }
 
@@ -166,10 +170,25 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         ttsReady = status == TextToSpeech.SUCCESS;
         if (ttsReady) {
             tts.setLanguage(Locale.US);
+            // tell the web app when each sentence has finished, so recorded clips and
+            // text-to-speech can take turns without talking over each other
+            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                @Override public void onStart(String id) { }
+                @Override public void onDone(String id) { notifyDone(id); }
+                @Override public void onError(String id) { notifyDone(id); }
+            });
             runOnUiThread(() -> {
                 if (web != null) web.evaluateJavascript("window.Voice && Voice._refresh && Voice._refresh()", null);
             });
         }
+    }
+
+    private void notifyDone(String id) {
+        if (id == null) return;
+        final String safe = id.replaceAll("[^A-Za-z0-9_]", "");
+        runOnUiThread(() -> {
+            if (web != null) web.evaluateJavascript("window.Voice && Voice._ttsDone && Voice._ttsDone('" + safe + "')", null);
+        });
     }
 
     private static Locale localeOf(String lang) {
@@ -179,13 +198,13 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     /** Exposed to JavaScript as window.AndroidTTS */
     private class TtsBridge {
         @JavascriptInterface
-        public void speak(String text, String lang, boolean flush, double rate) {
-            if (!ttsReady || text == null || text.trim().isEmpty()) return;
+        public void speak(String text, String lang, boolean flush, double rate, String utteranceId) {
+            if (!ttsReady || text == null || text.trim().isEmpty()) { notifyDone(utteranceId); return; }
             synchronized (tts) {
                 tts.setLanguage(localeOf(lang));
                 tts.setSpeechRate((float) rate);
                 tts.speak(text, flush ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD, null,
-                        "u" + System.nanoTime());
+                        utteranceId != null ? utteranceId : "u" + System.nanoTime());
             }
         }
 

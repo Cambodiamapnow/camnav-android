@@ -37,7 +37,7 @@
       locating: "Finding your location…", noGps: "Location is off — using the map centre as start.",
       routing: "Finding routes…", routeFail: "Couldn't find a route. Check your internet and try again.", rerouting: "Rerouting…",
       longPress: "Tip: press and hold the map to drop a pin", pickedPoint: "Dropped pin", ago: "ago", close: "Close",
-      then: "Then", mute: "Mute", recenter: "Re-centre", loadingRoad: "Loading speed limits and cameras…", noMore: "",
+      then: "Then", mute: "Mute", kmVoiceType: "Khmer voice", kmNatural: "Natural (recorded)", kmPhone: "Phone voice", naturalReady: "Natural Khmer voice installed ({n} clips)", naturalMissing: "Natural Khmer voice not installed yet — using the phone voice", recenter: "Re-centre", loadingRoad: "Loading speed limits and cameras…", noMore: "",
       weather: { 0: "Clear", 1: "Cloudy", 45: "Fog", 51: "Drizzle", 61: "Rain", 95: "Storm" },
     },
     km: {
@@ -65,7 +65,7 @@
       locating: "កំពុងស្វែងរកទីតាំងរបស់អ្នក…", noGps: "ទីតាំងត្រូវបានបិទ — ប្រើកណ្តាលផែនទីជាចំណុចចាប់ផ្តើម។",
       routing: "កំពុងរកផ្លូវ…", routeFail: "រកផ្លូវមិនឃើញ។ សូមពិនិត្យអ៊ីនធឺណិត ហើយសាកម្តងទៀត។", rerouting: "កំពុងរកផ្លូវថ្មី…",
       longPress: "គន្លឹះ៖ ចុចឱ្យយូរលើផែនទី ដើម្បីដាក់ម្ជុល", pickedPoint: "ម្ជុលដែលបានដាក់", ago: "មុន", close: "បិទ",
-      then: "បន្ទាប់មក", mute: "បិទសំឡេង", recenter: "ត្រឡប់មកឡាន", loadingRoad: "កំពុងទាញយកល្បឿនកំណត់ និងកាមេរ៉ា…", noMore: "",
+      then: "បន្ទាប់មក", mute: "បិទសំឡេង", kmVoiceType: "សំឡេងខ្មែរ", kmNatural: "ធម្មជាតិ (ថតទុក)", kmPhone: "សំឡេងទូរស័ព្ទ", naturalReady: "បានដំឡើងសំឡេងខ្មែរធម្មជាតិ ({n} ឃ្លា)", naturalMissing: "មិនទាន់មានសំឡេងខ្មែរធម្មជាតិ — កំពុងប្រើសំឡេងទូរស័ព្ទ", recenter: "ត្រឡប់មកឡាន", loadingRoad: "កំពុងទាញយកល្បឿនកំណត់ និងកាមេរ៉ា…", noMore: "",
       weather: { 0: "មេឃស្រឡះ", 1: "មានពពក", 45: "អ័ព្ទ", 51: "ភ្លៀងរលឹម", 61: "ភ្លៀង", 95: "ព្យុះផ្គររន្ទះ" },
     },
   };
