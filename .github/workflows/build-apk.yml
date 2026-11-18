@@ -80,6 +80,11 @@ jobs:
           ELEVEN_VOICE_MONK: ${{ vars.ELEVEN_VOICE_MONK }}
         run: python3 tools/make_khmer_voice.py
 
+      - name: Keep one signing key for every build (so new APKs install over old ones)
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: kmap-signing-key-v1
       - name: Build the APK
         run: |
           chmod +x ./gradlew

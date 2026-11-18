@@ -1300,7 +1300,7 @@
         <div class="small">${esc(!BLE.supported() ? t("bleNotSupported") : BLE.isConnected() ? "🟢 " + t("bleOn") : "⚪ " + t("bleOff"))}</div></div>
       <div class="field"><label>${esc(t("routerUrl"))}</label><input type="text" id="sRouter" value="${esc(S.router)}" spellcheck="false"></div>
       <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>
-      <div class="note">K-Map – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · OpenFreeMap · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
+      <div class="note">K-Map – នាំផ្លូវ ${esc((window.CAMNAV_CONFIG || {}).appVersion || "")} · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · OpenFreeMap · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
     const P = $("modalPanel");
     P.querySelectorAll("[data-lang]").forEach((b) => (b.onclick = () => { S.lang = b.dataset.lang; saveSettings(); relabel(); openSettings(); }));
     P.querySelectorAll("[data-kmv]").forEach((b) => (b.onclick = () => { S.kmVoice = b.dataset.kmv; saveSettings(); openSettings(); }));
@@ -1567,7 +1567,7 @@
   // ---------- voice packs ----------
   function openVoicePacks() {
     const P = $("modalPanel");
-    P.innerHTML = `<h3 id="vpTitle">${icon("record_voice_over")} ${esc(t("voicePacks"))}</h3><div id="devRow"></div><div class="packList">` + VP.PACKS.map((p) => {
+    P.innerHTML = `<h3 id="vpTitle">${icon("record_voice_over")} ${esc(t("voicePacks"))} <small style="opacity:.5;font-weight:400">v${esc((window.CAMNAV_CONFIG || {}).appVersion || "")}</small></h3><div id="devRow"></div><div class="packList">` + VP.PACKS.map((p) => {
       const locked = p.pro && !voicesOpen();
       const on = activePack().id === p.id;
       return `<div class="pack ${on ? "on" : ""}" data-p="${p.id}">
