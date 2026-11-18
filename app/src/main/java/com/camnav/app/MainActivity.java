@@ -14,6 +14,9 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
@@ -65,6 +68,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
         web = new WebView(this);
         setContentView(web);
+        goFullScreen();
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -143,6 +147,29 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         String js = "window.CamNAV && CamNAV.onDeepLink(" + org.json.JSONObject.quote(pendingDeepLink) + ")";
         pendingDeepLink = null;
         web.evaluateJavascript(js, null);
+    }
+
+    // ---------------- full screen ----------------
+    @SuppressWarnings("deprecation")
+    private void goFullScreen() {
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController c = getWindow().getInsetsController();
+            if (c != null) {
+                c.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                c.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) goFullScreen();
     }
 
     // ---------------- assets over https ----------------
@@ -242,8 +269,23 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             synchronized (tts) {
                 tts.setLanguage(localeOf(lang));
                 tts.setSpeechRate((float) rate);
+                tts.setPitch(1.0f);
                 tts.speak(text, flush ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD, null,
                         utteranceId != null ? utteranceId : "u" + System.nanoTime());
+            }
+        }
+
+        /** same as speak() with a voice-character pitch (1.0 = normal) */
+        @JavascriptInterface
+        public void speakStyled(String text, String lang, boolean flush, double rate, String utteranceId, double pitch) {
+            if (!ttsReady || text == null || text.trim().isEmpty()) { notifyDone(utteranceId); return; }
+            synchronized (tts) {
+                tts.setLanguage(localeOf(lang));
+                tts.setSpeechRate((float) rate);
+                tts.setPitch((float) pitch);
+                tts.speak(text, flush ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD, null,
+                        utteranceId != null ? utteranceId : "u" + System.nanoTime());
+                tts.setPitch(1.0f);
             }
         }
 

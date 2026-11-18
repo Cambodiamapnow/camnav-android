@@ -80,7 +80,7 @@
   }
   const map = new maplibregl.Map({
     container: "map", style: styleFor(S.tiles), center: store.get("lastCenter", PHNOM_PENH), zoom: 13,
-    attributionControl: false, pitchWithRotate: false, dragRotate: false,
+    attributionControl: false, pitchWithRotate: true, dragRotate: true, maxPitch: 65,
   });
   map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
   // if the OpenStreetMap tile server refuses us, switch to the Humanitarian (HOT) style automatically
@@ -95,7 +95,23 @@
       currentTiles = next; map.setStyle(styleFor(next));
     }
   });
-  map.touchZoomRotate.disableRotation();
+  // two fingers rotate, two fingers sliding up/down tilt — like Google Maps
+  try { map.touchZoomRotate.enableRotation(); map.touchPitch && map.touchPitch.enable(); } catch (e) {}
+
+  // compass: shows when the map is turned; tap = face north (browsing) or switch heading-up / north-up (driving)
+  function updateCompass() {
+    const b = map.getBearing ? map.getBearing() : 0, p = map.getPitch ? map.getPitch() : 0;
+    const el = $("btnCompass");
+    if (!el) return;
+    el.querySelector(".needle").style.transform = "rotate(" + (-b) + "deg)";
+    el.classList.toggle("hidden", view !== "nav" && Math.abs(b) < 1 && p < 1);
+  }
+  map.on("rotate", updateCompass);
+  map.on("pitch", updateCompass);
+  // a user gesture (rotate / tilt) during navigation pauses follow mode, like a pan does
+  ["rotatestart", "pitchstart"].forEach((ev) => map.on(ev, (e) => {
+    if (view === "nav" && e && e.originalEvent) { follow = false; show("btnRecenter", true); }
+  }));
 
   const emptyFC = () => ({ type: "FeatureCollection", features: [] });
   function ensureLayers() {
@@ -176,6 +192,12 @@
   }, { passive: true });
   ["touchend", "touchcancel"].forEach((ev) => cc.addEventListener(ev, () => { clearTimeout(pressTimer); pressTimer = null; }, { passive: true }));
   map.on("contextmenu", (e) => { if (view !== "nav") dropPin([e.lngLat.lng, e.lngLat.lat]); });
+  $("btnCompass").onclick = () => {
+    if (view === "nav") {
+      S.headingUp = !S.headingUp; saveSettings(); follow = true; show("btnRecenter", false);
+      toast(S.headingUp ? t("headingUpOn") : t("northUpOn"));
+    } else map.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+  };
   map.on("dragstart", (e) => {
     if (view === "nav" && e.originalEvent) { follow = false; show("btnRecenter", true); }
     if ((view === "home" || view === "results") && !sheetCollapsed) collapseSheet(true);
@@ -252,7 +274,8 @@
     const haveFile = V.hasFile(file);
     const kmOk = haveFile || V.hasKhmer() || S.forceKm;
     if (!line || S.voice === "en" || !kmOk) return speak(builder, urgent, clips);
-    const parts = [haveFile ? { lang: "km", clips: [file] } : { lang: "km", text: line }];
+    const sty = pack.tts || {};
+    const parts = [haveFile ? { lang: "km", clips: [file] } : { lang: "km", text: line, pitch: sty.pitch, rate: sty.rate }];
     if (S.voice === "both") parts.push({ lang: "en", text: builder("en") });
     V.say(parts, urgent);
   }
@@ -417,8 +440,7 @@
     const [lon, lat] = here();
     const q = `[out:json][timeout:20];nwr${def[2]}(around:4000,${lat},${lon});out center tags 40;`;
     try {
-      const res = await fetch(S.overpass, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
-      const data = await res.json();
+      const data = await RI.overpass(q, S.overpass);
       const list = (data.elements || []).map((el) => {
         const tg = el.tags || {};
         const ll = el.type === "node" ? [el.lon, el.lat] : el.center ? [el.center.lon, el.center.lat] : null;
@@ -451,7 +473,49 @@
   }
 
   $("searchPill").addEventListener("submit", (e) => { e.preventDefault(); V.unlock(); $("q").blur(); search($("q").value); });
-  $("q").addEventListener("input", () => show("btnClearQ", !!$("q").value));
+  $("q").addEventListener("input", () => { show("btnClearQ", !!$("q").value); suggestSoon(); });
+
+  let suggestTimer = null, suggestSeq = 0;
+  function suggestSoon() {
+    clearTimeout(suggestTimer);
+    const q = $("q").value.trim();
+    if (q.length < 2) { if (view === "results" && !activeCat) renderHome(); return; }
+    suggestTimer = setTimeout(() => suggest(q), 280);
+  }
+  /** Places as you type: your saved & recent places first, then OpenStreetMap (Photon) around you. */
+  async function suggest(q) {
+    const seq = ++suggestSeq;
+    const ql = q.toLowerCase();
+    const mine = [saved.home && Object.assign({ mine: "home" }, saved.home), saved.work && Object.assign({ mine: "work" }, saved.work)]
+      .concat(saved.favs.map((f) => Object.assign({ mine: "star" }, f)), recent.map((r) => Object.assign({ mine: "history" }, r)))
+      .filter((x) => x && (x.name || "").toLowerCase().includes(ql)).slice(0, 4);
+    const [lon, lat] = here();
+    let found = [];
+    try {
+      const url = "https://photon.komoot.io/api/?limit=8&bbox=102.3,10.3,107.7,14.8&lang=" + (S.lang === "km" ? "default" : "en")
+        + "&lat=" + lat.toFixed(4) + "&lon=" + lon.toFixed(4) + "&q=" + encodeURIComponent(q);
+      const j = await (await fetch(url)).json();
+      found = (j.features || []).map((f) => {
+        const p = f.properties || {}, c = f.geometry.coordinates;
+        const addr = [p.street, p.district, p.city || p.county, p.state].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(", ");
+        return { lon: c[0], lat: c[1], name: p.name || p.street || q, address: addr, type: (p.osm_value || "").replace(/_/g, " ") };
+      });
+    } catch (e) { console.warn("suggest", e); }
+    if (seq !== suggestSeq || $("q").value.trim() !== q) return; // a newer keystroke won
+    const seen = new Set();
+    const list = mine.concat(found).filter((x) => { const k = x.name + "|" + x.lat.toFixed(4); if (seen.has(k)) return false; seen.add(k); return true; });
+    renderSuggestions(list);
+  }
+  function renderSuggestions(list) {
+    const c = here();
+    activeCat = null;
+    if (view !== "results") { setView("results"); renderChips(); }
+    $("sheetBody").innerHTML = list.length ? `<div class="list">` + list.map((r, i) =>
+      `<div class="item" data-s="${i}"><span class="ic ${r.mine ? "" : "red"}">${icon(r.mine || "location_on", "fill")}</span><span class="tx"><b>${esc(r.name)}</b><small>${esc([r.type, r.address].filter(Boolean).join(" · "))}</small></span><span class="dist">${fmtDist(NC.dist(c, [r.lon, r.lat]))}</span></div>`).join("") + `</div>`
+      : `<div class="note">${esc(t("noResults"))}</div>`;
+    $("sheetBody").querySelectorAll("[data-s]").forEach((el) => (el.onclick = () => { $("q").blur(); results = list; openPlace(list[+el.dataset.s]); }));
+    updateSheetHeight();
+  }
   $("btnClearQ").onclick = () => { $("q").value = ""; renderHome(); };
   $("btnBackSearch").onclick = () => {
     if (view === "place" && results.length) { setPlaceMarker(null); resultMarkers.forEach((m) => m.addTo(map)); showResults(results, activeCat ? CATS.find((c) => c[0] === activeCat)[1] : "place"); setView("results"); }
@@ -622,18 +686,54 @@
   function renderRoadMarkers(r) {
     roadMarkers.forEach((m) => m.remove()); roadMarkers = [];
     if (!r || !r.road || (view !== "dirs" && view !== "nav")) return;
-    if (S.showCameras) r.road.cameras.forEach((c) => roadMarkers.push(new maplibregl.Marker({ element: makeEl("mk cam", icon("photo_camera", "fill")) }).setLngLat([c.lon, c.lat]).addTo(map)));
-    if (S.showSignals) r.road.signals.slice(0, 200).forEach((s) => roadMarkers.push(new maplibregl.Marker({ element: makeEl("mk sig", icon("traffic", "fill")) }).setLngLat([s.lon, s.lat]).addTo(map)));
+    if (S.showCameras) r.road.cameras.forEach((c) => roadMarkers.push(new maplibregl.Marker({ element: signEl("camera") }).setLngLat([c.lon, c.lat]).addTo(map)));
+    if (S.showSignals) r.road.signals.slice(0, 200).forEach((s) => roadMarkers.push(new maplibregl.Marker({ element: signEl("signal") }).setLngLat([s.lon, s.lat]).addTo(map)));
     if (S.showSigns) {
       const add = (list, kind, max) => (list || []).slice(0, max).forEach((x) => {
-        const m = ROAD_META[x.kind === "give_way" ? "give_way" : kind];
-        const el = makeEl("mk sig", icon(m.icon, "fill")); el.style.background = m.color;
+        const el = signEl(x.kind === "give_way" ? "give_way" : kind);
         roadMarkers.push(new maplibregl.Marker({ element: el }).setLngLat([x.lon, x.lat]).addTo(map));
       });
       add(r.road.bumps, "bump", 150); add(r.road.schools, "school", 80); add(r.road.rail, "rail", 40);
       add(r.road.tolls, "toll", 20); add(r.road.signs, "stop", 120);
       add(r.road.hazards, "hazard", 60); add(r.road.crossings, "crossing", 120);
+      // posted speed limits: one round sign where the limit changes
+      let last = null, n = 0;
+      for (let a = 0; a < Math.min(r.total, r.road.loadedTo || 0) && n < 120; a += 150) {
+        const lim = RI.limitAt(r.road, a, S.vehicle);
+        if (!lim || lim.est || lim.v === last) continue;
+        last = lim.v; n++;
+        const p = NC.pointAt(r, a).p;
+        if (p) roadMarkers.push(new maplibregl.Marker({ element: signEl("limit", lim.v) }).setLngLat(p).addTo(map));
+      }
     }
+  }
+  // road-sign look (Cambodian signs follow the Vienna convention: red triangles, red octagon, blue discs)
+  function signSvg(kind, v) {
+    const tri = (inner) => `<svg viewBox="0 0 40 36"><path d="M20 2 38 34H2Z" fill="#fff" stroke="#d93025" stroke-width="4" stroke-linejoin="round"/>${inner}</svg>`;
+    const sym = (ch, y = 28, size = 15) => `<text x="20" y="${y}" text-anchor="middle" font-size="${size}" font-weight="700" font-family="sans-serif" fill="#202124">${ch}</text>`;
+    switch (kind) {
+      case "stop": return `<svg viewBox="0 0 40 40"><path d="M12 2h16l10 10v16L28 38H12L2 28V12Z" fill="#d93025" stroke="#fff" stroke-width="2"/><text x="20" y="25" text-anchor="middle" font-size="10" font-weight="800" font-family="sans-serif" fill="#fff">STOP</text></svg>`;
+      case "give_way": return `<svg viewBox="0 0 40 36"><path d="M2 2h36L20 34Z" fill="#fff" stroke="#d93025" stroke-width="4" stroke-linejoin="round"/></svg>`;
+      case "bump": return tri(`<path d="M9 28q11-12 22 0" fill="#202124"/>`);
+      case "school": return tri(`<circle cx="16" cy="15" r="2.6" fill="#202124"/><circle cx="24" cy="17" r="2.2" fill="#202124"/><path d="M14 19h4l1 9h-2l-1-5-2 5h-2l2-6zM22.5 21h3.5l.8 7h-2l-.4-4-1.5 4h-1.8z" fill="#202124"/>`);
+      case "rail": return tri(`<path d="M12 28 17 14h6l5 14M14 23h12M15.5 19h9" stroke="#202124" stroke-width="2" fill="none"/>`);
+      case "crossing": return `<svg viewBox="0 0 40 40"><rect x="2" y="2" width="36" height="36" rx="4" fill="#1a73e8" stroke="#fff" stroke-width="2"/><path d="M8 30 20 8l12 22Z" fill="#fff"/><circle cx="20" cy="17" r="2.2" fill="#202124"/><path d="M19 20h2.5l2 6h-2l-1-3-1.5 3h-2z" fill="#202124"/></svg>`;
+      case "hazard": return tri(sym("!", 30, 18));
+      case "curve": return tri(`<path d="M15 30v-8q0-6 8-8v-3l5 5-5 5v-3q-4 1-4 5v7z" fill="#202124"/>`);
+      case "junction_danger": return tri(`<path d="M18.5 30V12h3v18zM13 19h14v3H13z" fill="#202124"/>`);
+      case "animal": return tri(`<path d="M11 26q1-7 7-7h6l3-3 2 1-2 4v5h-2v-3h-8v3h-2z" fill="#202124"/>`);
+      case "signal": return tri(`<rect x="16.5" y="12" width="7" height="17" rx="2" fill="#202124"/><circle cx="20" cy="15.5" r="1.6" fill="#ea4335"/><circle cx="20" cy="20.5" r="1.6" fill="#fbbc04"/><circle cx="20" cy="25.5" r="1.6" fill="#34a853"/>`);
+      case "no_overtake": return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#fff" stroke="#d93025" stroke-width="5"/><rect x="10" y="15" width="8" height="12" rx="2" fill="#d93025"/><rect x="22" y="15" width="8" height="12" rx="2" fill="#202124"/></svg>`;
+      case "toll": return `<svg viewBox="0 0 40 40"><rect x="2" y="2" width="36" height="36" rx="4" fill="#1a73e8" stroke="#fff" stroke-width="2"/>${sym("$", 27, 18).replace("#202124", "#fff")}</svg>`;
+      case "camera": return `<svg viewBox="0 0 40 40"><rect x="2" y="2" width="36" height="36" rx="4" fill="#1a73e8" stroke="#fff" stroke-width="2"/><rect x="9" y="14" width="22" height="15" rx="3" fill="#fff"/><circle cx="20" cy="21.5" r="4.5" fill="#1a73e8"/><rect x="15" y="11" width="10" height="4" rx="1" fill="#fff"/></svg>`;
+      case "limit": return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#fff" stroke="#d93025" stroke-width="5"/><text x="20" y="25.5" text-anchor="middle" font-size="${String(v).length > 2 ? 12 : 15}" font-weight="800" font-family="sans-serif" fill="#202124">${v}</text></svg>`;
+    }
+    return null;
+  }
+  function signEl(kind, v) {
+    const svg = signSvg(kind, v);
+    if (!svg) { const m = ROAD_META[kind] || ROAD_META.hazard; const el = makeEl("mk sig", icon(m.icon, "fill")); el.style.background = m.color; return el; }
+    const el = document.createElement("div"); el.className = "rsign"; el.innerHTML = svg; return el;
   }
   const ROAD_META = {
     bump: { icon: "speed", color: "#e8710a" },
@@ -837,6 +937,24 @@
     }
     shownAlerts.sort((a, b) => a.ahead - b.ahead);
     renderAlerts(shownAlerts.slice(0, 3));
+    renderSignStrip();
+  }
+  function renderSignStrip() {
+    const el = $("signStrip"); if (!el) return;
+    const rd = route && route.road;
+    if (!rd || !S.showSigns || !nav) { el.innerHTML = ""; return; }
+    const up = [];
+    const take = (list, kind) => { for (const x of list || []) { const a = x.along - nav.along; if (a > 0 && a < 1500) up.push({ kind: x.kind === "give_way" ? "give_way" : kind, a }); } };
+    if (S.showCameras) take(rd.cameras, "camera");
+    take(rd.bumps, "bump"); take(rd.schools, "school"); take(rd.rail, "rail"); take(rd.tolls, "toll");
+    take(rd.signs, "stop"); take(rd.crossings, "crossing");
+    if (S.showSignals) take(rd.signals, "signal");
+    for (const x of rd.hazards || []) { const a = x.along - nav.along; if (a > 0 && a < 1500) up.push({ kind: /curve/.test(x.kind || "") ? "curve" : /junction|intersection/.test(x.kind || "") ? "junction_danger" : /animal|cattle|cow/.test(x.kind || "") ? "animal" : "hazard", a }); }
+    up.sort((p, q) => p.a - q.a);
+    // keep one per kind so the strip shows variety, nearest first
+    const seen = new Set(), pick = [];
+    for (const u of up) { if (seen.has(u.kind)) continue; seen.add(u.kind); pick.push(u); if (pick.length >= 3) break; }
+    el.innerHTML = pick.map((u) => `<div class="ss">${signSvg(u.kind)}<small>${esc(fmtDist(u.a))}</small></div>`).join("");
   }
   let slowChip = false;
   let verifyChip = null; // {id, kind, key}: ask "Still there / Cleared" when passing a shared pin
@@ -1061,6 +1179,7 @@
       .filter((x) => x.s.off < 35).map((x) => Object.assign({}, x.r, { along: x.s.along }));
   }
   $("btnReport").onclick = openReportModal;
+  $("btnVoiceChar").onclick = () => openVoicePacks();
 
   // =====================================================================
   // modals: save / layers / settings
@@ -1447,7 +1566,8 @@
     const p = VP.byId(id);
     const parts = ["start_route", "turn_right_200m"].map((ev) => {
       const f = VP.clipPath(p.id, ev);
-      return V.hasFile(f) ? { lang: "km", clips: [f] } : { lang: V.hasKhmer() || S.forceKm ? "km" : "en", text: V.hasKhmer() || S.forceKm ? p.lines[ev] : I.ALERTS.en.test };
+      const sty = p.tts || {};
+      return V.hasFile(f) ? { lang: "km", clips: [f] } : { lang: V.hasKhmer() || S.forceKm ? "km" : "en", text: V.hasKhmer() || S.forceKm ? p.lines[ev] : I.ALERTS.en.test, pitch: sty.pitch, rate: sty.rate };
     });
     V.say(parts, true);
   }

@@ -226,19 +226,27 @@
     return null;
   }
 
+  const MIRRORS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter", "https://maps.mail.ru/osm/tools/overpass/api/interpreter"];
+  async function overpass(q, endpoint) {
+    const list = [endpoint].concat(MIRRORS).filter((u, i, a) => u && a.indexOf(u) === i);
+    let err;
+    for (const url of list) {
+      try {
+        const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
+        if (res.ok) return await res.json();
+        err = new Error("overpass " + res.status);
+      } catch (e) { err = e; }
+    }
+    throw err || new Error("overpass");
+  }
+
   async function load(route, road, fromAlong, toAlong, endpoint) {
     const q = buildQuery(route, fromAlong, toAlong);
-    const res = await fetch(endpoint || "https://overpass-api.de/api/interpreter", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "data=" + encodeURIComponent(q),
-    });
-    if (!res.ok) throw new Error("overpass " + res.status);
-    const data = await res.json();
+    const data = await overpass(q, endpoint);
     route._grid = route._grid || buildGrid(route);
     addChunk(road, process(route, data, route._grid), toAlong);
     return road;
   }
 
-  return { DEFAULTS, POINT_KINDS, buildGrid, locate, buildQuery, parseMaxspeed, process, create, addChunk, limitAt, junctionDensity, load };
+  return { overpass, MIRRORS, DEFAULTS, POINT_KINDS, buildGrid, locate, buildQuery, parseMaxspeed, process, create, addChunk, limitAt, junctionDensity, load };
 });

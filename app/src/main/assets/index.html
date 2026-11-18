@@ -57,6 +57,7 @@
 </div>
 
 <!-- right side buttons (browse) -->
+<button class="fab small compass hidden" id="btnCompass" aria-label="Compass"><svg class="needle" viewBox="0 0 24 24"><path d="M12 2l4 10h-8z" fill="#ea4335"/><path d="M12 22l-4-10h8z" fill="#9aa0a6"/></svg></button>
 <div id="mapFabs">
   <button class="fab small" id="btnLayers" aria-label="Layers"><span class="msr">layers</span></button>
   <button class="fab" id="btnLocate" aria-label="My location"><span class="msr blue">my_location</span></button>
@@ -76,6 +77,7 @@
   </div>
   <div id="bThen" class="hidden"></div>
   <div id="alerts"></div>
+    <div id="signStrip" class="signStrip"></div>
 </div>
 <div id="navLeft" class="hidden">
   <div id="limitSign" class="limit hidden" title=""><b id="limitVal"></b></div>
@@ -83,6 +85,7 @@
 </div>
 <div id="navFabs" class="hidden">
   <button class="fab" id="btnMute" aria-label="Mute"><span class="msr">volume_up</span></button>
+  <button class="fab" id="btnVoiceChar" aria-label="Voice character"><span class="msr">record_voice_over</span></button>
   <button class="fab" id="btnShareEta" aria-label="Share"><span class="msr">share</span></button>
   <button class="fab report" id="btnReport" aria-label="Report"><span class="msr fill">warning</span></button>
 </div>

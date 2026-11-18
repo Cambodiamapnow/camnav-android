@@ -55,8 +55,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .voice-cache
-          key: khmer-voice-${{ vars.KHMER_VOICE || 'km-KH-SreymomNeural' }}-${{ hashFiles('app/src/main/assets/js/voiceclips.js') }}
-          restore-keys: khmer-voice-${{ vars.KHMER_VOICE || 'km-KH-SreymomNeural' }}-
+          key: khmer-voice-${{ vars.ELEVEN_VOICE_ID || vars.KHMER_VOICE || 'km-KH-SreymomNeural' }}-${{ hashFiles('app/src/main/assets/js/voiceclips.js', 'app/src/main/assets/js/voicepacks.js') }}
+          restore-keys: khmer-voice-${{ vars.ELEVEN_VOICE_ID || vars.KHMER_VOICE || 'km-KH-SreymomNeural' }}-
 
       - name: Make Khmer voice clips
         env:
@@ -64,6 +64,14 @@ jobs:
           AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
           KHMER_VOICE: ${{ vars.KHMER_VOICE }}
           KHMER_VOICE_RATE: ${{ vars.KHMER_VOICE_RATE }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVEN_MODEL: ${{ vars.ELEVEN_MODEL }}
+          ELEVEN_VOICE_ID: ${{ vars.ELEVEN_VOICE_ID }}
+          ELEVEN_VOICE_TUKTUK_UNCLE: ${{ vars.ELEVEN_VOICE_TUKTUK_UNCLE }}
+          ELEVEN_VOICE_CARING_MOM: ${{ vars.ELEVEN_VOICE_CARING_MOM }}
+          ELEVEN_VOICE_HYPE_COACH: ${{ vars.ELEVEN_VOICE_HYPE_COACH }}
+          ELEVEN_VOICE_GRANDPA: ${{ vars.ELEVEN_VOICE_GRANDPA }}
+          ELEVEN_VOICE_LITTLE_SISTER: ${{ vars.ELEVEN_VOICE_LITTLE_SISTER }}
         run: python3 tools/make_khmer_voice.py
 
       - name: Build the APK

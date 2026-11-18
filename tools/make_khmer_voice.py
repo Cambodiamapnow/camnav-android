@@ -23,6 +23,38 @@ KEY = os.environ.get("AZURE_SPEECH_KEY", "").strip()
 REGION = os.environ.get("AZURE_SPEECH_REGION", "southeastasia").strip() or "southeastasia"
 VOICE = os.environ.get("KHMER_VOICE", "km-KH-SreymomNeural").strip() or "km-KH-SreymomNeural"
 RATE = os.environ.get("KHMER_VOICE_RATE", "+0%").strip() or "+0%"
+# ElevenLabs (preferred when set): natural voices; one voice for the main prompts,
+# optional per-character voices ELEVEN_VOICE_TUKTUK_UNCLE, ELEVEN_VOICE_CARING_MOM, ...
+ELEVEN_KEY = os.environ.get("ELEVENLABS_API_KEY", "").strip()
+ELEVEN_MODEL = os.environ.get("ELEVEN_MODEL", "").strip() or "eleven_v4"
+ELEVEN_VOICE = os.environ.get("ELEVEN_VOICE_ID", "").strip()
+# how each character should sound (audio tags work on eleven_v3 / eleven_v4)
+PACK_TAGS = {"standard": "", "tuktuk_uncle": "[cheerful] [joking] ", "caring_mom": "[warmly] [caring] ",
+             "hype_coach": "[excited] [energetic] ", "grandpa": "[elderly voice] [slowly] ", "little_sister": "[cheerful] [high voice] "}
+
+
+def eleven(text, voice_id, tags=""):
+    body = json.dumps({"text": (tags if ELEVEN_MODEL in ("eleven_v3", "eleven_v4") else "") + text, "model_id": ELEVEN_MODEL}).encode("utf-8")
+    req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=mp3_44100_64",
+                                 data=body, method="POST",
+                                 headers={"xi-api-key": ELEVEN_KEY, "Content-Type": "application/json", "Accept": "audio/mpeg"})
+    for attempt in range(5):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503):
+                time.sleep(4 * (attempt + 1)); continue
+            raise SystemExit(f"ElevenLabs error {e.code}: {e.read()[:300]!r} (check ELEVENLABS_API_KEY / voice id / model)")
+    raise SystemExit("ElevenLabs kept failing (rate limit)")
+
+
+def pack_voice(pack):
+    return os.environ.get("ELEVEN_VOICE_" + pack.upper(), "").strip() or ELEVEN_VOICE
+
+
+def engine_tag():
+    return ("eleven-" + ELEVEN_MODEL + "-" + ELEVEN_VOICE) if (ELEVEN_KEY and ELEVEN_VOICE) else ("azure-" + VOICE + RATE)
 
 
 def phrases():
@@ -57,6 +89,8 @@ PACK_VOICES = {
     "tuktuk_uncle": ("km-KH-PisethNeural", "+8%"),
     "caring_mom": ("km-KH-SreymomNeural", "-6%"),
     "hype_coach": ("km-KH-PisethNeural", "+12%"),
+    "grandpa": ("km-KH-PisethNeural", "-12%"),
+    "little_sister": ("km-KH-SreymomNeural", "+10%"),
 }
 
 
@@ -74,14 +108,16 @@ def make_packs():
         dst = os.path.join(ASSETS, l["file"])
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         voice, rate = PACK_VOICES.get(l["pack"], (VOICE, RATE))
-        cached = os.path.join(CACHE, "packs", l["pack"], l["event"] + "__" + hashlib.md5((voice + rate + l["km"]).encode()).hexdigest()[:10] + ".mp3")
+        ev_voice = pack_voice(l["pack"]) if ELEVEN_KEY else ""
+        key = ("eleven" + ELEVEN_MODEL + ev_voice) if ev_voice else (voice + rate)
+        cached = os.path.join(CACHE, "packs", l["pack"], l["event"] + "__" + hashlib.md5((key + l["km"]).encode()).hexdigest()[:10] + ".mp3")
         if os.path.exists(dst):
             own += 1
         elif os.path.exists(cached):
             shutil.copyfile(cached, dst); made += 1
-        elif KEY:
+        elif ev_voice or KEY:
             os.makedirs(os.path.dirname(cached), exist_ok=True)
-            audio = synth(l["km"], voice, rate)
+            audio = eleven(l["km"], ev_voice, PACK_TAGS.get(l["pack"], "")) if ev_voice else synth(l["km"], voice, rate)
             with open(cached, "wb") as f: f.write(audio)
             shutil.copyfile(cached, dst); made += 1
             time.sleep(0.4)
@@ -100,7 +136,7 @@ def make_packs():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    cache_dir = os.path.join(CACHE, VOICE + RATE.replace("%", "pct"))
+    cache_dir = os.path.join(CACHE, engine_tag().replace("%", "pct"))
     os.makedirs(cache_dir, exist_ok=True)
     ps = phrases()
     made = reused = own = missing = 0
@@ -111,9 +147,12 @@ def main():
             own += 1; continue
         if os.path.exists(cached):
             shutil.copyfile(cached, dst); open(dst + ".generated", "w").close(); reused += 1; continue
-        if not KEY:
+        if ELEVEN_KEY and ELEVEN_VOICE:
+            audio = eleven(p["km"], ELEVEN_VOICE)
+        elif KEY:
+            audio = synth(p["km"])
+        else:
             missing += 1; continue
-        audio = synth(p["km"])
         with open(cached, "wb") as f: f.write(audio)
         shutil.copyfile(cached, dst); open(dst + ".generated", "w").close()
         made += 1
@@ -123,13 +162,13 @@ def main():
         if f.endswith(".generated"): os.remove(os.path.join(OUT, f))
     have = [p["id"] for p in ps if os.path.exists(os.path.join(OUT, p["id"] + ".mp3"))]
     with open(os.path.join(OUT, "manifest.json"), "w", encoding="utf-8") as f:
-        json.dump({"voice": VOICE if (made or reused) else "custom", "clips": have}, f, ensure_ascii=False)
+        json.dump({"voice": engine_tag() if (made or reused) else "custom", "clips": have}, f, ensure_ascii=False)
     with open(os.path.join(OUT, "SCRIPT.csv"), "w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f); w.writerow(["file_name", "khmer_text", "english_meaning"])
         for p in ps: w.writerow([p["id"] + ".mp3", p["km"], p["en"]])
     print(f"Khmer voice: {len(have)}/{len(ps)} clips ready "
           f"(your files {own}, generated {made}, from cache {reused}, missing {missing}) voice={VOICE}")
-    if not KEY and missing:
+    if not KEY and not ELEVEN_KEY and missing:
         print("No AZURE_SPEECH_KEY secret: missing clips fall back to the phone's Khmer voice.")
 
 

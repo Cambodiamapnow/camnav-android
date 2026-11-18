@@ -14,7 +14,7 @@
 
   const PACKS = [
     {
-      id: "standard", pro: false, emoji: "🧭", color: "#1a73e8",
+      id: "standard", pro: false, emoji: "🧭", color: "#1a73e8", tts: { pitch: 1.0, rate: 1.0 },
       name: { km: "សំឡេងស្តង់ដារ", en: "Standard polite Khmer" },
       desc: { km: "សំឡេងសុភាព ច្បាស់លាស់ — ឥតគិតថ្លៃ", en: "Polite and clear — free" },
       lines: {
@@ -27,7 +27,7 @@
       },
     },
     {
-      id: "tuktuk_uncle", pro: true, emoji: "🛺", color: "#e8710a",
+      id: "tuktuk_uncle", pro: true, emoji: "🛺", color: "#e8710a", tts: { pitch: 0.82, rate: 1.06 },
       name: { km: "ពូតុកតុក", en: "Funny Tuk-Tuk Uncle" },
       desc: { km: "ពូរកផ្លូវកាត់ឱ្យ កំប្លែងរាល់ការបត់", en: "Knows every shortcut, jokes at every turn" },
       lines: {
@@ -40,7 +40,7 @@
       },
     },
     {
-      id: "caring_mom", pro: true, emoji: "👩‍👦", color: "#d93085",
+      id: "caring_mom", pro: true, emoji: "👩‍👦", color: "#d93085", tts: { pitch: 1.22, rate: 0.95 },
       name: { km: "ម៉ាក់បារម្ភ", en: "Caring Khmer Mom" },
       desc: { km: "ម៉ាក់រំលឹកឱ្យជិះយឺតៗ និងប្រយ័ត្ន", en: "Mom reminds you to ride slowly and safely" },
       lines: {
@@ -53,7 +53,7 @@
       },
     },
     {
-      id: "hype_coach", pro: true, emoji: "💪", color: "#188038",
+      id: "hype_coach", pro: true, emoji: "💪", color: "#188038", tts: { pitch: 1.08, rate: 1.16 },
       name: { km: "សំឡេងលើកទឹកចិត្ត", en: "Hype Motivational Coach" },
       desc: { km: "គ្រូលើកទឹកចិត្ត ធ្វើឱ្យថ្ងៃរបស់អ្នកភ្លឺស្វាង", en: "A coach who makes every trip feel like a win" },
       lines: {
@@ -63,6 +63,32 @@
         traffic_ahead: "កុំបារម្ភ! ឧបសគ្គបន្តិចបន្តួចនៅខាងមុខ យើងនឹងរកផ្លូវវាងដ៏ឆ្លាតវៃជូនអ្នកភ្លាម!",
         flood_ahead: "ប្រយ័ត្នទឹកលិចខាងមុខ! បង្វែរទិសដៅបន្តិច ដើម្បីបន្តដំណើរទៅមុខដោយរលូន!",
         arrived: "ជោគជ័យ! អ្នកបានមកដល់គោលដៅទាន់ពេលវេលា សូមឱ្យថ្ងៃនេះជួបតែសំណាងល្អ!",
+      },
+    },
+    {
+      id: "grandpa", pro: true, emoji: "👴", color: "#795548", tts: { pitch: 0.7, rate: 0.86 },
+      name: { km: "លោកតាចិត្តល្អ", en: "Kind Grandpa" },
+      desc: { km: "លោកតាប្រាប់ផ្លូវយឺតៗ ដោយក្តីស្រឡាញ់", en: "A gentle grandpa who guides you slowly and kindly" },
+      lines: {
+        start_route: "ចៅអើយ មុនចេញដំណើរ ពាក់មួកសុវត្ថិភាពសិន។ យើងបើកយឺតៗ តែដល់ប្រាកដ។",
+        turn_left_200m: "២០០ ម៉ែត្រទៀត បត់ឆ្វេងណាចៅ កុំប្រញាប់ពេក។",
+        turn_right_200m: "២០០ ម៉ែត្រទៀត បត់ស្តាំចៅ បើកភ្លើងស៊ីញ៉ូឱ្យគេដឹងផង។",
+        traffic_ahead: "ខាងមុខស្ទះហើយចៅ អត់ធ្មត់បន្តិច យឺតបន្តិចមិនអីទេ ឱ្យតែដល់សុខសប្បាយ។",
+        flood_ahead: "ខាងមុខទឹកលិចចៅ ជិះយឺតៗ កុំឱ្យទឹកចូលម៉ាស៊ីន។",
+        arrived: "ដល់ហើយចៅ! តាសប្បាយចិត្តណាស់ ដែលចៅដល់ដោយសុវត្ថិភាព។",
+      },
+    },
+    {
+      id: "little_sister", pro: true, emoji: "👧", color: "#e91e63", tts: { pitch: 1.42, rate: 1.05 },
+      name: { km: "ប្អូនស្រីតូច", en: "Little Sister" },
+      desc: { km: "ប្អូនស្រីរីករាយ ជួយនាំផ្លូវបង", en: "A cheerful little sister who helps you find the way" },
+      lines: {
+        start_route: "តោះបង ចេញដំណើរ! ប្អូនជួយនាំផ្លូវ កុំភ្លេចពាក់មួកសុវត្ថិភាពណា!",
+        turn_left_200m: "បងៗ ២០០ ម៉ែត្រទៀតបត់ឆ្វេងណា ប្អូនចាំមើលបង!",
+        turn_right_200m: "២០០ ម៉ែត្រទៀតបត់ស្តាំណាបង ត្រៀមខ្លួនបានហើយ!",
+        traffic_ahead: "អូយ ខាងមុខស្ទះហើយបង កុំខឹងណា ស្តាប់ចម្រៀងបន្តិចទៅ!",
+        flood_ahead: "បងប្រយ័ត្ន! ខាងមុខមានទឹកលិច ជិះយឺតៗណាបង!",
+        arrived: "ដល់ហើយបង! ពូកែណាស់ ប្អូនសប្បាយចិត្តជាមួយបង!",
       },
     },
   ];

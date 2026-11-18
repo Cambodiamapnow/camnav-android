@@ -58,7 +58,7 @@
     const myGen = gen;
     const done = () => { if (myGen === gen) next(); };
     if (item.type === "clips") playClips(item.ids.slice(), done);
-    else speakTts(item.text, item.lang, done);
+    else speakTts(item.text, item.lang, done, item.pitch, item.rate);
   }
 
   function playClips(ids, done) {
@@ -72,20 +72,24 @@
     if (p && p.catch) p.catch(() => playClips(ids, done));
   }
 
-  function speakTts(text, lang, done) {
+  function speakTts(text, lang, done, pitch, rateOverride) {
+    const r = rate * (rateOverride || 1), pt = pitch || 1;
     if (native) {
       const uid = "u" + Date.now() + Math.random().toString(36).slice(2, 6);
       ttsWaiters.set(uid, done);
       // safety net if the engine never reports back
       setTimeout(() => { if (ttsWaiters.has(uid)) { ttsWaiters.delete(uid); done(); } }, 1500 + text.length * 120);
-      try { native.speak(text, lang, false, rate, uid); } catch (e) { try { native.speak(text, lang, false, rate); } catch (e2) {} }
+      try {
+        if (native.speakStyled) native.speakStyled(text, lang, false, r, uid, pt);
+        else native.speak(text, lang, false, r, uid);
+      } catch (e) { try { native.speak(text, lang, false, r); } catch (e2) {} }
       return;
     }
     if (!synth) return done();
     const u = new SpeechSynthesisUtterance(text);
     if (lang === "km") { u.lang = "km-KH"; if (kmVoice) u.voice = kmVoice; }
     else { u.lang = (enVoice && enVoice.lang) || "en-US"; if (enVoice) u.voice = enVoice; }
-    u.rate = rate;
+    u.rate = r; u.pitch = pt;
     let fired = false;
     const fin = () => { if (!fired) { fired = true; done(); } };
     u.onend = fin; u.onerror = fin;
@@ -106,7 +110,7 @@
     if (urgent) stop();
     for (const p of parts) {
       if (p.clips && p.clips.length) queue.push({ type: "clips", ids: p.clips });
-      else if (p.text) queue.push({ type: "tts", text: p.text, lang: p.lang });
+      else if (p.text) queue.push({ type: "tts", text: p.text, lang: p.lang, pitch: p.pitch, rate: p.rate });
     }
     if (!busy) next();
   }

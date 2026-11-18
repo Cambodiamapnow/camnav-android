@@ -322,3 +322,17 @@ html.theme-dark .renewBar { background: #3a3220; color: #fde293; }
 .khqrAmt small { font-size: 14px; font-weight: 500; color: #5f6368; }
 .steps div { display: flex; gap: 10px; align-items: flex-start; padding: 6px 2px; }
 .steps b { width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-size: 13px; flex: none; }
+
+/* ---------------- compass ---------------- */
+.compass { position: absolute; right: 12px; top: calc(122px + var(--safe-t)); z-index: 6; }
+body.navmode .compass { top: auto; bottom: calc(300px + var(--safe-b)); }
+.compass .needle { width: 26px; height: 26px; transition: transform .1s linear; }
+
+/* road-sign markers + upcoming-signs strip */
+.rsign { width: 34px; height: 34px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+.rsign svg { width: 100%; height: 100%; display: block; }
+.signStrip { display: flex; gap: 8px; margin-top: 6px; pointer-events: none; }
+.signStrip:empty { display: none; }
+.signStrip .ss { background: rgba(32,33,36,.82); border-radius: 12px; padding: 6px 8px 4px; display: flex; flex-direction: column; align-items: center; min-width: 54px; }
+.signStrip .ss svg { width: 40px; height: 40px; }
+.signStrip .ss small { color: #fff; font-weight: 600; font-size: 12px; margin-top: 2px; }
