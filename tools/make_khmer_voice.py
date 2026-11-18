@@ -129,6 +129,13 @@ def make_packs():
         if os.path.exists(dst):
             have.append(l["file"])
     os.makedirs(os.path.join(ASSETS, "voice", "packs"), exist_ok=True)
+    # each character's own recordings of the direction phrases (turns, distances, roundabouts, signs…)
+    packs_dir = os.path.join(ASSETS, "voice", "packs")
+    for pk in sorted(os.listdir(packs_dir)):
+        cdir = os.path.join(packs_dir, pk, "clips")
+        if os.path.isdir(cdir):
+            for fn in sorted(os.listdir(cdir)):
+                if fn.endswith(".mp3"): have.append(f"voice/packs/{pk}/clips/{fn}")
     with open(os.path.join(ASSETS, "voice", "packs", "manifest.json"), "w", encoding="utf-8") as f:
         json.dump({"files": have}, f, ensure_ascii=False)
     with open(os.path.join(ASSETS, "voice", "packs", "PACKS-SCRIPT.csv"), "w", encoding="utf-8-sig", newline="") as f:

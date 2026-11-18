@@ -11,6 +11,7 @@ batch = json.load(open(os.path.join(ROOT, "tools", "eleven-batch.json"), encodin
 lines = json.loads(subprocess.check_output(["node", "-e", "process.stdout.write(JSON.stringify(require('./app/src/main/assets/js/voicepacks.js').allLines()))"], cwd=ROOT))
 by_pack = {}
 for l in lines: by_pack.setdefault(l["pack"], []).append(l)
+phrases = json.loads(subprocess.check_output(["node", "-e", "process.stdout.write(JSON.stringify(require('./app/src/main/assets/js/voiceclips.js').PHRASES))"], cwd=ROOT))
 
 def dur(path):
     return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path]).decode().strip())
@@ -30,7 +31,11 @@ def corr(a, b):
 report, ok_total = [], 0
 os.makedirs("/tmp/eleven", exist_ok=True)
 for pack, info in batch.items():
-    want = by_pack.get(pack, [])
+    if info.get("set") == "clips":
+        pk = info.get("pack", pack)
+        want = [{"km": ph["km"], "file": f"voice/packs/{pk}/clips/{ph['id']}.mp3"} for ph in phrases[info.get("from", 0):info.get("to")]]
+    else:
+        want = by_pack.get(pack, [])
     src = f"/tmp/eleven/{pack}.mp3"
     try:
         urllib.request.urlretrieve(info["url"], src)
@@ -86,7 +91,8 @@ for pack, info in batch.items():
     if not best:
         report.append(f"{pack}: SKIPPED – found fewer pauses than the {n} lines"); continue
     _, segs, noise, c, err = best
-    if c < 0.55 or err > 0.45:
+    # direction phrases (distances!) must be exact, so they get a stricter check
+    if c < 0.55 or err > (0.3 if info.get("set") == "clips" else 0.45):
         report.append(f"{pack}: SKIPPED – piece lengths don't match the script (r={c:.2f}, err={err:.2f})"); continue
     for (a, b), w in zip(segs, want):
         out = os.path.join(ASSETS, w["file"])
@@ -99,4 +105,4 @@ for pack, info in batch.items():
     report.append(f"{pack}: {n} clips (match r={c:.2f}, err={err:.2f}, {noise})")
 
 print("\n".join(report))
-print(f"TOTAL {ok_total}/{len(lines)} clips")
+print(f"TOTAL {ok_total} clips")
