@@ -72,6 +72,8 @@ jobs:
           ELEVEN_VOICE_HYPE_COACH: ${{ vars.ELEVEN_VOICE_HYPE_COACH }}
           ELEVEN_VOICE_GRANDPA: ${{ vars.ELEVEN_VOICE_GRANDPA }}
           ELEVEN_VOICE_LITTLE_SISTER: ${{ vars.ELEVEN_VOICE_LITTLE_SISTER }}
+          ELEVEN_VOICE_FUNNY_GUY: ${{ vars.ELEVEN_VOICE_FUNNY_GUY }}
+          ELEVEN_VOICE_WAR_CHIEF: ${{ vars.ELEVEN_VOICE_WAR_CHIEF }}
         run: python3 tools/make_khmer_voice.py
 
       - name: Build the APK

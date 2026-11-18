@@ -27,6 +27,32 @@
       },
     },
     {
+      id: "funny_guy", pro: true, emoji: "🤪", color: "#9334e6", tts: { pitch: 1.15, rate: 1.12 },
+      name: { km: "អាកំប្លែង", en: "Funny Guy" },
+      desc: { km: "និយាយលេងសើចគ្រប់ផ្លូវ តែនៅតែប្រាប់ផ្លូវត្រូវ", en: "Jokes all the way, still gets you there" },
+      lines: {
+        start_route: "[excited] ហេហេ! ចេញដំណើរហើយ! ពាក់មួកសុវត្ថិភាពផង ក្បាលយើងមានតែមួយ គ្មានស្ពែរទេណា! [laughs]",
+        turn_left_200m: "២០០ ម៉ែត្រទៀតបត់ឆ្វេង! [mischievously] កុំបត់ទៅផ្ទះអតីតសង្សារវិញណា! [laughs]",
+        turn_right_200m: "២០០ ម៉ែត្រទៀតបត់ស្តាំ! ស្តាំ... ដៃដែលកាន់ស្លាបព្រាហ្នឹងហើយ! [laughs]",
+        traffic_ahead: "[sighs] ស្ទះទៀតហើយ! ឡានដើរតម្រង់ជួរដូចស្រមោច... ចាំបន្តិចទៅ កុំស្រែកដាក់គេណា!",
+        flood_ahead: "ខាងមុខទឹកលិច! បើមិនចង់ក្លាយជាទូកទេ ជិះយឺតៗណា! [laughs]",
+        arrived: "[excited] ដល់ហើយ! ពូកែណាស់! ឥឡូវទៅញ៉ាំបាយទៅ ខ្ញុំក៏ឃ្លានដែរ! [laughs]",
+      },
+    },
+    {
+      id: "war_chief", pro: true, emoji: "⚔️", color: "#b71c1c", tts: { pitch: 0.6, rate: 0.95 },
+      name: { km: "មេទ័ពក្លាហាន", en: "Battle Commander" },
+      desc: { km: "មេទ័ពស្រែកបញ្ជាដូចក្នុងហ្គេមសង្គ្រាម តែទៅផ្សារទេ", en: "An epic war-game commander… leading you to the market" },
+      lines: {
+        start_route: "[shouting] ទាហានទាំងអស់! ពាក់មួកសុវត្ថិភាព! ចាប់ចង្កូតឱ្យជាប់! យើងចេញសមរភូមិ... [pause] ទៅផ្សារ! [laughs]",
+        turn_left_200m: "[deep voice] ២០០ ម៉ែត្រទៀត វាយលុកទៅខាងឆ្វេង! បើកភ្លើងស៊ីញ៉ូផង អ្នកចម្បាំងពិតគោរពច្បាប់!",
+        turn_right_200m: "[deep voice] ២០០ ម៉ែត្រទៀត ទ័ពយើងបត់ស្តាំ! ទៅមុខ! កុំបកក្រោយ!",
+        traffic_ahead: "[angry] ខ្មាំងស្ទះផ្លូវ! ទាហានទាំងអស់ អត់ធ្មត់! អ្នកចម្បាំងពិត មិនបុកឡានគេទេ!",
+        flood_ahead: "[dramatically] ទឹកជំនន់នៅខាងមុខ! បន្ថយល្បឿន! យើងជាទាហាន មិនមែនជាត្រីទេ!",
+        arrived: "[shouting] ជ័យជម្នះ! យើងដល់គោលដៅហើយ! [laughs] ឥឡូវ... សម្រាកផឹកកាហ្វេសិន!",
+      },
+    },
+    {
       id: "tuktuk_uncle", pro: true, emoji: "🛺", color: "#e8710a", tts: { pitch: 0.82, rate: 1.06 },
       name: { km: "ពូតុកតុក", en: "Funny Tuk-Tuk Uncle" },
       desc: { km: "ពូរកផ្លូវកាត់ឱ្យ កំប្លែងរាល់ការបត់", en: "Knows every shortcut, jokes at every turn" },
@@ -40,16 +66,16 @@
       },
     },
     {
-      id: "caring_mom", pro: true, emoji: "👩‍👦", color: "#d93085", tts: { pitch: 1.22, rate: 0.95 },
-      name: { km: "ម៉ាក់បារម្ភ", en: "Caring Khmer Mom" },
-      desc: { km: "ម៉ាក់រំលឹកឱ្យជិះយឺតៗ និងប្រយ័ត្ន", en: "Mom reminds you to ride slowly and safely" },
+      id: "caring_mom", pro: true, emoji: "👩‍👦", color: "#d93085", tts: { pitch: 1.22, rate: 1.0 },
+      name: { km: "ម៉ាក់រអ៊ូ", en: "Nagging Mom" },
+      desc: { km: "ម៉ាក់រអ៊ូគ្រប់ផ្លូវ ព្រោះស្រឡាញ់កូន", en: "Mom nags all the way, because she loves you" },
       lines: {
-        start_route: "កូនម៉ាក់ ជិះយឺតៗណាកូន កុំលេងទូរស័ព្ទពេលបើកបរ ពាក់មួកសុវត្ថិភាពឱ្យត្រឹមត្រូវ!",
-        turn_left_200m: "បន្តិចទៀតបត់ឆ្វេងហើយកូន មើលឆ្វេងមើលស្តាំឱ្យស្រួលបួលណា!",
-        turn_right_200m: "២០០ ម៉ែត្រទៀតបត់ស្តាំ កុំបត់កាត់មុខគេឱ្យសោះ ម៉ាក់បារម្ភ!",
-        traffic_ahead: "ខាងមុខស្ទះហើយកូន កុំតានតឹងអី ចាំបន្តិចទៅ យឺតបន្តិចតែសុវត្ថិភាព!",
-        flood_ahead: "ខាងមុខមានទឹកលិច កូនវាងផ្លូវផ្សេងទៅ ប្រយ័ត្នទទឹកជើងឈឺ!",
-        arrived: "ដល់កន្លែងហើយមែនទេកូន? ល្អណាស់ ថែសុខភាពផងណា!",
+        start_route: "[warmly] កូនអើយ! ពាក់មួកសុវត្ថិភាពហើយនៅ? ញ៉ាំបាយហើយនៅ? យកអាវរងារទៅផង! [sighs] ហ្នឹងហើយ ចេញទៅ!",
+        turn_left_200m: "២០០ ម៉ែត្រទៀតបត់ឆ្វេងកូន! ម៉ាក់ប្រាប់ច្រើនដងហើយណា ឆ្វេង! [sighs]",
+        turn_right_200m: "២០០ ម៉ែត្រទៀតបត់ស្តាំ! ហើយកុំលេងទូរស័ព្ទ ម៉ាក់ឃើញណា!",
+        traffic_ahead: "[sighs] ស្ទះហើយមើល! ម៉ាក់ប្រាប់ឱ្យចេញពីព្រលឹម មិនស្តាប់! ឥឡូវចាំទៅ!",
+        flood_ahead: "ទឹកលិចកូន! ជិះយឺតៗ! ហើយស្បែកជើងសើម កុំយកចូលផ្ទះណា!",
+        arrived: "[happy] ដល់ហើយកូន! ផ្ញើសារប្រាប់ម៉ាក់ផង! ម៉ាក់ចាំតាំងពីព្រឹក!",
       },
     },
     {
@@ -67,15 +93,15 @@
     },
     {
       id: "grandpa", pro: true, emoji: "👴", color: "#795548", tts: { pitch: 0.7, rate: 0.86 },
-      name: { km: "លោកតាចិត្តល្អ", en: "Kind Grandpa" },
-      desc: { km: "លោកតាប្រាប់ផ្លូវយឺតៗ ដោយក្តីស្រឡាញ់", en: "A gentle grandpa who guides you slowly and kindly" },
+      name: { km: "លោកតាភ្លេចភ្លាំង", en: "Forgetful Grandpa" },
+      desc: { km: "លោកតានិទានរឿងសម័យមុន ហើយភ្លេចឆ្វេងស្តាំ", en: "Grandpa tells old-days stories and mixes up left and right" },
       lines: {
-        start_route: "ចៅអើយ មុនចេញដំណើរ ពាក់មួកសុវត្ថិភាពសិន។ យើងបើកយឺតៗ តែដល់ប្រាកដ។",
-        turn_left_200m: "២០០ ម៉ែត្រទៀត បត់ឆ្វេងណាចៅ កុំប្រញាប់ពេក។",
-        turn_right_200m: "២០០ ម៉ែត្រទៀត បត់ស្តាំចៅ បើកភ្លើងស៊ីញ៉ូឱ្យគេដឹងផង។",
-        traffic_ahead: "ខាងមុខស្ទះហើយចៅ អត់ធ្មត់បន្តិច យឺតបន្តិចមិនអីទេ ឱ្យតែដល់សុខសប្បាយ។",
-        flood_ahead: "ខាងមុខទឹកលិចចៅ ជិះយឺតៗ កុំឱ្យទឹកចូលម៉ាស៊ីន។",
-        arrived: "ដល់ហើយចៅ! តាសប្បាយចិត្តណាស់ ដែលចៅដល់ដោយសុវត្ថិភាព។",
+        start_route: "[elderly voice] ចៅអើយ... ពាក់មួកសុវត្ថិភាពសិន។ សម័យតា ជិះកង់ទៅផ្សារដប់គីឡូ មិនដែលត្អូញទេ! [chuckles]",
+        turn_left_200m: "[elderly voice] ២០០ ម៉ែត្រទៀតបត់ឆ្វេង... ឬស្តាំ? [pause] អូ ឆ្វេងហ្នឹងហើយ តាចាំត្រូវ! [laughs]",
+        turn_right_200m: "[elderly voice] ២០០ ម៉ែត្រទៀតបត់ស្តាំចៅ... យឺតៗ ជង្គង់តាឈឺហើយ! [chuckles]",
+        traffic_ahead: "[sighs] ស្ទះទៀតហើយ... សម័យតា មានតែរទេះគោ ក៏មិនស្ទះដូចនេះដែរ!",
+        flood_ahead: "[elderly voice] ទឹកលិចហើយចៅ! ជិះយឺតៗ... តាហែលទឹកមិនកើតទេណា! [laughs]",
+        arrived: "[elderly voice] ដល់ហើយចៅ! ល្អណាស់... ឥឡូវ ទិញនំឱ្យតាមួយផង! [laughs]",
       },
     },
     {
@@ -112,10 +138,16 @@
     return null;
   }
 
+  const TAG = /\[[^\]]*\]\s*/g;
+  for (const p of PACKS) {
+    p.say = Object.assign({}, p.lines);
+    for (const ev of Object.keys(p.lines)) p.lines[ev] = p.lines[ev].replace(TAG, "").replace(/\s{2,}/g, " ").trim();
+  }
+
   /** For voice/packs: every (pack, event, text) – used by the build script and the recording guide. */
   function allLines() {
     const out = [];
-    for (const p of PACKS) for (const ev of EVENTS) out.push({ pack: p.id, event: ev, file: clipPath(p.id, ev), km: p.lines[ev] });
+    for (const p of PACKS) for (const ev of EVENTS) out.push({ pack: p.id, event: ev, file: clipPath(p.id, ev), km: p.lines[ev], say: p.say[ev] });
     return out;
   }
 

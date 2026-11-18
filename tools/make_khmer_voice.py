@@ -90,6 +90,8 @@ PACK_VOICES = {
     "caring_mom": ("km-KH-SreymomNeural", "-6%"),
     "hype_coach": ("km-KH-PisethNeural", "+12%"),
     "grandpa": ("km-KH-PisethNeural", "-12%"),
+    "funny_guy": ("km-KH-PisethNeural", "+10%"),
+    "war_chief": ("km-KH-PisethNeural", "-5%"),
     "little_sister": ("km-KH-SreymomNeural", "+10%"),
 }
 
@@ -109,7 +111,7 @@ def make_packs():
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         voice, rate = PACK_VOICES.get(l["pack"], (VOICE, RATE))
         ev_voice = pack_voice(l["pack"]) if ELEVEN_KEY else ""
-        key = ("eleven" + ELEVEN_MODEL + ev_voice) if ev_voice else (voice + rate)
+        key = ("eleven" + ELEVEN_MODEL + ev_voice + (l.get("say") or "")) if ev_voice else (voice + rate)
         cached = os.path.join(CACHE, "packs", l["pack"], l["event"] + "__" + hashlib.md5((key + l["km"]).encode()).hexdigest()[:10] + ".mp3")
         if os.path.exists(dst):
             own += 1
@@ -117,7 +119,7 @@ def make_packs():
             shutil.copyfile(cached, dst); made += 1
         elif ev_voice or KEY:
             os.makedirs(os.path.dirname(cached), exist_ok=True)
-            audio = eleven(l["km"], ev_voice, PACK_TAGS.get(l["pack"], "")) if ev_voice else synth(l["km"], voice, rate)
+            audio = eleven(l.get("say") or l["km"], ev_voice, "" if "[" in (l.get("say") or "") else PACK_TAGS.get(l["pack"], "")) if ev_voice else synth(l["km"], voice, rate)
             with open(cached, "wb") as f: f.write(audio)
             shutil.copyfile(cached, dst); made += 1
             time.sleep(0.4)
