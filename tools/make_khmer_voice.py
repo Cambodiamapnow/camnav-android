@@ -31,9 +31,10 @@ def phrases():
     return json.loads(out)
 
 
-def synth(text):
-    ssml = (f"<speak version='1.0' xml:lang='km-KH'><voice name='{VOICE}'>"
-            f"<prosody rate='{RATE}'>{escape(text)}</prosody></voice></speak>")
+def synth(text, voice=None, rate=None):
+    voice, rate = voice or VOICE, rate or RATE
+    ssml = (f"<speak version='1.0' xml:lang='km-KH'><voice name='{voice}'>"
+            f"<prosody rate='{rate}'>{escape(text)}</prosody></voice></speak>")
     req = urllib.request.Request(
         f"https://{REGION}.tts.speech.microsoft.com/cognitiveservices/v1",
         data=ssml.encode("utf-8"), method="POST",
@@ -48,6 +49,53 @@ def synth(text):
                 time.sleep(5 * (attempt + 1)); continue
             raise SystemExit(f"Azure TTS error {e.code}: {e.read()[:300]!r} (check AZURE_SPEECH_KEY / AZURE_SPEECH_REGION)")
     raise SystemExit("Azure TTS kept failing (rate limit)")
+
+
+# voice packs: which Azure voice reads each pack (your own recordings always win)
+PACK_VOICES = {
+    "standard": ("km-KH-SreymomNeural", "+0%"),
+    "tuktuk_uncle": ("km-KH-PisethNeural", "+8%"),
+    "caring_mom": ("km-KH-SreymomNeural", "-6%"),
+    "hype_coach": ("km-KH-PisethNeural", "+12%"),
+}
+
+
+def pack_lines():
+    js = os.path.join(ASSETS, "js", "voicepacks.js")
+    out = subprocess.check_output(["node", "-e", f"process.stdout.write(JSON.stringify(require({json.dumps(js)}).allLines()))"])
+    return json.loads(out)
+
+
+def make_packs():
+    lines = pack_lines()
+    made = own = missing = 0
+    have = []
+    for l in lines:
+        dst = os.path.join(ASSETS, l["file"])
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        voice, rate = PACK_VOICES.get(l["pack"], (VOICE, RATE))
+        cached = os.path.join(CACHE, "packs", l["pack"], l["event"] + "__" + hashlib.md5((voice + rate + l["km"]).encode()).hexdigest()[:10] + ".mp3")
+        if os.path.exists(dst):
+            own += 1
+        elif os.path.exists(cached):
+            shutil.copyfile(cached, dst); made += 1
+        elif KEY:
+            os.makedirs(os.path.dirname(cached), exist_ok=True)
+            audio = synth(l["km"], voice, rate)
+            with open(cached, "wb") as f: f.write(audio)
+            shutil.copyfile(cached, dst); made += 1
+            time.sleep(0.4)
+        else:
+            missing += 1
+        if os.path.exists(dst):
+            have.append(l["file"])
+    os.makedirs(os.path.join(ASSETS, "voice", "packs"), exist_ok=True)
+    with open(os.path.join(ASSETS, "voice", "packs", "manifest.json"), "w", encoding="utf-8") as f:
+        json.dump({"files": have}, f, ensure_ascii=False)
+    with open(os.path.join(ASSETS, "voice", "packs", "PACKS-SCRIPT.csv"), "w", encoding="utf-8-sig", newline="") as f:
+        w = csv.writer(f); w.writerow(["file_path", "pack", "event", "khmer_text"])
+        for l in lines: w.writerow([l["file"], l["pack"], l["event"], l["km"]])
+    print(f"Voice packs: {len(have)}/{len(lines)} clips ready (your files {own}, generated {made}, missing {missing})")
 
 
 def main():
@@ -87,3 +135,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    make_packs()

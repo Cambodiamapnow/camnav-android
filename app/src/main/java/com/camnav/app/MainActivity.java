@@ -3,11 +3,15 @@ package com.camnav.app;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.view.WindowManager;
@@ -21,6 +25,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Locale;
@@ -41,6 +48,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private WebView web;
     private TextToSpeech tts;
     private volatile boolean ttsReady = false;
+
+    private String pendingDeepLink;   // camnav://login?... waiting for the page to load
+    private boolean pageReady = false;
 
     private GeolocationPermissions.Callback pendingGeoCallback;
     private String pendingGeoOrigin;
@@ -78,6 +88,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             }
 
             @Override
+            public void onPageFinished(WebView view, String url) {
+                pageReady = true;
+                deliverDeepLink();
+            }
+
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri u = request.getUrl();
                 if (ASSET_HOST.equals(u.getHost())) return false;
@@ -102,8 +118,31 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
         if (!hasLocationPermission()) askLocationPermission();
 
+        rememberDeepLink(getIntent());
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(START_URL);
+    }
+
+    // ---------------- camnav://login deep link (Google sign-in) ----------------
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        rememberDeepLink(intent);
+        deliverDeepLink();
+    }
+
+    private void rememberDeepLink(Intent intent) {
+        if (intent == null || intent.getData() == null) return;
+        Uri u = intent.getData();
+        if ("camnav".equals(u.getScheme())) pendingDeepLink = u.toString();
+    }
+
+    private void deliverDeepLink() {
+        if (!pageReady || pendingDeepLink == null || web == null) return;
+        String js = "window.CamNAV && CamNAV.onDeepLink(" + org.json.JSONObject.quote(pendingDeepLink) + ")";
+        pendingDeepLink = null;
+        web.evaluateJavascript(js, null);
     }
 
     // ---------------- assets over https ----------------
@@ -239,6 +278,41 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 
     /** Exposed to JavaScript as window.AndroidApp */
     private class AppBridge {
+        /** open a link in the phone's browser (Google blocks sign-in inside app web views) */
+        @JavascriptInterface
+        public void openExternal(String url) {
+            runOnUiThread(() -> {
+                try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignored) { }
+            });
+        }
+
+        /** save a data:image/png;base64,... picture into the gallery (Pictures/CamNAV) */
+        @JavascriptInterface
+        public boolean saveImage(String dataUrl, String fileName) {
+            try {
+                String b64 = dataUrl.substring(dataUrl.indexOf(',') + 1);
+                byte[] bytes = Base64.decode(b64, Base64.DEFAULT);
+                if (Build.VERSION.SDK_INT >= 29) {
+                    ContentValues v = new ContentValues();
+                    v.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+                    v.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                    v.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/CamNAV");
+                    Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v);
+                    if (uri == null) return false;
+                    try (OutputStream os = getContentResolver().openOutputStream(uri)) { os.write(bytes); }
+                } else {
+                    File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "CamNAV");
+                    if (!dir.exists() && !dir.mkdirs()) return false;
+                    File f = new File(dir, fileName);
+                    try (FileOutputStream os = new FileOutputStream(f)) { os.write(bytes); }
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(f)));
+                }
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
         @JavascriptInterface
         public void share(String text) {
             runOnUiThread(() -> {

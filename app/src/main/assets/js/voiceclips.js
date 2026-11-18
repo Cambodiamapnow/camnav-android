@@ -77,6 +77,7 @@
   add("report_jam", "ស្ទះចរាចរណ៍នៅខាងមុខ", "Traffic jam ahead");
   add("report_hazard", "មានឧបសគ្គនៅលើផ្លូវខាងមុខ", "Hazard on the road ahead");
   add("report_flood", "ផ្លូវលិចទឹកនៅខាងមុខ", "Flooded road ahead");
+  add("report_roadwork", "មានការជួសជុលផ្លូវនៅខាងមុខ", "Roadwork ahead");
   add("road_bump", "មានដុំបន្ថយល្បឿននៅខាងមុខ", "Speed bump ahead");
   add("road_school", "តំបន់សាលារៀននៅខាងមុខ សូមបន្ថយល្បឿន", "School zone ahead, slow down");
   add("road_rail", "ផ្លូវរថភ្លើងកាត់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", "Railway crossing ahead, take care");

@@ -4,7 +4,9 @@ on:
   push:
     paths-ignore:
       - .github/workflows/cambodia-data.yml
+      - .github/workflows/supabase-deploy.yml
       - tools/check_rng.py
+      - supabase/**
   workflow_dispatch:
 
 permissions:
@@ -29,6 +31,13 @@ jobs:
           ls "$ANDROID_HOME/platforms" || true
           yes | "$SDKM" --licenses > /dev/null || true
           "$SDKM" "platforms;android-34" "build-tools;34.0.0" > /dev/null
+
+      - name: Cloud settings (Supabase) from repository secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          node -e "const fs=require('fs'),f='app/src/main/assets/js/config.js',u=(process.env.SUPABASE_URL||'').trim(),k=(process.env.SUPABASE_ANON_KEY||'').trim();let s=fs.readFileSync(f,'utf8');s=s.replace(/supabaseUrl: \"[^\"]*\"/,'supabaseUrl: '+JSON.stringify(u)).replace(/supabaseAnonKey: \"[^\"]*\"/,'supabaseAnonKey: '+JSON.stringify(k));fs.writeFileSync(f,s);console.log(u?'cloud ON: '+u:'cloud OFF (no SUPABASE_URL secret)')"
 
       # ---- check the map style + take preview screenshots with the real map ----
       - name: Validate map styles

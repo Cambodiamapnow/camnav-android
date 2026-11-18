@@ -6,6 +6,7 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
   const NC = window.NavCore, I = window.I18N, RI = window.RoadInfo, V = window.Voice, BLE = window.CarScreen, VC = window.VoiceClips;
+  const CL = window.Cloud, VP = window.VoicePacks;
 
   // =====================================================================
   // settings & storage
@@ -13,7 +14,7 @@
   const DEFAULTS = {
     voice: "km", kmVoice: "natural", lang: "km", rate: 1.0, headingUp: true, simKmh: 50, forceKm: false,
     tiles: "dark", nightAuto: true, vehicle: "car", speedWarn: 5,
-    showSignals: true, showCameras: true, showReports: true, showSigns: true, reminders: true,
+    showSignals: true, showCameras: true, showReports: true, showSigns: true, reminders: true, voicePack: "standard",
     router: "https://router.project-osrm.org",
     overpass: "https://overpass-api.de/api/interpreter",
   };
@@ -234,6 +235,28 @@
   }
   const speak = (builder, urgent, clips) => V.say(voiceParts(builder, clips), urgent);
 
+  /** The selected voice pack (falls back to standard when Pro has ended). */
+  function activePack() {
+    const p = VP.byId(S.voicePack || "standard");
+    return p.pro && !CL.isPro() ? VP.byId("standard") : p;
+  }
+  /**
+   * Speak a voice-pack moment (start, 200 m turns, traffic, flood, arrived) in Khmer;
+   * English (or no Khmer voice) keeps the normal sentence.
+   */
+  function packSpeak(event, builder, urgent, clips) {
+    if (S.voice === "off" || !V.supported) return;
+    const pack = activePack();
+    const line = pack.lines[event];
+    const file = VP.clipPath(pack.id, event);
+    const haveFile = V.hasFile(file);
+    const kmOk = haveFile || V.hasKhmer() || S.forceKm;
+    if (!line || S.voice === "en" || !kmOk) return speak(builder, urgent, clips);
+    const parts = [haveFile ? { lang: "km", clips: [file] } : { lang: "km", text: line }];
+    if (S.voice === "both") parts.push({ lang: "en", text: builder("en") });
+    V.say(parts, urgent);
+  }
+
   // =====================================================================
   // GPS
   // =====================================================================
@@ -337,7 +360,7 @@
   function renderHome() {
     if (view !== "home") $("q").value = "";
     clearResultMarkers(); setPlaceMarker(null); activeCat = null; renderChips();
-    let h = `<div class="brand"><img src="icons/icon-192.png" alt=""><div><b>CamNAV – នាំផ្លូវ</b><small>បើកបរដោយសុវត្ថិភាព · Drive safely</small></div></div><div class="quick">`;
+    let h = renewalBanner() + `<div class="brand"><img src="icons/icon-192.png" alt=""><div><b>CamNAV – នាំផ្លូវ</b><small>បើកបរដោយសុវត្ថិភាព · Drive safely</small></div></div><div class="quick">`;
     h += quickBtn("home", "home", t("home"), saved.home ? saved.home.name : t("tapToSet"));
     h += quickBtn("work", "work", t("work"), saved.work ? saved.work.name : t("tapToSet"));
     h += quickBtn("rules", "gavel", t("rulesShort"), S.vehicle === "moto" ? t("moto") : t("car"));
@@ -359,6 +382,7 @@
       else { toast(t("longPress")); $("q").focus(); pendingSaveAs = q; }
     }));
     $("sheetBody").querySelectorAll("[data-r]").forEach((b) => (b.onclick = () => openPlace(recent[+b.dataset.r])));
+    if ($("renewBar")) $("renewBar").onclick = () => openPaywall();
     setView("home");
   }
   let pendingSaveAs = null; // "home"/"work" waiting for the next chosen place
@@ -479,7 +503,7 @@
       </div>`;
     $("aDir").onclick = () => openDirections(p);
     $("aStart").onclick = async () => { await openDirections(p); if (routes.length) startNav(false); };
-    $("aSave").onclick = () => openSaveModal(p);
+    $("aSave").onclick = () => { if (!CL.enabled() || requireAccount(() => openSaveModal(p))) openSaveModal(p); };
     $("aShare").onclick = () => shareText(`${p.name}\nhttps://www.openstreetmap.org/?mlat=${p.lat.toFixed(6)}&mlon=${p.lon.toFixed(6)}#map=18/${p.lat.toFixed(6)}/${p.lon.toFixed(6)}`);
     updateSheetHeight();
   }
@@ -572,7 +596,7 @@
       `<button data-v="${k}" class="${S.vehicle === k ? "on" : ""}">${icon(ic)}${esc(t(k))}</button>`).join("");
     $("vehSeg").querySelectorAll("button").forEach((b) => (b.onclick = () => {
       if (S.vehicle === b.dataset.v) return;
-      S.vehicle = b.dataset.v; saveSettings(); renderVeh();
+      S.vehicle = b.dataset.v; saveSettings(); renderVeh(); syncVehicle();
       if (view === "dirs" && dest) openDirections(dest); // motorbike routes avoid the expressway
     }));
   }
@@ -636,7 +660,7 @@
     follow = true;
     nav = {
       idx: null, along: 0, stepIdx: 1, spoken: new Set(), off: NC.makeOffRouteTracker(), rerouting: false,
-      lastDraw: 0, lastBle: 0, bleWindowAt: -1e9, alerted: new Set(), arrived: false, lastMinute: -1,
+      lastDraw: 0, lastBle: 0, bleWindowAt: -1e9, alerted: new Set(), voted: new Set(), arrived: false, lastMinute: -1,
       overSince: 0, lastOverWarn: 0, slowSince: 0, slowAsked: 0, limit: null, distTo: 0, remaining: route.total, speed: 0,
     };
     indexReports();
@@ -646,7 +670,7 @@
     applyNightMode();
     requestWakeLock();
     const first = route.steps[0];
-    speak((lang) => I.action(first, lang) + (lang === "km" ? "។ " : ". ") + I.ALERTS[lang].start, true, VC.alertClips.start(first));
+    packSpeak("start_route", (lang) => I.action(first, lang) + (lang === "km" ? "។ " : ". ") + I.ALERTS[lang].start, true, VC.alertClips.start(first));
     if (S.reminders) {
       const k = S.vehicle === "moto" ? "helmet" : "seatbelt";
       speak((lang) => I.ALERTS[lang][k], false, VC.alertClips[k]());
@@ -706,14 +730,19 @@
     if (pr) {
       nav.spoken.add(nav.stepIdx + ":" + pr.stage);
       const nx = route.steps[nav.stepIdx + 1], d = nav.distTo;
-      speak((lang) => I.sentence(step, lang, pr.stage, pr.withDist ? d : null, nx), pr.stage === "now", VC.sentenceClips(step, pr.stage, pr.withDist ? d : null, nx));
+      const normal = (lang) => I.sentence(step, lang, pr.stage, pr.withDist ? d : null, nx);
+      const clips = VC.sentenceClips(step, pr.stage, pr.withDist ? d : null, nx);
+      const ev = VP.eventForStep(step, pr.stage);
+      // pack turn lines say "200 m": use them only when the turn really is about that far
+      if (ev && (ev === "arrived" || (d >= 120 && d <= 320))) packSpeak(ev, normal, pr.stage === "now", clips);
+      else speak(normal, pr.stage === "now", clips);
     }
 
     nav.remaining = Math.max(0, route.total - nav.along);
     nav.speed = p.speed || 0;
     if (!nav.arrived && (nav.remaining < 25 || (step.type === "arrive" && nav.distTo < 20))) {
       nav.arrived = true;
-      if (!nav.spoken.has(nav.stepIdx + ":now")) speak((lang) => I.action(route.steps[route.steps.length - 1], lang), true, VC.actionClips(route.steps[route.steps.length - 1]));
+      if (!nav.spoken.has(nav.stepIdx + ":now")) packSpeak("arrived", (lang) => I.action(route.steps[route.steps.length - 1], lang), true, VC.actionClips(route.steps[route.steps.length - 1]));
       const sess = nav;
       setTimeout(() => { if (nav === sess) endNav(true); }, 4000);
     }
@@ -765,7 +794,7 @@
   function checkAhead() {
     const items = [];
     if (route.road && S.showCameras) for (const c of route.road.cameras) items.push({ id: c.id, kind: "camera", along: c.along, v: c.v });
-    if (route.reportsOnRoute && S.showReports) for (const r of route.reportsOnRoute) items.push({ id: r.id, kind: r.type, along: r.along });
+    if (route.reportsOnRoute && S.showReports) for (const r of route.reportsOnRoute) items.push({ id: r.id, kind: r.type, along: r.along, cloud: !!r.cloud, cloudId: r.cloudId });
     if (route.road && S.showSigns) {
       const rd = route.road;
       const near = (list, kind, warn, voice) => { for (const x of list || []) { const a = x.along - nav.along; if (a > 0 && a < warn) items.push({ id: x.id, kind, along: x.along, warn, voice }); } };
@@ -800,20 +829,32 @@
           speak((lang) => I.ALERTS[lang].camera(ahead, v), false, VC.alertClips.camera(ahead, v));
         } else if (ROAD_META[it.kind]) {
           if (it.voice) speak((lang) => I.ALERTS[lang].road[it.kind], false, VC.alertClips.road(it.kind));
+        } else if (it.kind === "jam" || it.kind === "flood") {
+          packSpeak(it.kind === "jam" ? "traffic_ahead" : "flood_ahead", (lang) => I.ALERTS[lang].report[it.kind], false, VC.alertClips.report(it.kind));
         } else speak((lang) => I.ALERTS[lang].report[it.kind], false, VC.alertClips.report(it.kind));
+        if (it.cloud && !nav.voted.has(it.id)) verifyChip = { id: it.cloudId, kind: it.kind, key: it.id, t: Date.now() };
       }
     }
     shownAlerts.sort((a, b) => a.ahead - b.ahead);
     renderAlerts(shownAlerts.slice(0, 3));
   }
   let slowChip = false;
+  let verifyChip = null; // {id, kind, key}: ask "Still there / Cleared" when passing a shared pin
   function renderAlerts(list) {
     let h = list.map(({ it, ahead }) => {
       const meta = REPORT_META[it.kind] || ROAD_META[it.kind] || REPORT_META.camera;
       return `<div class="alert"><span class="aic" style="background:${meta.color}">${icon(meta.icon, "fill")}</span>${esc(t("reports")[it.kind])}<small>&nbsp;· ${esc(fmtDist(ahead))}</small></div>`;
     }).join("");
     if (slowChip) h += `<div class="alert"><span class="aic red">${icon("traffic", "fill")}</span>${esc(t("slowTraffic"))}<button id="btnJam">${esc(t("report"))}</button></div>`;
+    if (verifyChip && Date.now() - verifyChip.t > 60000) verifyChip = null;
+    if (verifyChip && CL.canReport()) h += `<div class="alert verify"><span class="aic" style="background:${(REPORT_META[verifyChip.kind] || REPORT_META.jam).color}">${icon((REPORT_META[verifyChip.kind] || REPORT_META.jam).icon, "fill")}</span>
+      <button id="vcStill">${esc(t("stillThere"))}</button><button id="vcClear">${esc(t("cleared"))}</button></div>`;
     $("alerts").innerHTML = h;
+    if (verifyChip && $("vcStill")) {
+      const vc = verifyChip;
+      $("vcStill").onclick = () => castVote(vc.id, "still_there");
+      $("vcClear").onclick = () => castVote(vc.id, "cleared");
+    }
     if (slowChip) $("btnJam").onclick = () => { slowChip = false; addReport("jam"); };
   }
 
@@ -924,6 +965,7 @@
     jam: { icon: "traffic", color: "#e8710a", ttl: 1 },
     hazard: { icon: "warning", color: "#f9ab00", ttl: 6 },
     flood: { icon: "flood", color: "#1e8e9e", ttl: 24 },
+    roadwork: { icon: "construction", color: "#f29900", ttl: 0.75 },
     camera: { icon: "photo_camera", color: "#e37400", ttl: 24 * 365 },
   };
   let reports = store.get("reports", []);
@@ -933,36 +975,89 @@
     reports = reports.filter((r) => REPORT_META[r.type] && now - r.t < REPORT_META[r.type].ttl * 3600e3);
     store.set("reports", reports);
   }
-  function renderReports() {
+  // live pins shared by all drivers (Supabase); local `reports` are used only without the cloud
+  const cloudPins = new Map();
+  const pinLive = (x) => x.active !== false && new Date(x.expires_at).getTime() > Date.now();
+  function allPins() {
     pruneReports();
+    const out = CL.canReport() ? [] : reports.slice();
+    for (const x of cloudPins.values()) if (pinLive(x) && REPORT_META[x.type]) {
+      out.push({ id: "c" + x.id, cloudId: x.id, cloud: true, type: x.type, lon: x.lon, lat: x.lat, t: new Date(x.created_at).getTime(),
+        still: x.still_there_count, cleared: x.cleared_count, expires: new Date(x.expires_at).getTime() });
+    }
+    return out;
+  }
+  function renderReports() {
     reportMarkers.forEach((m) => m.remove());
-    reportMarkers = !S.showReports ? [] : reports.map((r) => {
+    reportMarkers = !S.showReports ? [] : allPins().map((r) => {
       const meta = REPORT_META[r.type];
       const el = makeEl("mk", icon(meta.icon, "fill")); el.style.background = meta.color;
-      el.onclick = (e) => { e.stopPropagation(); toast(t("reports")[r.type] + " · " + fmtDur((Date.now() - r.t) / 1000) + " " + t("ago")); };
+      el.onclick = (e) => { e.stopPropagation(); openPinCard(r); };
       return new maplibregl.Marker({ element: el }).setLngLat([r.lon, r.lat]).addTo(map);
     });
   }
+  function openPinCard(r) {
+    const meta = REPORT_META[r.type];
+    const ago = fmtDur((Date.now() - r.t) / 1000) + " " + t("ago");
+    $("modalPanel").innerHTML = `<div class="pinCard"><span class="rbadge" style="background:${meta.color}">${icon(meta.icon, "fill")}</span>
+      <div><h3 style="margin:0">${esc(t("reports")[r.type])}</h3><div class="pSub">${esc(ago)}${r.cloud ? " · 👍 " + num(r.still || 0) + " · ✅ " + num(r.cleared || 0) : ""}</div></div></div>
+      ${r.cloud ? `<div class="bigBtns"><button id="vStill">${icon("thumb_up", "fill")} ${esc(t("stillThere"))}</button><button id="vClear">${icon("check_circle", "fill")} ${esc(t("cleared"))}</button></div>` : ""}
+      <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
+    if (r.cloud) { $("vStill").onclick = () => castVote(r.cloudId, "still_there"); $("vClear").onclick = () => castVote(r.cloudId, "cleared"); }
+    $("mClose").onclick = closeModal;
+    openModal();
+  }
+  async function castVote(id, v) {
+    try { await CL.vote(id, v); toast(t("thanksPoints").replace("{n}", num(2))); }
+    catch (e) { toast(String(e.message || e)); }
+    closeModal(); if (nav) nav.voted.add("c" + id); verifyChip = null;
+  }
+  let lastPinFetch = null;
+  async function loadPins(force) {
+    if (!CL.enabled()) return;
+    const [lon, lat] = here();
+    if (!force && lastPinFetch && NC.dist(lastPinFetch.at, [lon, lat]) < 15000 && Date.now() - lastPinFetch.t < 120000) return;
+    lastPinFetch = { at: [lon, lat], t: Date.now() };
+    const list = await CL.fetchIncidents(lat, lon, 0.6);
+    cloudPins.clear(); list.forEach((x) => cloudPins.set(x.id, x));
+    renderReports(); indexReports();
+  }
+  CL.subscribeIncidents((ev, row) => {
+    if (!row || !row.id) return;
+    if (ev === "DELETE" || row.active === false) cloudPins.delete(row.id); else cloudPins.set(row.id, row);
+    renderReports(); indexReports();
+  });
+  setInterval(() => { loadPins(false); renderReports(); }, 60000);
+  map.on("moveend", () => loadPins(false));
   function openReportModal() {
     $("modalPanel").innerHTML = `<h3>${esc(t("report"))}</h3><div class="grid3">` +
       Object.entries(REPORT_META).map(([k, m]) => `<button data-k="${k}"><span class="rbadge" style="background:${m.color}">${icon(m.icon, "fill")}</span>${esc(t("reports")[k])}</button>`).join("") +
-      `</div><div class="note">${esc(t("reportNote"))}</div><div class="btnLine"><button id="mClear">${esc(t("clearReports"))}</button><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
+      `</div><div class="note">${esc(CL.canReport() ? t("reportShareNote") : t("reportNote"))}</div><div class="btnLine"><button id="mClear">${esc(t("clearReports"))}</button><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
     $("modalPanel").querySelectorAll("[data-k]").forEach((b) => (b.onclick = () => addReport(b.dataset.k)));
     $("mClear").onclick = () => { reports = []; store.set("reports", reports); renderReports(); indexReports(); closeModal(); };
     $("mClose").onclick = closeModal;
     openModal();
   }
-  function addReport(type) {
+  async function addReport(type) {
     const ll = carOn ? carMarker.getLngLat() : meOn ? meMarker.getLngLat() : map.getCenter();
+    closeModal();
+    if (CL.canReport()) {
+      try {
+        const row = await CL.report(type, ll.lat, ll.lng);
+        cloudPins.set(row.id, row); renderReports(); indexReports();
+        toast(t("reportShared").replace("{n}", num(10)));
+        return;
+      } catch (e) { console.warn("report", e); toast(String(e.message || e)); return; }
+    }
     reports.push({ id: "r" + Date.now() + Math.random().toString(36).slice(2, 6), type, lon: ll.lng, lat: ll.lat, t: Date.now() });
     store.set("reports", reports);
-    renderReports(); indexReports(); closeModal();
+    renderReports(); indexReports();
     toast(t("reportSaved"));
   }
   function indexReports() {
     if (!route) return;
     pruneReports();
-    route.reportsOnRoute = reports.map((r) => ({ r, s: NC.snap(route, [r.lon, r.lat], null) }))
+    route.reportsOnRoute = allPins().map((r) => ({ r, s: NC.snap(route, [r.lon, r.lat], null) }))
       .filter((x) => x.s.off < 35).map((x) => Object.assign({}, x.r, { along: x.s.along }));
   }
   $("btnReport").onclick = openReportModal;
@@ -1061,7 +1156,7 @@
     P.querySelectorAll("[data-lang]").forEach((b) => (b.onclick = () => { S.lang = b.dataset.lang; saveSettings(); relabel(); openSettings(); }));
     P.querySelectorAll("[data-kmv]").forEach((b) => (b.onclick = () => { S.kmVoice = b.dataset.kmv; saveSettings(); openSettings(); }));
     P.querySelectorAll("[data-voice]").forEach((b) => (b.onclick = () => { S.voice = b.dataset.voice; saveSettings(); openSettings(); }));
-    P.querySelectorAll("[data-veh]").forEach((b) => (b.onclick = () => { S.vehicle = b.dataset.veh; saveSettings(); openSettings(); }));
+    P.querySelectorAll("[data-veh]").forEach((b) => (b.onclick = () => { S.vehicle = b.dataset.veh; saveSettings(); syncVehicle(); openSettings(); }));
     P.querySelectorAll("[data-warn]").forEach((b) => (b.onclick = () => { S.speedWarn = +b.dataset.warn; saveSettings(); openSettings(); }));
     $("sForce").onchange = (e) => { S.forceKm = e.target.checked; saveSettings(); openSettings(); };
     $("sTest").onclick = () => { V.unlock(); speak((lang) => I.ALERTS[lang].test, true, VC.alertClips.test()); };
@@ -1080,8 +1175,305 @@
     $("mClose").onclick = closeModal;
     openModal();
   }
-  $("btnSettings").onclick = openSettings;
+  $("btnSettings").onclick = () => (CL.enabled() ? openProfile() : openSettings());
   V.onChange(() => { if (!$("modal").classList.contains("hidden") && $("sTest")) openSettings(); });
+
+
+  // =====================================================================
+  // account: guest mode, sign-in, profile, $1 coffee subscription, voice packs
+  // =====================================================================
+  let afterAuth = null; // what to continue with once the user has signed in
+
+  function renderAvatar() {
+    const b = $("btnSettings");
+    const p = CL.state.profile;
+    if (CL.enabled() && !CL.isGuest() && p) {
+      const name = p.display_name || p.phone || "";
+      const ch = (name.replace(/^\+855/, "").trim()[0] || "★").toUpperCase();
+      b.innerHTML = `<span class="avInit">${esc(ch)}</span>${CL.isPro() ? '<span class="avPro">PRO</span>' : ""}`;
+    } else b.innerHTML = icon(CL.enabled() ? "person" : "settings");
+    b.setAttribute("aria-label", t("myAccount"));
+  }
+
+  /** Open sign-in only when needed (subscribe, funny voices, saving places). */
+  function requireAccount(next) {
+    if (!CL.enabled()) { toast(t("cloudOff"), 4000); return false; }
+    if (!CL.isGuest()) return true;
+    afterAuth = next || null;
+    openAuth();
+    return false;
+  }
+  function authDone() {
+    closeModal();
+    toast(t("signedIn"));
+    const next = afterAuth; afterAuth = null;
+    if (next) setTimeout(next, 250);
+  }
+
+  function openAuth(step) {
+    const cfg = window.CAMNAV_CONFIG || {};
+    const P = $("modalPanel");
+    if (step === "code") {
+      P.innerHTML = `<h3>${icon("sms")} ${esc(t("enterCode"))}</h3>
+        <div class="note">${esc(t("codeSent").replace("{phone}", authPhone || ""))}</div>
+        <input id="otp" class="bigInput otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••">
+        <div class="btnLine"><button id="aBack">${esc(t("back"))}</button><button class="primary" id="aVerify">${esc(t("verify"))}</button></div>`;
+      $("aBack").onclick = () => openAuth();
+      $("aVerify").onclick = async () => {
+        $("aVerify").disabled = true;
+        try { await CL.verifyPhoneCode($("otp").value); authDone(); }
+        catch (e) { toast(e.message === "bad-code" ? t("badCode") : String(e.message || e), 4000); $("aVerify").disabled = false; }
+      };
+      $("otp").oninput = (e) => { if (e.target.value.replace(/\D/g, "").length === 6) $("aVerify").click(); };
+      setTimeout(() => $("otp").focus(), 100);
+      return openModal();
+    }
+    P.innerHTML = `<h3>${icon("account_circle")} ${esc(t("signInTitle"))}</h3>
+      <div class="note">${esc(t("signInWhy"))}</div>
+      ${cfg.phoneLogin !== false ? `<label class="fieldLbl">${esc(t("phoneNumber"))}</label>
+      <div class="phoneRow"><span class="cc">🇰🇭 +855</span><input id="phone" class="bigInput" inputmode="tel" placeholder="12 345 678" value="${esc((authPhone || "").replace(/^\+855/, ""))}"></div>
+      <button class="wideBtn primary" id="aSend">${icon("sms")} ${esc(t("sendCode"))}</button>` : ""}
+      ${cfg.googleLogin !== false ? `<div class="orLine"><span>${esc(t("or"))}</span></div>
+      <button class="wideBtn google" id="aGoogle"><svg viewBox="0 0 48 48" width="20" height="20"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> ${esc(t("google"))}</button>` : ""}
+      <button class="wideBtn ghost" id="aGuest">${esc(t("continueGuest"))}</button>`;
+    if ($("aSend")) $("aSend").onclick = async () => {
+      const ph = CL.normalizePhone($("phone").value);
+      if (!ph) return toast(t("badPhone"), 3500);
+      $("aSend").disabled = true;
+      try { authPhone = await CL.sendPhoneCode(ph); openAuth("code"); }
+      catch (e) { toast(String(e.message || e), 5000); $("aSend").disabled = false; }
+    };
+    if ($("aGoogle")) $("aGoogle").onclick = async () => {
+      try { pendingGoogle = true; await CL.signInGoogle(); toast(t("finishInBrowser"), 5000); }
+      catch (e) { pendingGoogle = false; toast(String(e.message || e), 5000); }
+    };
+    $("aGuest").onclick = () => { afterAuth = null; closeModal(); };
+    openModal();
+  }
+  let authPhone = null, pendingGoogle = false;
+
+  const STATUS_LABEL = (st) => ({ free: t("stFree"), trialing: t("stTrial"), active: t("stPro"), expired: t("stExpired") }[st] || st);
+  function openProfile() {
+    const P = $("modalPanel");
+    if (!CL.enabled()) { openSettings(); return; }
+    const p = CL.state.profile || {};
+    const guest = CL.isGuest();
+    const pts = p.community_points || 0;
+    const rk = CL.rank(pts);
+    const st = CL.isPro() ? p.subscription_status : (p.subscription_status === "free" ? "free" : "expired");
+    const days = CL.daysLeft();
+    P.innerHTML = `<h3>${icon("account_circle")} ${esc(t("myAccount"))}</h3>
+      <div class="profileHead">
+        <div class="bigAvatar">${guest ? icon("person") : esc(((p.display_name || p.phone || "★").replace(/^\+855/, "").trim()[0] || "★").toUpperCase())}</div>
+        <div><b>${esc(guest ? t("guest") : (p.display_name || p.phone || ""))}</b>
+          <div class="badges"><span class="badge st-${esc(st)}">${esc(STATUS_LABEL(st))}</span>${CL.isPro() ? `<span class="badge">${esc(t("daysLeft").replace("{n}", num(days)))}</span>` : ""}</div></div>
+      </div>
+      <div class="rankCard"><div class="rankTop"><span>🏆 ${esc(rk.rank[S.lang] || rk.rank.en)}</span><b>${num(pts)} ${esc(t("points"))}</b></div>
+        <div class="bar"><i style="width:${Math.round(rk.progress * 100)}%"></i></div>
+        <small>${rk.next ? esc(t("nextRank").replace("{rank}", rk.next[S.lang] || rk.next.en).replace("{n}", num(rk.next.min - pts))) : esc(t("topRank"))}</small></div>
+      ${guest ? `<button class="wideBtn primary" id="pSignIn">${icon("login")} ${esc(t("signInTitle"))}</button>` : ""}
+      <button class="wideBtn coffee" id="pCoffee">☕ ${esc(CL.isPro() ? t("renewCoffee") : t("coffeeCta"))}</button>
+      <div class="menuList">
+        <button id="pVoice">${icon("record_voice_over")}<span>${esc(t("voicePacks"))}</span><small>${esc(activePack().name[S.lang])}</small></button>
+        <button id="pRules">${icon("gavel")}<span>${esc(t("rules"))}</span></button>
+        <button id="pSettings">${icon("settings")}<span>${esc(t("settings"))}</span></button>
+        ${guest ? "" : `<button id="pOut">${icon("logout")}<span>${esc(t("signOut"))}</span></button>`}
+      </div>
+      <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
+    if ($("pSignIn")) $("pSignIn").onclick = () => { afterAuth = openProfile; openAuth(); };
+    $("pCoffee").onclick = () => openPaywall();
+    $("pVoice").onclick = () => openVoicePacks();
+    $("pRules").onclick = () => openRules();
+    $("pSettings").onclick = () => openSettings();
+    if ($("pOut")) $("pOut").onclick = async () => { await CL.signOut(); toast(t("signedOut")); openProfile(); };
+    $("mClose").onclick = closeModal;
+    openModal();
+  }
+
+  // ---------- $1/month "Developer coffee" ----------
+  let payPoll = null;
+  function stopPayPoll() { if (payPoll) { clearInterval(payPoll); payPoll = null; } }
+  function openPaywall() {
+    stopPayPoll();
+    const p = CL.state.profile || {};
+    const P = $("modalPanel");
+    const perks = ["perkVoices", "perkAdFree", "perkOffline", "perkShortcuts"].map((k) => `<div class="perk">${icon("check_circle", "fill")}<span>${esc(t(k))}</span></div>`).join("");
+    P.innerHTML = `<div class="paywall">
+      <div class="cup">☕</div>
+      <h3>${esc(t("coffeeTitle"))}</h3>
+      <div class="price"><b>$1</b> / ${esc(t("month"))}</div>
+      <div class="note center">${esc(t("coffeeWhy"))}</div>
+      ${perks}
+      ${CL.isPro() ? `<div class="okBox">${esc(t("proUntil").replace("{date}", new Date(p.subscription_expires_at).toLocaleDateString()))}</div>` : ""}
+      ${!p.trial_used && !CL.isPro() ? `<button class="wideBtn primary" id="wTrial">🎁 ${esc(t("startTrial"))}</button>` : ""}
+      <button class="wideBtn khqr" id="wKhqr"><span class="khqrTag">KHQR</span> ${esc(t("payKhqr"))}</button>
+      <button class="wideBtn ghost" id="wPlay">${icon("shop")} ${esc(t("payPlay"))}</button>
+      <div class="note center">${esc(t("payNote"))}</div>
+      <button class="wideBtn ghost" id="mClose">${esc(t("notNow"))}</button></div>`;
+    if ($("wTrial")) $("wTrial").onclick = async () => {
+      if (!requireAccount(openPaywall)) return;
+      try { await CL.startTrial(); toast(t("trialStarted"), 4000); closeModal(); }
+      catch (e) { toast(String(e.message || e), 4000); }
+    };
+    $("wKhqr").onclick = () => { if (requireAccount(openPaywall)) openKhqr(); };
+    $("wPlay").onclick = () => toast(t("playSoon"), 4000);
+    $("mClose").onclick = () => { stopPayPoll(); closeModal(); };
+    openModal();
+  }
+  /** Card with the owner's own ABA KHQR (unchanged) under the K'MAP name. */
+  function openStaticKhqr() {
+    const cfg = window.CAMNAV_CONFIG || {};
+    const P = $("modalPanel");
+    const qr = qrcode(0, "M"); qr.addData(cfg.khqrStatic); qr.make();
+    const q = { amount: cfg.priceUsd || 1, bill_number: "", brand: cfg.payeeBrand || "CamNAV", account: cfg.payeeAccountName || "" };
+    P.innerHTML = `<div class="paywall">
+      <div class="khqrCard"><div class="khqrHead">KHQR</div>
+        <div class="khqrName big">${esc(q.brand)}</div>
+        <div class="khqrAcct">${esc(t("accountName"))}: ${esc(q.account)}</div>
+        <div class="khqrAmt">$${Number(q.amount).toFixed(2)} <small>/ ${esc(t("month"))}</small></div>
+        <div class="khqrCode">${qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true })}</div></div>
+      <div class="steps">
+        <div><b>1</b>${esc(t("payStep1").replace("{amount}", "$" + Number(q.amount).toFixed(2)))}</div>
+        <div><b>2</b>${esc(t("payStep2").replace("{phone}", (CL.state.profile && CL.state.profile.phone) || t("yourPhone")))}</div>
+        <div><b>3</b>${esc(t("payStep3"))}</div>
+      </div>
+      <button class="wideBtn primary" id="wPaid">${icon("check_circle", "fill")} ${esc(t("iPaid"))}</button>
+      <button class="wideBtn" id="wSave">${icon("download")} ${esc(t("saveQr"))}</button>
+      <div class="note center small">${esc(t("saveQrHow"))}</div>
+      <button class="wideBtn ghost" id="mClose">${esc(t("cancel"))}</button></div>`;
+    $("wSave").onclick = () => saveQrImage(qr, q);
+    $("wPaid").onclick = async () => {
+      $("wPaid").disabled = true;
+      try {
+        const tx = await CL.claimPayment((CL.state.profile && CL.state.profile.phone) || "");
+        P.innerHTML = `<div class="paywall"><div class="cup">☕</div><h3>${esc(t("thanksCoffee"))}</h3>
+          <div class="okBox">${esc(t("paidPending"))}</div><div class="note center">${esc(t("billRef"))}: <b>${esc(tx.bill_number || "")}</b></div>
+          <button class="wideBtn primary" id="mClose">${esc(t("done"))}</button></div>`;
+        $("mClose").onclick = closeModal;
+      } catch (e) { toast(String(e.message || e), 5000); $("wPaid").disabled = false; }
+    };
+    $("mClose").onclick = closeModal;
+  }
+
+  async function openKhqr() {
+    if ((window.CAMNAV_CONFIG || {}).khqrStatic) return openStaticKhqr();
+    const P = $("modalPanel");
+    P.innerHTML = `<div class="paywall"><div class="note center">${esc(t("makingQr"))}</div></div>`;
+    let q;
+    try { q = await CL.createKhqr(); }
+    catch (e) { P.innerHTML = `<div class="paywall"><div class="warnBox">${esc(t("khqrFail"))}<br><small>${esc(String(e.message || e))}</small></div><button class="wideBtn ghost" id="mClose">${esc(t("close"))}</button></div>`; $("mClose").onclick = closeModal; return; }
+    const qr = qrcode(0, "M"); qr.addData(q.qr); qr.make();
+    P.innerHTML = `<div class="paywall">
+      <div class="khqrCard"><div class="khqrHead">KHQR</div>
+        <div class="khqrName">CamNAV · ☕</div><div class="khqrAmt">$${Number(q.amount).toFixed(2)}</div>
+        <div class="khqrCode">${qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true })}</div></div>
+      <div class="note center" id="payStatus">${esc(t("scanToPay"))}</div>
+      <button class="wideBtn primary" id="wSave">${icon("download")} ${esc(t("saveQr"))}</button>
+      <div class="note center small">${esc(t("saveQrHow"))}</div>
+      <button class="wideBtn ghost" id="mClose">${esc(t("cancel"))}</button></div>`;
+    $("wSave").onclick = () => saveQrImage(qr, q);
+    $("mClose").onclick = () => { stopPayPoll(); closeModal(); };
+    const until = new Date(q.expires_at).getTime();
+    stopPayPoll();
+    payPoll = setInterval(async () => {
+      if (Date.now() > until) { stopPayPoll(); $("payStatus") && ($("payStatus").textContent = t("qrExpired")); return; }
+      try {
+        const r = await CL.verifyKhqr(q.md5);
+        if (r && r.paid) {
+          stopPayPoll();
+          P.innerHTML = `<div class="paywall"><div class="cup">🎉</div><h3>${esc(t("thanksCoffee"))}</h3>
+            <div class="okBox">${esc(t("proUntil").replace("{date}", new Date(r.profile.subscription_expires_at).toLocaleDateString()))}</div>
+            <button class="wideBtn primary" id="mClose">${esc(t("done"))}</button></div>`;
+          $("mClose").onclick = closeModal;
+          renderAvatar();
+        }
+      } catch (e) { console.warn("verify", e); }
+    }, 4000);
+  }
+  /** Save the KHQR as a picture so it can be opened from the gallery in ABA / Bakong on the same phone. */
+  function saveQrImage(qr, q) {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = 600; c.height = 760;
+      const g = c.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, 600, 760);
+      g.fillStyle = "#e1232e"; g.fillRect(0, 0, 600, 90);
+      g.fillStyle = "#fff"; g.font = "bold 44px Roboto, sans-serif"; g.textAlign = "center"; g.fillText("KHQR", 300, 62);
+      g.fillStyle = "#202124"; g.font = "bold 34px Roboto, sans-serif"; g.fillText((q.brand || "CamNAV") + " · $" + Number(q.amount).toFixed(2), 300, 140);
+      g.imageSmoothingEnabled = false; g.drawImage(img, 75, 170, 450, 450);
+      g.fillStyle = "#5f6368"; g.font = "22px Roboto, sans-serif"; g.fillText(q.account ? "Account: " + q.account : (q.bill_number || ""), 300, 680);
+      g.fillText("CamNAV – នាំផ្លូវ", 300, 720);
+      const data = c.toDataURL("image/png");
+      if (window.AndroidApp && window.AndroidApp.saveImage) {
+        const ok = window.AndroidApp.saveImage(data, "CamNAV-KHQR-" + (q.bill_number || Date.now()) + ".png");
+        toast(ok ? t("qrSaved") : t("qrSaveFail"), 4000);
+      } else {
+        const a = document.createElement("a"); a.href = data; a.download = "CamNAV-KHQR.png"; a.click();
+      }
+    };
+    img.src = qr.createDataURL(8, 2);
+  }
+
+  // ---------- voice packs ----------
+  function openVoicePacks() {
+    const P = $("modalPanel");
+    P.innerHTML = `<h3>${icon("record_voice_over")} ${esc(t("voicePacks"))}</h3><div class="packList">` + VP.PACKS.map((p) => {
+      const locked = p.pro && !CL.isPro();
+      const on = activePack().id === p.id;
+      return `<div class="pack ${on ? "on" : ""}" data-p="${p.id}">
+        <div class="packIcon" style="background:${p.color}">${p.emoji}</div>
+        <div class="packTx"><b>${esc(p.name[S.lang] || p.name.en)}</b><small>${esc(p.desc[S.lang] || p.desc.en)}</small>
+          <span class="badge ${p.pro ? "pro" : "free"}">${p.pro ? (locked ? "🔒 PRO $1" : "PRO") : esc(t("free"))}</span></div>
+        <div class="packBtns"><button data-play="${p.id}" aria-label="Preview">${icon("play_arrow", "fill")}</button>
+          <button data-share="${p.id}" aria-label="Share">${icon("share")}</button></div></div>`;
+    }).join("") + `</div><div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
+    P.querySelectorAll("[data-play]").forEach((b) => (b.onclick = (e) => { e.stopPropagation(); previewPack(b.dataset.play); }));
+    P.querySelectorAll("[data-share]").forEach((b) => (b.onclick = (e) => {
+      e.stopPropagation();
+      const p = VP.byId(b.dataset.share);
+      shareText("🔊 " + p.name.km + " – CamNAV នាំផ្លូវ\n\n“" + p.lines.start_route + "”\n\n#CamNAV #នាំផ្លូវ #Cambodia");
+    }));
+    P.querySelectorAll(".pack").forEach((el) => (el.onclick = () => {
+      const p = VP.byId(el.dataset.p);
+      if (p.pro && !CL.isPro()) { if (requireAccount(openPaywall)) openPaywall(); return; }
+      S.voicePack = p.id; saveSettings(); CL.updatePrefs({ selected_voice_pack: p.id });
+      toast("🔊 " + p.name[S.lang]); openVoicePacks();
+    }));
+    $("mClose").onclick = closeModal;
+    openModal();
+  }
+  function previewPack(id) {
+    V.unlock();
+    const p = VP.byId(id);
+    const parts = ["start_route", "turn_right_200m"].map((ev) => {
+      const f = VP.clipPath(p.id, ev);
+      return V.hasFile(f) ? { lang: "km", clips: [f] } : { lang: V.hasKhmer() || S.forceKm ? "km" : "en", text: V.hasKhmer() || S.forceKm ? p.lines[ev] : I.ALERTS.en.test };
+    });
+    V.say(parts, true);
+  }
+
+  // renewal reminder 3 days before the end
+  function renewalBanner() {
+    if (!CL.enabled() || !CL.isPro()) return "";
+    const d = CL.daysLeft();
+    if (d > 3) return "";
+    return `<div class="renewBar" id="renewBar">☕ ${esc(t("renewSoon").replace("{n}", num(d)))}<button>${esc(t("renew"))}</button></div>`;
+  }
+
+  CL.onChange((st) => {
+    renderAvatar();
+    const p = st.profile;
+    if (p) {
+      const veh = p.preferred_vehicle === "car" ? "car" : "moto";
+      if (veh !== S.vehicle && !vehicleChangedLocally) { S.vehicle = veh; saveSettings(); }
+      if (p.selected_voice_pack && VP.byId(p.selected_voice_pack).id === p.selected_voice_pack) { S.voicePack = p.selected_voice_pack; saveSettings(); }
+    }
+    if (pendingGoogle && !CL.isGuest()) { pendingGoogle = false; authDone(); }
+    if (view === "home") renderHome();
+    loadPins(true);
+  });
+  let vehicleChangedLocally = false;
+  function syncVehicle() { vehicleChangedLocally = true; CL.updatePrefs({ preferred_vehicle: S.vehicle === "moto" ? "motorbike" : "car" }); }
 
   // =====================================================================
   // share
@@ -1163,5 +1555,12 @@
   if (!window.AndroidTTS && "serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   }
-  window.CamNAV = window.CamNav = { get route() { return route; }, get routes() { return routes; }, get nav() { return nav; }, map, dropPin, openPlace };
+  renderAvatar();
+  CL.init().then(() => { renderAvatar(); loadPins(true); });
+  window.CamNAV = window.CamNav = {
+    get route() { return route; }, get routes() { return routes; }, get nav() { return nav; }, map, dropPin, openPlace,
+    openProfile, openPaywall, openVoicePacks, openAuth,
+    // Android calls this when Google sign-in returns through camnav://login
+    onDeepLink: (url) => CL.handleDeepLink(url).then(() => { if (!CL.isGuest()) authDone(); }).catch((e) => toast(String(e.message || e), 5000)),
+  };
 })();

@@ -1,0 +1,46 @@
+name: Set up Supabase (database + KHQR payments)
+
+# Run by hand: Actions → "Set up Supabase" → Run workflow.
+# Needs these repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_PROJECT_REF   e.g. abcdefghijklmnop  (from your project URL)
+#   SUPABASE_ACCESS_TOKEN  supabase.com → Account → Access Tokens
+#   SUPABASE_DB_URL        Project Settings → Database → Connection string (URI, with password)
+#   BAKONG_ACCOUNT_ID      your Bakong account, e.g. yourname@aclb
+#   BAKONG_TOKEN           token from api-bakong.nbc.gov.kh (renew every 90 days)
+#   MERCHANT_NAME          name shown on the KHQR (optional, default CamNAV)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create / update the database tables, security rules and triggers
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          sudo apt-get install -y -qq postgresql-client > /dev/null
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -q -f supabase/schema.sql
+          echo "database ready"
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Payment settings (secrets for the KHQR function)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase secrets set --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}" \
+            BAKONG_ACCOUNT_ID="${{ secrets.BAKONG_ACCOUNT_ID }}" \
+            BAKONG_TOKEN="${{ secrets.BAKONG_TOKEN }}" \
+            MERCHANT_NAME="${{ secrets.MERCHANT_NAME || 'CamNAV' }}" \
+            MERCHANT_CITY="Phnom Penh" PRICE_USD="1" PRO_DAYS="30"
+
+      - name: Deploy the KHQR function
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy khqr --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}" --use-api

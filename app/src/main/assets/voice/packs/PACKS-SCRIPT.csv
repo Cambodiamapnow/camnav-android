@@ -1,0 +1,25 @@
+﻿file_path,pack,event,khmer_text
+voice/packs/standard/start_route.mp3,standard,start_route,ចាប់ផ្តើមធ្វើដំណើរ។ សូមបើកបរដោយប្រុងប្រយ័ត្ន និងគោរពច្បាប់ចរាចរណ៍។
+voice/packs/standard/turn_left_200m.mp3,standard,turn_left_200m,នៅខាងមុខ ២០០ ម៉ែត្រទៀត សូមបត់ឆ្វេង។
+voice/packs/standard/turn_right_200m.mp3,standard,turn_right_200m,នៅខាងមុខ ២០០ ម៉ែត្រទៀត សូមបត់ស្តាំ។
+voice/packs/standard/traffic_ahead.mp3,standard,traffic_ahead,ប្រយ័ត្ន! មានការស្ទះចរាចរណ៍នៅខាងមុខ ប្រព័ន្ធកំពុងរកផ្លូវវាងជូនអ្នក។
+voice/packs/standard/flood_ahead.mp3,standard,flood_ahead,ប្រយ័ត្ន! មានទឹកលិចផ្លូវនៅខាងមុខ សូមបន្ថយល្បឿន។
+voice/packs/standard/arrived.mp3,standard,arrived,អ្នកបានមកដល់គោលដៅហើយ។ សូមអរគុណ!
+voice/packs/tuktuk_uncle/start_route.mp3,tuktuk_uncle,start_route,តោះក្មួយ! ពាក់មួកសុវត្ថិភាពឱ្យជាប់ ពូរកផ្លូវកាត់ឱ្យ ធានាថាមិនឱ្យស្ទះដូចថ្ងៃសុក្រទេ!
+voice/packs/tuktuk_uncle/turn_left_200m.mp3,tuktuk_uncle,turn_left_200m,២០០ ម៉ែត្រទៀតបត់ឆ្វេងណាក្មួយ ប្រយ័ត្នហួសផ្លូវកាត់ពូ!
+voice/packs/tuktuk_uncle/turn_right_200m.mp3,tuktuk_uncle,turn_right_200m,ត្រៀមខ្លួនបត់ស្តាំ ២០០ ម៉ែត្រទៀត ស៊ីញ៉ូឱ្យហើយទៅក្មួយ!
+voice/packs/tuktuk_uncle/traffic_ahead.mp3,tuktuk_uncle,traffic_ahead,អូហូ! ខាងមុខស្ទះណែនណាន់តាន់តាប់ហើយ ជឿពូ បត់ចូលផ្លូវលំតាមពូមក!
+voice/packs/tuktuk_uncle/flood_ahead.mp3,tuktuk_uncle,flood_ahead,ឈប់សិនក្មួយ! ខាងមុខទឹកលិចដូចទន្លេហើយ ប្រយ័ត្នរលត់ម៉ាស៊ីនណា!
+voice/packs/tuktuk_uncle/arrived.mp3,tuktuk_uncle,arrived,ដល់ហើយក្មួយ! សុវត្ថិភាពដល់គោលដៅ កុំភ្លេចប៉ាវកាហ្វេ Developer មួយកែវផង!
+voice/packs/caring_mom/start_route.mp3,caring_mom,start_route,កូនម៉ាក់ ជិះយឺតៗណាកូន កុំលេងទូរស័ព្ទពេលបើកបរ ពាក់មួកសុវត្ថិភាពឱ្យត្រឹមត្រូវ!
+voice/packs/caring_mom/turn_left_200m.mp3,caring_mom,turn_left_200m,បន្តិចទៀតបត់ឆ្វេងហើយកូន មើលឆ្វេងមើលស្តាំឱ្យស្រួលបួលណា!
+voice/packs/caring_mom/turn_right_200m.mp3,caring_mom,turn_right_200m,២០០ ម៉ែត្រទៀតបត់ស្តាំ កុំបត់កាត់មុខគេឱ្យសោះ ម៉ាក់បារម្ភ!
+voice/packs/caring_mom/traffic_ahead.mp3,caring_mom,traffic_ahead,ខាងមុខស្ទះហើយកូន កុំតានតឹងអី ចាំបន្តិចទៅ យឺតបន្តិចតែសុវត្ថិភាព!
+voice/packs/caring_mom/flood_ahead.mp3,caring_mom,flood_ahead,ខាងមុខមានទឹកលិច កូនវាងផ្លូវផ្សេងទៅ ប្រយ័ត្នទទឹកជើងឈឺ!
+voice/packs/caring_mom/arrived.mp3,caring_mom,arrived,ដល់កន្លែងហើយមែនទេកូន? ល្អណាស់ ថែសុខភាពផងណា!
+voice/packs/hype_coach/start_route.mp3,hype_coach,start_route,ថ្ងៃនេះជាថ្ងៃល្អរបស់អ្នក! តោះចេញដំណើរទៅរកភាពជោគជ័យ ផ្លូវស្រឡះស្អាតណាស់!
+voice/packs/hype_coach/turn_left_200m.mp3,hype_coach,turn_left_200m,អស្ចារ្យណាស់! ២០០ ម៉ែត្រទៀតបត់ឆ្វេង យើងជិតឈ្នះការស្ទះចរាចរណ៍ហើយ!
+voice/packs/hype_coach/turn_right_200m.mp3,hype_coach,turn_right_200m,បន្តទៅមុខទៀត! ២០០ ម៉ែត្រទៀតបត់ស្តាំ អ្នកបើកបរបានល្អបំផុត!
+voice/packs/hype_coach/traffic_ahead.mp3,hype_coach,traffic_ahead,កុំបារម្ភ! ឧបសគ្គបន្តិចបន្តួចនៅខាងមុខ យើងនឹងរកផ្លូវវាងដ៏ឆ្លាតវៃជូនអ្នកភ្លាម!
+voice/packs/hype_coach/flood_ahead.mp3,hype_coach,flood_ahead,ប្រយ័ត្នទឹកលិចខាងមុខ! បង្វែរទិសដៅបន្តិច ដើម្បីបន្តដំណើរទៅមុខដោយរលូន!
+voice/packs/hype_coach/arrived.mp3,hype_coach,arrived,ជោគជ័យ! អ្នកបានមកដល់គោលដៅទាន់ពេលវេលា សូមឱ្យថ្ងៃនេះជួបតែសំណាងល្អ!

@@ -35,7 +35,12 @@
   let clipSet = new Set();
   fetch(CLIP_DIR + "manifest.json", { cache: "no-cache" })
     .then((r) => (r.ok ? r.json() : { clips: [] }))
-    .then((m) => { clipSet = new Set(m.clips || []); changed(); })
+    .then((m) => { (m.clips || []).forEach((c) => clipSet.add(c)); changed(); })
+    .catch(() => {});
+  // voice packs: voice/packs/manifest.json lists files like "voice/packs/tuktuk_uncle/arrived.mp3"
+  fetch("voice/packs/manifest.json", { cache: "no-cache" })
+    .then((r) => (r.ok ? r.json() : { files: [] }))
+    .then((m) => { (m.files || []).forEach((f) => clipSet.add(f)); changed(); })
     .catch(() => {});
   const hasClips = (ids) => !!ids && ids.length > 0 && ids.every((id) => clipSet.has(id));
 
@@ -61,7 +66,7 @@
     const id = ids.shift();
     audio.onended = () => playClips(ids, done);
     audio.onerror = () => playClips(ids, done);
-    audio.src = CLIP_DIR + id + ".mp3";
+    audio.src = id.indexOf("/") >= 0 ? id : CLIP_DIR + id + ".mp3";
     audio.playbackRate = Math.max(0.8, Math.min(1.3, rate));
     const p = audio.play();
     if (p && p.catch) p.catch(() => playClips(ids, done));
@@ -112,7 +117,8 @@
     hasKhmer: hasKhmerTts,
     hasEnglish: () => (native ? true : !!enVoice),
     hasClips,
-    clipCount: () => clipSet.size,
+    clipCount: () => Array.from(clipSet).filter((c) => c.indexOf("/") < 0).length,
+    hasFile: (path) => clipSet.has(path),
     voiceNames: () => (native
       ? { km: hasKhmerTts() ? "Android TTS (km)" : null, en: "Android TTS (en)" }
       : { km: kmVoice && kmVoice.name, en: enVoice && enVoice.name }),
