@@ -10,8 +10,8 @@ android {
         applicationId 'com.camnav.app'
         minSdk 24
         targetSdk 34
-        versionCode 18
-        versionName '2.2'
+        versionCode 19
+        versionName '2.2.1'
     }
 
     // one fixed key for every build (kept privately in the GitHub build cache, see build-apk.yml),
