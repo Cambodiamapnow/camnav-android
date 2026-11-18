@@ -77,6 +77,13 @@
   add("report_jam", "ស្ទះចរាចរណ៍នៅខាងមុខ", "Traffic jam ahead");
   add("report_hazard", "មានឧបសគ្គនៅលើផ្លូវខាងមុខ", "Hazard on the road ahead");
   add("report_flood", "ផ្លូវលិចទឹកនៅខាងមុខ", "Flooded road ahead");
+  add("road_bump", "មានដុំបន្ថយល្បឿននៅខាងមុខ", "Speed bump ahead");
+  add("road_school", "តំបន់សាលារៀននៅខាងមុខ សូមបន្ថយល្បឿន", "School zone ahead, slow down");
+  add("road_rail", "ផ្លូវរថភ្លើងកាត់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", "Railway crossing ahead, take care");
+  add("road_toll", "ស្ថានីយបង់ថ្លៃផ្លូវនៅខាងមុខ", "Toll booth ahead");
+  add("road_stop", "ស្លាកឈប់នៅខាងមុខ", "Stop sign ahead");
+  add("helmet", "សូមពាក់មួកសុវត្ថិភាព ទាំងអ្នកបើកបរ និងអ្នកជិះពីក្រោយ", "Please wear a helmet, rider and passenger");
+  add("seatbelt", "សូមពាក់ខ្សែក្រវាត់សុវត្ថិភាព", "Please fasten your seat belt");
   add("test", "សួស្តី! នេះជាសំឡេងណែនាំផ្លូវរបស់ ខេមណាវ។ សូមបើកបរដោយសុវត្ថិភាព", "Hello! This is the CamNAV voice. Please drive safely");
 
   // ---------- builders: what to play for a given moment ----------
@@ -139,6 +146,9 @@
     overspeed: (v) => ["slow_down"].concat(limitClip(v) || []),
     camera: (d, v) => ["camera", distClip(d)].concat(limitClip(v) || []),
     report: (kind) => ["report_" + kind],
+    road: (kind) => ["road_" + kind],
+    helmet: () => ["helmet"],
+    seatbelt: () => ["seatbelt"],
   };
 
   return { PHRASES, words, distClip, limitClip, actionClips, sentenceClips, alertClips };

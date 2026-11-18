@@ -224,3 +224,21 @@ html:not(.icons-ready) .msr { visibility: hidden; }
 .brand img { width: 34px; height: 34px; }
 .brand b { font-weight: 700; }
 .brand small { display: block; color: var(--muted); font-size: 12px; }
+
+/* ---------------- dark theme (follows the dark map) ---------------- */
+html.theme-dark {
+  --ink: #e8eaed; --ink2: #c9ced6; --muted: #9aa3ae; --line: #334050; --bg: #1f2733; --bg2: #2a3442;
+  --blue: #5a95f5; --blue-d: #8ab4f8; --blue-l: #24344d; --green: #5bc07a;
+  --sh1: 0 1px 3px rgba(0,0,0,.5); --sh2: 0 2px 10px rgba(0,0,0,.55);
+}
+html.theme-dark body { background: #1c232d; }
+html.theme-dark .avatar { background: #3b6fd8; }
+html.theme-dark .routeCard.on { background: #22304a; }
+html.theme-dark .list .item .ic.red { background: #3a2526; color: #f28b82; }
+html.theme-dark .warnBox { background: #3a3220; }
+html.theme-dark .arrive .flag { background: #1e3a2a; }
+html.theme-dark .actions button, html.theme-dark .bigBtns button, html.theme-dark .btnLine button, html.theme-dark .circle, html.theme-dark .quick button { border-color: #3a4656; }
+html.theme-dark .actions button.primary, html.theme-dark .bigBtns button.primary, html.theme-dark .btnLine button.primary { color: #0b1a33; background: #8ab4f8; border-color: #8ab4f8; }
+html.theme-dark .handle { background: #4a5666; }
+html.theme-dark .maplibregl-ctrl-attrib { background: rgba(31,39,51,.8); color: #9aa3ae; }
+html.theme-dark .maplibregl-ctrl-attrib a { color: #c9ced6; }

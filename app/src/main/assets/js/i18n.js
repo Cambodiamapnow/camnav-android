@@ -22,10 +22,10 @@
       exit: "Exit", overview: "Overview", arrivedTitle: "You have arrived", done: "Done",
       min: "min", hr: "hr", km: "km", m: "m", kmh: "km/h",
       speedLimit: "Speed limit", estLimit: "Estimated from Cambodian law (no sign in map data)",
-      slowTraffic: "Slow traffic? Report a jam", report: "Report", reports: { police: "Police", accident: "Crash", jam: "Traffic jam", hazard: "Hazard", flood: "Flood", camera: "Speed camera" },
+      slowTraffic: "Slow traffic? Report a jam", report: "Report", reports: { police: "Police", accident: "Crash", jam: "Traffic jam", hazard: "Hazard", flood: "Flood", camera: "Speed camera", bump: "Speed bump", school: "School zone", rail: "Railway crossing", toll: "Toll booth", stop: "Stop sign", give_way: "Give way", signal: "Traffic light" },
       reportSaved: "Report added. Thanks!", reportNote: "Reports are kept on this phone for now. Sharing them with all drivers needs a server.", clearReports: "Clear my reports",
       shareEta: "I'm on my way to {dest}. Arriving around {time} ({left}).", copied: "Copied — paste it in a message",
-      layers: "Map type", mapDefault: "Default", mapOsm: "Standard", mapDark: "Dark", mapDetails: "Map details",
+      layers: "Map type", mapDefault: "Default", mapOsm: "Khmer labels", mapDark: "Dark (CamNAV)", mapLight: "Light", mapDetails: "Map details",
       nightAuto: "Dark map at night while driving", showSignals: "Traffic lights", showCameras: "Speed cameras", showReports: "Driver reports",
       settings: "Settings", voice: "Voice", voiceKm: "Khmer", voiceEn: "English", voiceBoth: "Khmer + English", voiceOff: "Off",
       textLang: "Language", testVoice: "Test voice", headingUp: "Turn map with car", speedRate: "Speaking speed", demoSpeed: "Demo drive speed",
@@ -37,7 +37,7 @@
       locating: "Finding your location…", noGps: "Location is off — using the map centre as start.",
       routing: "Finding routes…", routeFail: "Couldn't find a route. Check your internet and try again.", rerouting: "Rerouting…",
       longPress: "Tip: press and hold the map to drop a pin", pickedPoint: "Dropped pin", ago: "ago", close: "Close",
-      then: "Then", mute: "Mute", kmVoiceType: "Khmer voice", kmNatural: "Natural (recorded)", kmPhone: "Phone voice", naturalReady: "Natural Khmer voice installed ({n} clips)", naturalMissing: "Natural Khmer voice not installed yet — using the phone voice", recenter: "Re-centre", loadingRoad: "Loading speed limits and cameras…", noMore: "",
+      then: "Then", mute: "Mute", showSigns: "Road signs: speed bumps, schools, railway, toll", rules: "Traffic rules", rulesShort: "Rules", reminders: "Helmet / seat-belt reminder at start", motoNoExpress: "Motorbike: routes avoid the expressway", kmVoiceType: "Khmer voice", kmNatural: "Natural (recorded)", kmPhone: "Phone voice", naturalReady: "Natural Khmer voice installed ({n} clips)", naturalMissing: "Natural Khmer voice not installed yet — using the phone voice", recenter: "Re-centre", loadingRoad: "Loading speed limits and cameras…", noMore: "",
       weather: { 0: "Clear", 1: "Cloudy", 45: "Fog", 51: "Drizzle", 61: "Rain", 95: "Storm" },
     },
     km: {
@@ -50,10 +50,10 @@
       exit: "ចាកចេញ", overview: "មើលទាំងមូល", arrivedTitle: "អ្នកបានមកដល់ហើយ", done: "រួចរាល់",
       min: "នាទី", hr: "ម៉ោង", km: "គ.ម", m: "ម", kmh: "គ.ម/ម៉",
       speedLimit: "ល្បឿនកំណត់", estLimit: "ប៉ាន់ស្មានតាមច្បាប់ចរាចរណ៍កម្ពុជា (គ្មានស្លាកក្នុងទិន្នន័យផែនទី)",
-      slowTraffic: "ចរាចរណ៍យឺត? រាយការណ៍ការស្ទះ", report: "រាយការណ៍", reports: { police: "ប៉ូលិស", accident: "គ្រោះថ្នាក់", jam: "ស្ទះចរាចរណ៍", hazard: "ឧបសគ្គ", flood: "ទឹកលិច", camera: "កាមេរ៉ាល្បឿន" },
+      slowTraffic: "ចរាចរណ៍យឺត? រាយការណ៍ការស្ទះ", report: "រាយការណ៍", reports: { police: "ប៉ូលិស", accident: "គ្រោះថ្នាក់", jam: "ស្ទះចរាចរណ៍", hazard: "ឧបសគ្គ", flood: "ទឹកលិច", camera: "កាមេរ៉ាល្បឿន", bump: "ដុំបន្ថយល្បឿន", school: "តំបន់សាលារៀន", rail: "ផ្លូវរថភ្លើងកាត់", toll: "ស្ថានីយបង់ថ្លៃផ្លូវ", stop: "ស្លាកឈប់", give_way: "ផ្តល់សិទ្ធិ", signal: "ភ្លើងស្តុប" },
       reportSaved: "បានបន្ថែមរបាយការណ៍។ អរគុណ!", reportNote: "បច្ចុប្បន្ន របាយការណ៍រក្សាទុកតែលើទូរស័ព្ទនេះ។ ការចែករំលែកជាមួយអ្នកបើកបរទាំងអស់ត្រូវការម៉ាស៊ីនមេ។", clearReports: "លុបរបាយការណ៍របស់ខ្ញុំ",
       shareEta: "ខ្ញុំកំពុងធ្វើដំណើរទៅ {dest}។ នឹងមកដល់ប្រហែលម៉ោង {time} ({left})។", copied: "បានចម្លង — បិទភ្ជាប់ក្នុងសារ",
-      layers: "ប្រភេទផែនទី", mapDefault: "លំនាំដើម", mapOsm: "ស្តង់ដារ", mapDark: "ងងឹត", mapDetails: "ព័ត៌មានលើផែនទី",
+      layers: "ប្រភេទផែនទី", mapDefault: "លំនាំដើម", mapOsm: "ឈ្មោះខ្មែរ", mapDark: "ងងឹត (CamNAV)", mapLight: "ភ្លឺ", mapDetails: "ព័ត៌មានលើផែនទី",
       nightAuto: "ផែនទីងងឹតពេលយប់ ពេលបើកបរ", showSignals: "ភ្លើងស្តុប", showCameras: "កាមេរ៉ាល្បឿន", showReports: "របាយការណ៍អ្នកបើកបរ",
       settings: "ការកំណត់", voice: "សំឡេង", voiceKm: "ខ្មែរ", voiceEn: "អង់គ្លេស", voiceBoth: "ខ្មែរ + អង់គ្លេស", voiceOff: "បិទ",
       textLang: "ភាសា", testVoice: "សាកល្បងសំឡេង", headingUp: "បង្វិលផែនទីតាមទិសឡាន", speedRate: "ល្បឿននិយាយ", demoSpeed: "ល្បឿនសាកល្បង",
@@ -65,7 +65,7 @@
       locating: "កំពុងស្វែងរកទីតាំងរបស់អ្នក…", noGps: "ទីតាំងត្រូវបានបិទ — ប្រើកណ្តាលផែនទីជាចំណុចចាប់ផ្តើម។",
       routing: "កំពុងរកផ្លូវ…", routeFail: "រកផ្លូវមិនឃើញ។ សូមពិនិត្យអ៊ីនធឺណិត ហើយសាកម្តងទៀត។", rerouting: "កំពុងរកផ្លូវថ្មី…",
       longPress: "គន្លឹះ៖ ចុចឱ្យយូរលើផែនទី ដើម្បីដាក់ម្ជុល", pickedPoint: "ម្ជុលដែលបានដាក់", ago: "មុន", close: "បិទ",
-      then: "បន្ទាប់មក", mute: "បិទសំឡេង", kmVoiceType: "សំឡេងខ្មែរ", kmNatural: "ធម្មជាតិ (ថតទុក)", kmPhone: "សំឡេងទូរស័ព្ទ", naturalReady: "បានដំឡើងសំឡេងខ្មែរធម្មជាតិ ({n} ឃ្លា)", naturalMissing: "មិនទាន់មានសំឡេងខ្មែរធម្មជាតិ — កំពុងប្រើសំឡេងទូរស័ព្ទ", recenter: "ត្រឡប់មកឡាន", loadingRoad: "កំពុងទាញយកល្បឿនកំណត់ និងកាមេរ៉ា…", noMore: "",
+      then: "បន្ទាប់មក", mute: "បិទសំឡេង", showSigns: "ស្លាកសញ្ញា៖ ដុំបន្ថយល្បឿន សាលារៀន ផ្លូវរថភ្លើង បង់ថ្លៃផ្លូវ", rules: "ច្បាប់ចរាចរណ៍", rulesShort: "ច្បាប់", reminders: "រំលឹកពាក់មួក / ខ្សែក្រវាត់ ពេលចាប់ផ្តើម", motoNoExpress: "ម៉ូតូ៖ ផ្លូវជៀសវាងផ្លូវល្បឿនលឿន", kmVoiceType: "សំឡេងខ្មែរ", kmNatural: "ធម្មជាតិ (ថតទុក)", kmPhone: "សំឡេងទូរស័ព្ទ", naturalReady: "បានដំឡើងសំឡេងខ្មែរធម្មជាតិ ({n} ឃ្លា)", naturalMissing: "មិនទាន់មានសំឡេងខ្មែរធម្មជាតិ — កំពុងប្រើសំឡេងទូរស័ព្ទ", recenter: "ត្រឡប់មកឡាន", loadingRoad: "កំពុងទាញយកល្បឿនកំណត់ និងកាមេរ៉ា…", noMore: "",
       weather: { 0: "មេឃស្រឡះ", 1: "មានពពក", 45: "អ័ព្ទ", 51: "ភ្លៀងរលឹម", 61: "ភ្លៀង", 95: "ព្យុះផ្គររន្ទះ" },
     },
   };
@@ -207,6 +207,9 @@
       test: "សួស្តី! នេះជាសំឡេងណែនាំផ្លូវជាភាសាខ្មែរ។ ក្នុងចម្ងាយ ២០០ ម៉ែត្រទៀត បត់ស្តាំ",
       camera: (d, v) => "កាមេរ៉ាល្បឿននៅខាងមុខ ក្នុងចម្ងាយ " + distText(d, "km") + (v ? "។ ល្បឿនកំណត់ " + kmNum(v) : ""),
       overspeed: (v) => "សូមបន្ថយល្បឿន។ ល្បឿនកំណត់ " + kmNum(v) + " គីឡូម៉ែត្រក្នុងមួយម៉ោង",
+      road: { bump: "មានដុំបន្ថយល្បឿននៅខាងមុខ", school: "តំបន់សាលារៀននៅខាងមុខ សូមបន្ថយល្បឿន", rail: "ផ្លូវរថភ្លើងកាត់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", toll: "ស្ថានីយបង់ថ្លៃផ្លូវនៅខាងមុខ", stop: "ស្លាកឈប់នៅខាងមុខ" },
+      helmet: "សូមពាក់មួកសុវត្ថិភាព ទាំងអ្នកបើកបរ និងអ្នកជិះពីក្រោយ",
+      seatbelt: "សូមពាក់ខ្សែក្រវាត់សុវត្ថិភាព",
       report: {
         police: "មានប៉ូលិសនៅខាងមុខ",
         accident: "មានគ្រោះថ្នាក់នៅខាងមុខ",
@@ -223,6 +226,9 @@
       test: "Hello! This is English voice guidance. In 200 meters, turn right",
       camera: (d, v) => "Speed camera in " + distText(d, "en") + (v ? ". Speed limit " + v : ""),
       overspeed: (v) => "Please slow down. The speed limit is " + v,
+      road: { bump: "Speed bump ahead", school: "School zone ahead, slow down", rail: "Railway crossing ahead, take care", toll: "Toll booth ahead", stop: "Stop sign ahead" },
+      helmet: "Please wear a helmet, rider and passenger",
+      seatbelt: "Please fasten your seat belt",
       report: {
         police: "Police reported ahead",
         accident: "Accident reported ahead",
@@ -234,5 +240,31 @@
     },
   };
 
-  return { UI, ALERTS, kmNum, isKhmer, distText, action, sentence, streetFor };
+  // ---------- traffic rules summary (Cambodian Road Traffic Law + Sub-Decree on fines) ----------
+  const RULES = {
+    km: {
+      intro: "សង្ខេបច្បាប់ចរាចរណ៍សំខាន់ៗ ដើម្បីជួយអ្នកបើកបរដោយសុវត្ថិភាព។ នេះមិនមែនជាដំបូន្មានផ្លូវច្បាប់ទេ — សូមគោរពស្លាកសញ្ញា និងប៉ូលិសចរាចរណ៍។ ចំនួនពិន័យអាចផ្លាស់ប្តូរ។",
+      common: ["ល្បឿនកំណត់ពេលគ្មានស្លាក៖ ក្នុងទីក្រុង ឡាន ៤០ គ.ម/ម៉ ម៉ូតូ ៣០ គ.ម/ម៉ · ក្រៅទីក្រុង ៩០ គ.ម/ម៉ · ផ្លូវល្បឿនលឿន តាមស្លាក",
+        "ស្រា៖ ជាតិអាល់កុលក្នុងដង្ហើម ០.២៥ mg/L ឡើងទៅ ត្រូវពិន័យ · ០.៤០ mg/L ឡើងទៅ ជាបទល្មើសព្រហ្មទណ្ឌ (ពន្ធនាគារ និងពិន័យ)",
+        "ហាមកាន់ទូរស័ព្ទពេលបើកបរ",
+        "ឈប់ពេលភ្លើងក្រហម និងនៅស្លាកឈប់ · ផ្តល់សិទ្ធិអ្នកថ្មើរជើងនៅកន្លែងឆ្លងផ្លូវ",
+        "ត្រូវមានប័ណ្ណបើកបរ និងឯកសារយានយន្តត្រឹមត្រូវ"],
+      car: ["អ្នកបើកបរ និងអ្នកជិះកៅអីមុខ ត្រូវពាក់ខ្សែក្រវាត់សុវត្ថិភាព", "កុមារគួរអង្គុយកៅអីក្រោយ"],
+      moto: ["អ្នកបើកបរ និងអ្នកជិះពីក្រោយ ត្រូវពាក់មួកសុវត្ថិភាព (ពិន័យម្នាក់ៗ)", "ម៉ូតូមិនត្រូវបានអនុញ្ញាតលើផ្លូវល្បឿនលឿន (ភ្នំពេញ–ព្រះសីហនុ)", "បើកភ្លើងហ្វាពេលយប់ ហើយកុំបើកបរទន្ទឹមគ្នា"],
+      car_t: "ឡាន", moto_t: "ម៉ូតូ", common_t: "ទាំងអស់គ្នា",
+    },
+    en: {
+      intro: "A short summary of key Cambodian traffic rules to help you drive safely. Not legal advice — always follow road signs and traffic police. Fine amounts can change.",
+      common: ["Speed limits where no sign: in towns 40 km/h for cars, 30 km/h for motorbikes · outside towns 90 km/h · expressway: as signed",
+        "Alcohol: 0.25 mg/L breath alcohol or more is fined · 0.40 mg/L or more is a criminal offence (prison and fine)",
+        "No handheld phone while driving",
+        "Stop at red lights and stop signs · give way to pedestrians at crossings",
+        "Carry a valid driving licence and vehicle papers"],
+      car: ["Driver and front passenger must wear seat belts", "Children are safest in the back seat"],
+      moto: ["Rider and passenger must both wear helmets (each can be fined)", "Motorbikes are not allowed on the expressway (Phnom Penh–Sihanoukville)", "Lights on at night and don't ride side by side"],
+      car_t: "Car", moto_t: "Motorbike", common_t: "Everyone",
+    },
+  };
+
+  return { UI, ALERTS, RULES, kmNum, isKhmer, distText, action, sentence, streetFor };
 });

@@ -30,6 +30,17 @@ jobs:
           yes | "$SDKM" --licenses > /dev/null || true
           "$SDKM" "platforms;android-34" "build-tools;34.0.0" > /dev/null
 
+      # ---- check the map style + take preview screenshots with the real map ----
+      - name: Validate map styles
+        run: |
+          node -e "global.self=global;require('./app/src/main/assets/js/mapstyle.js');const fs=require('fs');fs.writeFileSync('style-dark.json',JSON.stringify(self.MapStyles.build('dark')));fs.writeFileSync('style-light.json',JSON.stringify(self.MapStyles.build('light')))"
+          npx -y -p @maplibre/maplibre-gl-style-spec@20 gl-style-validate style-dark.json style-light.json
+
+      - name: Preview screenshots
+        run: |
+          npm install --no-save --silent puppeteer-core@23
+          node tools/preview.mjs
+
       # ---- natural Khmer voice (Azure neural TTS → MP3 clips inside the APK) ----
       - name: Restore Khmer voice cache
         uses: actions/cache@v4
@@ -63,5 +74,8 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: CamNAV – នាំផ្លូវ build ${{ github.run_number }}
-          files: CamNAV.apk
+          files: |
+            CamNAV.apk
+            preview-dark.png
+            preview-light.png
           make_latest: true

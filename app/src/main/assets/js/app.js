@@ -12,8 +12,8 @@
   // =====================================================================
   const DEFAULTS = {
     voice: "km", kmVoice: "natural", lang: "km", rate: 1.0, headingUp: true, simKmh: 50, forceKm: false,
-    tiles: "clean", nightAuto: true, vehicle: "car", speedWarn: 5,
-    showSignals: true, showCameras: true, showReports: true,
+    tiles: "dark", nightAuto: true, vehicle: "car", speedWarn: 5,
+    showSignals: true, showCameras: true, showReports: true, showSigns: true, reminders: true,
     router: "https://router.project-osrm.org",
     overpass: "https://overpass-api.de/api/interpreter",
   };
@@ -23,12 +23,14 @@
   const HOT = ["https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", "https://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"];
   const ATTR = "© OpenStreetMap contributors";
   const TILES = {
-    clean: { urls: OSM, max: 19, attr: ATTR, paint: { "raster-saturation": -0.45, "raster-contrast": -0.08, "raster-brightness-min": 0.06 },
-      thumb: "linear-gradient(90deg,transparent 44%,#fff 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#f1d9a6 38% 52%,transparent 52%),linear-gradient(135deg,#d3e4cc 0 22%,transparent 22%),#f4f2ee" },
+    // vector styles (OpenFreeMap, no key) — see js/mapstyle.js
+    dark: { vector: "dark", dark: true,
+      thumb: "linear-gradient(90deg,transparent 44%,#a58a4c 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#14304d 38% 60%,transparent 60%),#1c232d" },
+    light: { vector: "light",
+      thumb: "linear-gradient(90deg,transparent 44%,#fbd38d 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#aadaff 38% 60%,transparent 60%),linear-gradient(135deg,#cfe6c4 0 22%,transparent 22%),#f3f1ec" },
+    // raster OpenStreetMap: the only style with Khmer-script labels
     osm: { urls: OSM, max: 19, attr: ATTR, paint: {},
       thumb: "linear-gradient(90deg,transparent 44%,#fff 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#f7b29c 38% 52%,transparent 52%),linear-gradient(135deg,#add19e 0 22%,transparent 22%),#f2efe9" },
-    dark: { urls: OSM, max: 19, attr: ATTR, paint: { "raster-brightness-min": 1, "raster-brightness-max": 0.08, "raster-hue-rotate": 180, "raster-saturation": -0.55, "raster-contrast": 0.05 },
-      thumb: "linear-gradient(90deg,transparent 44%,#4a4f57 44% 56%,transparent 56%),linear-gradient(0deg,transparent 38%,#5f6368 38% 52%,transparent 52%),#262626" },
     hot: { urls: HOT, max: 19, attr: ATTR + " · HOT", paint: { "raster-saturation": -0.3 }, thumb: "#f2efe9" }, // automatic backup
   };
   const store = {
@@ -36,7 +38,8 @@
     set(k, v) { try { localStorage.setItem("camnav." + k, JSON.stringify(v)); } catch {} },
   };
   const S = Object.assign({}, DEFAULTS, store.get("settings", {}));
-  if (!TILES[S.tiles] || S.tiles === "hot") S.tiles = "clean"; // old "voyager" (CARTO) setting → clean
+  if (!(S.styleV >= 2)) { S.tiles = "dark"; S.styleV = 2; } // new CamNAV dark map becomes the default once
+  if (!TILES[S.tiles] || S.tiles === "hot") S.tiles = "dark";
   const saveSettings = () => store.set("settings", S);
   const L = () => I.UI[S.lang] || I.UI.en;
   const t = (k) => (L()[k] != null ? L()[k] : I.UI.en[k] != null ? I.UI.en[k] : k);
@@ -65,7 +68,9 @@
   // =====================================================================
   let currentTiles = S.tiles;
   function styleFor(key) {
-    const tl = TILES[key] || TILES.clean;
+    const tl = TILES[key] || TILES.dark;
+    document.documentElement.classList.toggle("theme-dark", !!tl.dark);
+    if (tl.vector && window.MapStyles) return window.MapStyles.build(tl.vector);
     return {
       version: 8,
       sources: { base: { type: "raster", tiles: tl.urls, tileSize: 256, maxzoom: tl.max, attribution: tl.attr } },
@@ -81,20 +86,27 @@
   let tileErrors = 0;
   map.on("error", (e) => {
     const src = e && (e.sourceId || (e.source && e.source.id));
-    if (src !== "base" || currentTiles === "hot" || currentTiles === "dark") return;
-    if (++tileErrors > 12) { tileErrors = 0; currentTiles = "hot"; map.setStyle(styleFor("hot")); }
+    if (src !== "base" && src !== "omt") return;
+    if (currentTiles === "hot") return;
+    if (++tileErrors > 12) {
+      tileErrors = 0;
+      const next = TILES[currentTiles] && TILES[currentTiles].vector ? "osm" : "hot"; // vector fails → OSM raster → HOT
+      currentTiles = next; map.setStyle(styleFor(next));
+    }
   });
   map.touchZoomRotate.disableRotation();
 
   const emptyFC = () => ({ type: "FeatureCollection", features: [] });
   function ensureLayers() {
     if (!map.isStyleLoaded() || map.getSource("routes")) return;
+    let before;
+    try { const ls = map.getStyle().layers || []; const sym = ls.find((l) => l.type === "symbol"); before = sym && sym.id; } catch (e) {}
     map.addSource("routes", { type: "geojson", data: emptyFC() });
     map.addSource("active", { type: "geojson", data: emptyFC() });
-    map.addLayer({ id: "alt-casing", type: "line", source: "routes", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#9aa0a6", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 6, 17, 14] } });
-    map.addLayer({ id: "alt-line", type: "line", source: "routes", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#bdc1c6", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 4, 17, 10] } });
-    map.addLayer({ id: "route-casing", type: "line", source: "active", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#1967d2", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 7, 17, 17] } });
-    map.addLayer({ id: "route-line", type: "line", source: "active", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#4285f4", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 5, 17, 12] } });
+    map.addLayer({ id: "alt-casing", type: "line", source: "routes", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#9aa0a6", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 6, 17, 14] } }, before);
+    map.addLayer({ id: "alt-line", type: "line", source: "routes", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#bdc1c6", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 4, 17, 10] } }, before);
+    map.addLayer({ id: "route-casing", type: "line", source: "active", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#1967d2", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 7, 17, 17] } }, before);
+    map.addLayer({ id: "route-line", type: "line", source: "active", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#4285f4", "line-width": ["interpolate", ["linear"], ["zoom"], 10, 5, 17, 12] } }, before);
     redrawRoutes();
   }
   map.on("load", ensureLayers);
@@ -328,6 +340,7 @@
     let h = `<div class="brand"><img src="icons/icon-192.png" alt=""><div><b>CamNAV – នាំផ្លូវ</b><small>បើកបរដោយសុវត្ថិភាព · Drive safely</small></div></div><div class="quick">`;
     h += quickBtn("home", "home", t("home"), saved.home ? saved.home.name : t("tapToSet"));
     h += quickBtn("work", "work", t("work"), saved.work ? saved.work.name : t("tapToSet"));
+    h += quickBtn("rules", "gavel", t("rulesShort"), S.vehicle === "moto" ? t("moto") : t("car"));
     saved.favs.forEach((f, i) => { h += quickBtn("fav" + i, "star", f.name, f.address || ""); });
     h += `</div>`;
     if (recent.length) {
@@ -340,6 +353,7 @@
     $("sheetBody").innerHTML = h;
     $("sheetBody").querySelectorAll("[data-q]").forEach((b) => (b.onclick = () => {
       const q = b.dataset.q;
+      if (q === "rules") return openRules();
       const p = q === "home" ? saved.home : q === "work" ? saved.work : saved.favs[+q.slice(3)];
       if (p) openDirections(p);
       else { toast(t("longPress")); $("q").focus(); pendingSaveAs = q; }
@@ -478,7 +492,13 @@
     let url = `${base}/route/v1/driving/${from[0].toFixed(6)},${from[1].toFixed(6)};${to[0].toFixed(6)},${to[1].toFixed(6)}`
       + `?overview=full&geometries=geojson&steps=true&alternatives=${alts ? 3 : "false"}`;
     if (hdg != null) url += `&bearings=${Math.round(hdg) % 360},60;`;
-    const data = await (await fetch(url)).json();
+    // motorbikes are not allowed on the expressway: ask the router to avoid motorways
+    let data = null;
+    if (S.vehicle === "moto") {
+      try { data = await (await fetch(url + "&exclude=motorway")).json(); } catch (e) { data = null; }
+      if (!data || data.code !== "Ok") data = null; // server without the exclude option → plain route
+    }
+    if (!data) data = await (await fetch(url)).json();
     if (data.code !== "Ok" || !data.routes || !data.routes.length) throw new Error(data.message || data.code || "no route");
     return data.routes.map((r) => { const b = NC.buildRoute(r); b.via = viaName(b); return b; });
   }
@@ -550,7 +570,11 @@
   function renderVeh() {
     $("vehSeg").innerHTML = [["car", "directions_car"], ["moto", "two_wheeler"]].map(([k, ic]) =>
       `<button data-v="${k}" class="${S.vehicle === k ? "on" : ""}">${icon(ic)}${esc(t(k))}</button>`).join("");
-    $("vehSeg").querySelectorAll("button").forEach((b) => (b.onclick = () => { S.vehicle = b.dataset.v; saveSettings(); renderVeh(); }));
+    $("vehSeg").querySelectorAll("button").forEach((b) => (b.onclick = () => {
+      if (S.vehicle === b.dataset.v) return;
+      S.vehicle = b.dataset.v; saveSettings(); renderVeh();
+      if (view === "dirs" && dest) openDirections(dest); // motorbike routes avoid the expressway
+    }));
   }
   $("btnDirBack").onclick = () => { routes = []; if (place) { openPlace(place); } else renderHome(); };
 
@@ -576,7 +600,25 @@
     if (!r || !r.road || (view !== "dirs" && view !== "nav")) return;
     if (S.showCameras) r.road.cameras.forEach((c) => roadMarkers.push(new maplibregl.Marker({ element: makeEl("mk cam", icon("photo_camera", "fill")) }).setLngLat([c.lon, c.lat]).addTo(map)));
     if (S.showSignals) r.road.signals.slice(0, 200).forEach((s) => roadMarkers.push(new maplibregl.Marker({ element: makeEl("mk sig", icon("traffic", "fill")) }).setLngLat([s.lon, s.lat]).addTo(map)));
+    if (S.showSigns) {
+      const add = (list, kind, max) => (list || []).slice(0, max).forEach((x) => {
+        const m = ROAD_META[x.kind === "give_way" ? "give_way" : kind];
+        const el = makeEl("mk sig", icon(m.icon, "fill")); el.style.background = m.color;
+        roadMarkers.push(new maplibregl.Marker({ element: el }).setLngLat([x.lon, x.lat]).addTo(map));
+      });
+      add(r.road.bumps, "bump", 150); add(r.road.schools, "school", 80); add(r.road.rail, "rail", 40);
+      add(r.road.tolls, "toll", 20); add(r.road.signs, "stop", 120);
+    }
   }
+  const ROAD_META = {
+    bump: { icon: "speed", color: "#e8710a" },
+    school: { icon: "school", color: "#f9ab00" },
+    rail: { icon: "train", color: "#5f6368" },
+    toll: { icon: "toll", color: "#1a73e8" },
+    stop: { icon: "front_hand", color: "#d93025" },
+    give_way: { icon: "change_history", color: "#d93025" },
+    signal: { icon: "traffic", color: "#3c4043" },
+  };
 
   // =====================================================================
   // navigation
@@ -598,6 +640,10 @@
     requestWakeLock();
     const first = route.steps[0];
     speak((lang) => I.action(first, lang) + (lang === "km" ? "។ " : ". ") + I.ALERTS[lang].start, true, VC.alertClips.start(first));
+    if (S.reminders) {
+      const k = S.vehicle === "moto" ? "helmet" : "seatbelt";
+      speak((lang) => I.ALERTS[lang][k], false, VC.alertClips[k]());
+    }
     loadRoadInfo(route, 0, 40000);
     if (demo) startSim();
     else if (fix) navTick({ lon: fix.lon, lat: fix.lat, speed: fix.speed || 0, acc: fix.acc, heading });
@@ -713,11 +759,22 @@
     const items = [];
     if (route.road && S.showCameras) for (const c of route.road.cameras) items.push({ id: c.id, kind: "camera", along: c.along, v: c.v });
     if (route.reportsOnRoute && S.showReports) for (const r of route.reportsOnRoute) items.push({ id: r.id, kind: r.type, along: r.along });
+    if (route.road && S.showSigns) {
+      const rd = route.road;
+      const near = (list, kind, warn, voice) => { for (const x of list || []) { const a = x.along - nav.along; if (a > 0 && a < warn) items.push({ id: x.id, kind, along: x.along, warn, voice }); } };
+      near(rd.bumps, "bump", 180, true);
+      near(rd.schools, "school", 300, true);
+      near(rd.rail, "rail", 400, true);
+      near(rd.tolls, "toll", 800, true);
+      near((rd.signs || []).filter((x) => x.kind === "stop"), "stop", 150, true);
+      near((rd.signs || []).filter((x) => x.kind === "give_way"), "give_way", 120, false);
+      if (S.showSignals) near(rd.signals, "signal", 150, false);
+    }
     const shownAlerts = [];
     nav.cameraAhead = 0;
     for (const it of items) {
       const ahead = it.along - nav.along;
-      const warnAt = it.kind === "camera" ? 600 : 500;
+      const warnAt = it.warn || (it.kind === "camera" ? 600 : 500);
       if (ahead <= 0 || ahead > warnAt) continue;
       shownAlerts.push({ it, ahead });
       if (it.kind === "camera" && (!nav.cameraAhead || ahead < nav.cameraAhead)) nav.cameraAhead = ahead;
@@ -726,16 +783,18 @@
         if (it.kind === "camera") {
           const v = it.v || (nav.limit && nav.limit.v) || null;
           speak((lang) => I.ALERTS[lang].camera(ahead, v), false, VC.alertClips.camera(ahead, v));
+        } else if (ROAD_META[it.kind]) {
+          if (it.voice) speak((lang) => I.ALERTS[lang].road[it.kind], false, VC.alertClips.road(it.kind));
         } else speak((lang) => I.ALERTS[lang].report[it.kind], false, VC.alertClips.report(it.kind));
       }
     }
     shownAlerts.sort((a, b) => a.ahead - b.ahead);
-    renderAlerts(shownAlerts.slice(0, 2));
+    renderAlerts(shownAlerts.slice(0, 3));
   }
   let slowChip = false;
   function renderAlerts(list) {
     let h = list.map(({ it, ahead }) => {
-      const meta = REPORT_META[it.kind] || REPORT_META.camera;
+      const meta = REPORT_META[it.kind] || ROAD_META[it.kind] || REPORT_META.camera;
       return `<div class="alert"><span class="aic" style="background:${meta.color}">${icon(meta.icon, "fill")}</span>${esc(t("reports")[it.kind])}<small>&nbsp;· ${esc(fmtDist(ahead))}</small></div>`;
     }).join("");
     if (slowChip) h += `<div class="alert"><span class="aic red">${icon("traffic", "fill")}</span>${esc(t("slowTraffic"))}<button id="btnJam">${esc(t("report"))}</button></div>`;
@@ -794,7 +853,7 @@
   function applyNightMode() {
     const hr = new Date().getHours();
     const night = S.nightAuto && (hr >= 18 || hr < 6);
-    setTiles(view === "nav" && night ? "dark" : S.tiles);
+    setTiles(view === "nav" && night && !TILES[S.tiles].dark ? "dark" : S.tiles);
   }
 
   // ---- steps panel ----
@@ -919,11 +978,26 @@
     openModal();
   }
 
+  function openRules(tab) {
+    tab = tab || (S.vehicle === "moto" ? "moto" : "car");
+    const R = I.RULES[S.lang] || I.RULES.en;
+    const li = (arr) => `<div class="list">` + arr.map((x) => `<div class="item"><span class="ic">${icon("check_circle", "fill")}</span><span class="tx" style="white-space:normal">${esc(x)}</span></div>`).join("") + `</div>`;
+    $("modalPanel").innerHTML = `<h3>${icon("gavel")} ${esc(t("rules"))}</h3>
+      ${seg([["car", R.car_t], ["moto", R.moto_t]], tab, "rtab")}
+      <div class="secTitle">${esc(tab === "moto" ? R.moto_t : R.car_t)}</div>${li(R[tab])}
+      <div class="secTitle">${esc(R.common_t)}</div>${li(R.common)}
+      <div class="note">${esc(R.intro)}</div>
+      <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
+    $("modalPanel").querySelectorAll("[data-rtab]").forEach((b) => (b.onclick = () => openRules(b.dataset.rtab)));
+    $("mClose").onclick = closeModal;
+    openModal();
+  }
+
   function openLayers() {
     const opt = (k, label) => `<button data-t="${k}" class="${S.tiles === k ? "on" : ""}"><span class="mapThumb" style="background:${TILES[k].thumb}"></span>${esc(label)}</button>`;
     const sw = (k, label) => `<label class="switch"><span>${esc(label)}</span><input type="checkbox" data-sw="${k}" ${S[k] ? "checked" : ""}></label>`;
-    $("modalPanel").innerHTML = `<h3>${esc(t("layers"))}</h3><div class="grid3">${opt("clean", t("mapDefault"))}${opt("osm", t("mapOsm"))}${opt("dark", t("mapDark"))}</div>
-      <div class="secTitle">${esc(t("mapDetails"))}</div>${sw("showCameras", t("showCameras"))}${sw("showSignals", t("showSignals"))}${sw("showReports", t("showReports"))}${sw("nightAuto", t("nightAuto"))}
+    $("modalPanel").innerHTML = `<h3>${esc(t("layers"))}</h3><div class="grid3">${opt("dark", t("mapDark"))}${opt("light", t("mapLight"))}${opt("osm", t("mapOsm"))}</div>
+      <div class="secTitle">${esc(t("mapDetails"))}</div>${sw("showCameras", t("showCameras"))}${sw("showSignals", t("showSignals"))}${sw("showReports", t("showReports"))}${sw("showSigns", t("showSigns"))}${sw("nightAuto", t("nightAuto"))}
       <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
     $("modalPanel").querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { S.tiles = b.dataset.t; saveSettings(); setTiles(S.tiles); openLayers(); }));
     $("modalPanel").querySelectorAll("[data-sw]").forEach((c) => (c.onchange = () => { S[c.dataset.sw] = c.checked; saveSettings(); renderReports(); renderRoadMarkers(route || routes[sel]); }));
@@ -951,12 +1025,15 @@
       <div class="field"><label>${esc(t("vehicle"))}</label>${seg([["car", t("car")], ["moto", t("moto")]], S.vehicle, "veh")}</div>
       <div class="field"><label>${esc(t("speedWarn"))}</label>${seg([[-1, t("warnOff")], [0, t("warnAt")], [5, "+" + num(5)], [10, "+" + num(10)]], S.speedWarn, "warn")}</div>
       <label class="switch"><span>${esc(t("headingUp"))}</span><input type="checkbox" id="sHead" ${S.headingUp ? "checked" : ""}></label>
+      <label class="switch"><span>${esc(t("reminders"))}</span><input type="checkbox" id="sRemind" ${S.reminders ? "checked" : ""}></label>
+      <div class="small">${esc(t("motoNoExpress"))}</div>
+      <div class="btnLine"><button id="sRules">${icon("gavel")} ${esc(t("rules"))}</button></div>
       <div class="field"><label>${esc(t("demoSpeed"))}: <span id="sSimV">${num(S.simKmh)}</span> ${esc(t("kmh"))}</label><input type="range" id="sSim" min="20" max="200" step="10" value="${S.simKmh}"></div>
       <div class="field"><label>${esc(t("ble"))}</label><div class="btnLine" style="margin-top:0"><button id="sBle" ${BLE.supported() ? "" : "disabled"}>${esc(BLE.isConnected() ? t("bleDisconnect") : t("bleConnect"))}</button></div>
         <div class="small">${esc(!BLE.supported() ? t("bleNotSupported") : BLE.isConnected() ? "🟢 " + t("bleOn") : "⚪ " + t("bleOff"))}</div></div>
       <div class="field"><label>${esc(t("routerUrl"))}</label><input type="text" id="sRouter" value="${esc(S.router)}" spellcheck="false"></div>
       <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>
-      <div class="note">CamNAV – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
+      <div class="note">CamNAV – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · OpenFreeMap · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
     const P = $("modalPanel");
     P.querySelectorAll("[data-lang]").forEach((b) => (b.onclick = () => { S.lang = b.dataset.lang; saveSettings(); relabel(); openSettings(); }));
     P.querySelectorAll("[data-kmv]").forEach((b) => (b.onclick = () => { S.kmVoice = b.dataset.kmv; saveSettings(); openSettings(); }));
@@ -968,6 +1045,8 @@
     if ($("sOpenTts")) $("sOpenTts").onclick = () => V.openSettings();
     $("sRate").oninput = (e) => { S.rate = +e.target.value; V.setRate(S.rate); saveSettings(); };
     $("sHead").onchange = (e) => { S.headingUp = e.target.checked; saveSettings(); };
+    $("sRemind").onchange = (e) => { S.reminders = e.target.checked; saveSettings(); };
+    $("sRules").onclick = () => openRules();
     $("sSim").oninput = (e) => { S.simKmh = +e.target.value; $("sSimV").textContent = num(S.simKmh); saveSettings(); };
     $("sRouter").onchange = (e) => { S.router = e.target.value.trim() || DEFAULTS.router; saveSettings(); };
     $("sBle").onclick = async () => {

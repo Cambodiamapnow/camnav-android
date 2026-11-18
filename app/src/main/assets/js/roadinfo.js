@@ -68,7 +68,11 @@
     const line = pts.join(",");
     return "[out:json][timeout:25];(" +
       `way(around:${Math.ceil(stepM / 2) + 15},${line})["highway"]["highway"!~"footway|path|cycleway|steps|pedestrian|track|bridleway|corridor|platform|proposed|construction"];` +
-      `node(around:${Math.ceil(stepM / 2) + 35},${line})["highway"~"^(speed_camera|traffic_signals)$"];` +
+      `node(around:${Math.ceil(stepM / 2) + 35},${line})["highway"~"^(speed_camera|traffic_signals|stop|give_way|crossing)$"];` +
+      `node(around:${Math.ceil(stepM / 2) + 25},${line})["traffic_calming"]["traffic_calming"!="no"];` +
+      `node(around:${Math.ceil(stepM / 2) + 30},${line})["railway"="level_crossing"];` +
+      `nwr(around:${Math.ceil(stepM / 2) + 40},${line})["barrier"="toll_booth"];` +
+      `nwr(around:${Math.ceil(stepM / 2) + 90},${line})["amenity"~"^(school|kindergarten)$"];` +
       ");out tags geom qt;";
   }
 
@@ -95,18 +99,34 @@
    */
   function process(route, data, grid) {
     grid = grid || buildGrid(route);
-    const out = { limits: [], classes: [], junctions: [], cameras: [], signals: [] };
+    const out = { limits: [], classes: [], junctions: [], cameras: [], signals: [],
+      bumps: [], signs: [], crossings: [], rail: [], tolls: [], schools: [] };
+    const centre = (el) => {
+      if (el.type === "node") return [el.lon, el.lat];
+      if (el.center) return [el.center.lon, el.center.lat];
+      if (el.geometry && el.geometry.length) {
+        let x = 0, y = 0; for (const q of el.geometry) { x += q.lon; y += q.lat; }
+        return [x / el.geometry.length, y / el.geometry.length];
+      }
+      return null;
+    };
     for (const el of (data && data.elements) || []) {
       const tags = el.tags || {};
-      if (el.type === "node") {
-        const p = [el.lon, el.lat];
+      // point-like features (also schools / toll booths mapped as areas)
+      if (el.type === "node" || tags.amenity === "school" || tags.amenity === "kindergarten" || tags.barrier === "toll_booth") {
+        const p = centre(el);
+        if (!p) continue;
         const loc = locate(route, grid, p);
         if (!loc) continue;
-        if (tags.highway === "speed_camera" && loc.off < 40) {
-          out.cameras.push({ id: "osm" + el.id, along: loc.along, lon: el.lon, lat: el.lat, v: parseMaxspeed(tags.maxspeed) });
-        } else if (tags.highway === "traffic_signals" && loc.off < 25) {
-          out.signals.push({ id: "osm" + el.id, along: loc.along, lon: el.lon, lat: el.lat });
-        }
+        const item = { id: "osm" + el.type[0] + el.id, along: loc.along, lon: p[0], lat: p[1] };
+        if (tags.highway === "speed_camera" && loc.off < 40) out.cameras.push(Object.assign(item, { v: parseMaxspeed(tags.maxspeed) }));
+        else if (tags.highway === "traffic_signals" && loc.off < 25) out.signals.push(item);
+        else if ((tags.highway === "stop" || tags.highway === "give_way") && loc.off < 20) out.signs.push(Object.assign(item, { kind: tags.highway }));
+        else if (tags.traffic_calming && loc.off < 15) out.bumps.push(Object.assign(item, { kind: tags.traffic_calming }));
+        else if (tags.railway === "level_crossing" && loc.off < 25) out.rail.push(item);
+        else if (tags.barrier === "toll_booth" && loc.off < 60) out.tolls.push(item);
+        else if ((tags.amenity === "school" || tags.amenity === "kindergarten") && loc.off < 120) out.schools.push(Object.assign(item, { name: tags["name:en"] || tags.name || "" }));
+        else if (tags.highway === "crossing" && loc.off < 15) out.crossings.push(item);
         continue;
       }
       if (el.type !== "way" || !el.geometry || el.geometry.length < 2) continue;
@@ -150,24 +170,25 @@
         if (near) out.junctions.push({ id: "j" + el.id, along: near.along });
       }
     }
-    out.junctions.sort((a, b) => a.along - b.along);
-    out.cameras.sort((a, b) => a.along - b.along);
-    out.signals.sort((a, b) => a.along - b.along);
+    for (const k of POINT_KINDS.concat("junctions")) out[k].sort((a, b) => a.along - b.along);
     return out;
   }
 
   /** Fresh container for a route; add chunks with addChunk(). */
+  const POINT_KINDS = ["cameras", "signals", "bumps", "signs", "crossings", "rail", "tolls", "schools"];
+  const ALL_KINDS = ["limits", "classes", "junctions"].concat(POINT_KINDS);
   function create() {
-    return { limits: [], classes: [], junctions: [], cameras: [], signals: [], loadedTo: 0, loading: false };
+    const r = { loadedTo: 0, loading: false };
+    for (const k of ALL_KINDS) r[k] = [];
+    return r;
   }
   function addChunk(road, chunk, loadedTo) {
-    for (const k of ["limits", "classes", "junctions", "cameras", "signals"]) {
+    for (const k of ALL_KINDS) {
+      if (!road[k]) road[k] = [];
       const have = new Set(road[k].map((x) => x.id).filter(Boolean));
-      mergeInto(road, k, chunk[k].filter((x) => !x.id || !have.has(x.id)));
+      mergeInto(road, k, (chunk[k] || []).filter((x) => !x.id || !have.has(x.id)));
     }
-    road.junctions.sort((a, b) => a.along - b.along);
-    road.cameras.sort((a, b) => a.along - b.along);
-    road.signals.sort((a, b) => a.along - b.along);
+    for (const k of POINT_KINDS.concat("junctions")) road[k].sort((a, b) => a.along - b.along);
     road.loadedTo = Math.max(road.loadedTo, loadedTo);
   }
 
@@ -215,5 +236,5 @@
     return road;
   }
 
-  return { DEFAULTS, buildGrid, locate, buildQuery, parseMaxspeed, process, create, addChunk, limitAt, junctionDensity, load };
+  return { DEFAULTS, POINT_KINDS, buildGrid, locate, buildQuery, parseMaxspeed, process, create, addChunk, limitAt, junctionDensity, load };
 });
