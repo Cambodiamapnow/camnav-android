@@ -1,0 +1,127 @@
+name: Cambodia offline data (ESP32)
+
+# Builds the offline data for the ESP32-S3 NAV-OSM car screen:
+#   routing.rng   – whole-Cambodia routing graph (RNG2, spatially indexed)
+#   tiles .zip    – map tiles rendered by our own OpenStreetMap tile server
+# The graph/tile tools come from the original ESP32_OSM_NAV project; they are
+# downloaded at build time (pinned commit), not copied into this repository.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/cambodia-data.yml
+      - tools/check_rng.py
+
+permissions:
+  contents: write
+
+env:
+  UPSTREAM: https://github.com/DangLamTung/ESP32_OSM_NAV
+  UPSTREAM_COMMIT: 451d092aa5eb914a24bed303d56132de5bc43134
+  PBF_URL: https://download.geofabrik.de/asia/cambodia-latest.osm.pbf
+  RELEASE_TAG: cambodia-offline-data
+
+jobs:
+  routing:
+    name: Routing graph (routing.rng)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Get the ESP32_OSM_NAV tools (pinned)
+        run: |
+          git init -q upstream && cd upstream
+          git fetch -q --depth 1 "$UPSTREAM" "$UPSTREAM_COMMIT" && git checkout -q FETCH_HEAD
+          ls tools
+
+      - name: Install Python packages
+        run: python3 -m pip install --quiet osmium numpy
+
+      - name: Download Cambodia map data (Geofabrik)
+        run: |
+          curl -fsSL -o cambodia.osm.pbf "$PBF_URL"
+          ls -lh cambodia.osm.pbf
+
+      - name: Build graph → collapse chains → spatial index
+        run: |
+          python3 upstream/tools/build_routing_graph.py cambodia.osm.pbf full.rng
+          python3 upstream/tools/collapse_graph.py full.rng collapsed.rng
+          python3 upstream/tools/build_spatial.py collapsed.rng routing.rng --cell 0.02
+          ls -lh full.rng collapsed.rng routing.rng
+
+      - name: Check the graph (cities reachable, drive times)
+        run: python3 tools/check_rng.py routing.rng | tee routing-check.txt
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Cambodia offline data for the ESP32 car screen
+          make_latest: false
+          body: |
+            Offline data for the ESP32-S3 NAV-OSM board, built from OpenStreetMap
+            (© OpenStreetMap contributors, ODbL) via Geofabrik.
+            - **routing.rng** – whole Cambodia, RNG2 format → copy to the SD card root
+              (or `python upload_routing_graph.py --port COMx routing.rng`).
+            - **routing-check.txt** – sanity check: reachable cities and drive times.
+            - **cambodia-tiles.zip** – map tiles (see the tiles job) → unzip to the SD card root.
+          files: |
+            routing.rng
+            routing-check.txt
+
+  tiles:
+    name: Map tiles (own tile server)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Get the ESP32_OSM_NAV tools (pinned)
+        run: |
+          git init -q upstream && cd upstream
+          git fetch -q --depth 1 "$UPSTREAM" "$UPSTREAM_COMMIT" && git checkout -q FETCH_HEAD
+
+      - name: Download Cambodia map data (Geofabrik)
+        run: curl -fsSL -o cambodia.osm.pbf "$PBF_URL"
+
+      - name: Import into a tile server (PostGIS + Mapnik)
+        run: |
+          docker volume create osm-data
+          docker run --rm \
+            -v "$PWD/cambodia.osm.pbf:/data/region.osm.pbf" \
+            -v osm-data:/data/database/ \
+            -e THREADS=4 \
+            overv/openstreetmap-tile-server import
+
+      - name: Start the tile server
+        run: |
+          docker run -d --name osm -p 8080:80 -e THREADS=4 \
+            -v osm-data:/data/database/ overv/openstreetmap-tile-server run
+          for i in $(seq 1 60); do
+            if curl -fs -o /tmp/t.png http://localhost:8080/tile/12/3238/1910.png; then file /tmp/t.png; exit 0; fi
+            sleep 10
+          done
+          docker logs osm | tail -50; exit 1
+
+      - name: Render tiles (Cambodia z8–12, Phnom Penh z13–16)
+        run: |
+          DL="python3 upstream/scripts/download_offline_tiles.py --url-template http://localhost:8080/tile/{z}/{x}/{y}.png --threads 4 --delay 0 --out tiles"
+          # run twice: the second pass only fills tiles that timed out while rendering
+          for pass in 1 2; do
+            $DL --bbox 102.33,10.40,107.63,14.70 --min-zoom 8 --max-zoom 12
+            $DL --bbox 104.75,11.45,105.05,11.70 --min-zoom 13 --max-zoom 16
+          done
+          find tiles -name '*.png' | wc -l
+          du -sh tiles
+
+      - name: Zip
+        run: cd tiles && zip -qr ../cambodia-tiles.zip . && cd .. && ls -lh cambodia-tiles.zip
+
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          make_latest: false
+          files: cambodia-tiles.zip
