@@ -3,7 +3,7 @@ name: ElevenLabs voices into the app
 # cuts them into one clip per line and commits them to the app.
 on:
   push:
-    paths: ["tools/eleven-batch.json"]
+    paths: ["tools/eleven-batch.json", "tools/split_eleven.py"]
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,6 +14,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - run: python3 tools/split_eleven.py | tee voice-report.txt
+        env:
+          ONLY: ${{ vars.ELEVEN_ONLY || 'funny_guy,war_chief,monk,tuktuk_uncle,caring_mom' }}
       - name: Commit clips
         run: |
           git config user.name "CamNAV voice bot"
