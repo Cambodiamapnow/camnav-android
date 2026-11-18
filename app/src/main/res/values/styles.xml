@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#1a73e8</item>
-        <item name="android:navigationBarColor">#ffffff</item>
-        <item name="android:windowBackground">@android:color/white</item>
+    <!-- full screen: no title bar, bars hidden by the app; dark so no white strip shows while loading -->
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 </resources>

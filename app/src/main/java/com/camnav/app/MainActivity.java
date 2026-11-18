@@ -63,12 +63,37 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // draw under the camera notch / punch-hole and behind the (hidden) system bars
+        if (Build.VERSION.SDK_INT >= 28) {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30
+                    ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(lp);
+        }
+        if (Build.VERSION.SDK_INT >= 30) getWindow().setDecorFitsSystemWindows(false);
 
         tts = new TextToSpeech(this, this);
 
         web = new WebView(this);
         setContentView(web);
         goFullScreen();
+        // tell the page how much room the camera notch takes, so buttons are not hidden behind it
+        web.setOnApplyWindowInsetsListener((v, insets) -> {
+            int top = 0, bottom = 0, left = 0, right = 0;
+            if (Build.VERSION.SDK_INT >= 28 && insets.getDisplayCutout() != null) {
+                top = insets.getDisplayCutout().getSafeInsetTop();
+                bottom = insets.getDisplayCutout().getSafeInsetBottom();
+                left = insets.getDisplayCutout().getSafeInsetLeft();
+                right = insets.getDisplayCutout().getSafeInsetRight();
+            }
+            float d = getResources().getDisplayMetrics().density;
+            safeJs = "(function(){var s=document.documentElement.style;s.setProperty('--safe-t','" + Math.round(top / d)
+                    + "px');s.setProperty('--safe-b','" + Math.round(bottom / d) + "px');s.setProperty('--safe-l','"
+                    + Math.round(left / d) + "px');s.setProperty('--safe-r','" + Math.round(right / d) + "px');})()";
+            web.evaluateJavascript(safeJs, null);
+            return insets;
+        });
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -94,6 +119,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             @Override
             public void onPageFinished(WebView view, String url) {
                 pageReady = true;
+                if (safeJs != null) view.evaluateJavascript(safeJs, null);
+                else view.requestApplyInsets();
                 deliverDeepLink();
             }
 
@@ -149,6 +176,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         web.evaluateJavascript(js, null);
     }
 
+    private String safeJs = null;
+
     // ---------------- full screen ----------------
     @SuppressWarnings("deprecation")
     private void goFullScreen() {
@@ -170,6 +199,12 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) goFullScreen();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        goFullScreen();
     }
 
     // ---------------- assets over https ----------------
