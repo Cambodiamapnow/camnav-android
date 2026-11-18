@@ -259,9 +259,12 @@
   const speak = (builder, urgent, clips) => { lastTalk = Date.now(); V.say(voiceParts(builder, clips), urgent); };
 
   /** The selected voice pack (falls back to standard when Pro has ended). */
+  // owner/tester unlock: all voice characters open on this phone (code checked by its SHA-256 only)
+  const DEV_HASH = "614a6ed24bd6adf6862d5322842298075991cae7b39a3c1cb94ee0500336ef19";
+  const voicesOpen = () => CL.isPro() || store.get("devVoices", false) === true;
   function activePack() {
     const p = VP.byId(S.voicePack || "standard");
-    return p.pro && !CL.isPro() ? VP.byId("standard") : p;
+    return p.pro && !voicesOpen() ? VP.byId("standard") : p;
   }
   /**
    * Speak a voice-pack moment (start, 200 m turns, traffic, flood, arrived) in Khmer;
@@ -1564,8 +1567,8 @@
   // ---------- voice packs ----------
   function openVoicePacks() {
     const P = $("modalPanel");
-    P.innerHTML = `<h3>${icon("record_voice_over")} ${esc(t("voicePacks"))}</h3><div class="packList">` + VP.PACKS.map((p) => {
-      const locked = p.pro && !CL.isPro();
+    P.innerHTML = `<h3 id="vpTitle">${icon("record_voice_over")} ${esc(t("voicePacks"))}</h3><div id="devRow"></div><div class="packList">` + VP.PACKS.map((p) => {
+      const locked = p.pro && !voicesOpen();
       const on = activePack().id === p.id;
       return `<div class="pack ${on ? "on" : ""}" data-p="${p.id}">
         <div class="packIcon" style="background:${p.color}">${p.emoji}</div>
@@ -1582,10 +1585,26 @@
     }));
     P.querySelectorAll(".pack").forEach((el) => (el.onclick = () => {
       const p = VP.byId(el.dataset.p);
-      if (p.pro && !CL.isPro()) { if (requireAccount(openPaywall)) openPaywall(); return; }
+      if (p.pro && !voicesOpen()) { if (requireAccount(openPaywall)) openPaywall(); return; }
       S.voicePack = p.id; saveSettings(); CL.updatePrefs({ selected_voice_pack: p.id });
       toast("🔊 " + p.name[S.lang]); openVoicePacks();
     }));
+    // tap the title 7 times → developer code box
+    let taps = 0;
+    $("vpTitle").onclick = () => {
+      if (++taps < 7 || $("devCode")) return;
+      $("devRow").innerHTML = `<div class="btnLine"><input id="devCode" placeholder="Developer code" autocapitalize="characters" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--line)"><button class="primary" id="devOk">OK</button></div>`;
+      $("devOk").onclick = async () => {
+        const code = $("devCode").value.trim().toUpperCase();
+        let hex = "";
+        try {
+          const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(code));
+          hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+        } catch (e) {}
+        if (hex === DEV_HASH) { store.set("devVoices", true); toast("✅ All voices unlocked"); openVoicePacks(); }
+        else toast("❌");
+      };
+    };
     $("mClose").onclick = closeModal;
     openModal();
   }
