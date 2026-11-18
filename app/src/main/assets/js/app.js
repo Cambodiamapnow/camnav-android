@@ -248,12 +248,25 @@
   // voice
   // =====================================================================
   /** Khmer uses the natural recorded voice when all its clips exist, else the phone voice. */
+  /** The direction clips in the selected character's voice; falls back to the normal voice's recordings. */
+  function charClips(ids) {
+    if (!ids || !ids.length) return ids;
+    for (const pk of [activePack().id, "standard"]) {
+      const m = ids.map((id) => "voice/packs/" + pk + "/clips/" + id + ".mp3");
+      if (V.hasClips(m)) return m;
+    }
+    return ids;
+  }
+  // Khmer is spoken only with the recorded (ElevenLabs) voices — never the phone's voice.
+  // English (if chosen) still uses the phone's English voice.
   function voiceParts(builder, clips) {
     if (S.voice === "off" || !V.supported) return [];
-    const natural = S.kmVoice !== "phone" && V.hasClips(clips);
-    const kmOk = natural || V.hasKhmer() || S.forceKm;
-    const langs = S.voice === "both" ? (kmOk ? ["km", "en"] : ["en"]) : S.voice === "km" ? [kmOk ? "km" : "en"] : ["en"];
-    return langs.map((lang) => (lang === "km" && natural ? { lang, clips } : { lang, text: builder(lang) }));
+    clips = charClips(clips);
+    const natural = V.hasClips(clips);
+    const out = [];
+    if (S.voice !== "en" && natural) out.push({ lang: "km", clips });
+    if (S.voice === "en" || S.voice === "both") out.push({ lang: "en", text: builder("en") });
+    return out;
   }
   let lastTalk = 0; // when the app last said anything (for the characters' small talk)
   const speak = (builder, urgent, clips) => { lastTalk = Date.now(); V.say(voiceParts(builder, clips), urgent); };
@@ -276,15 +289,13 @@
     const take = VP.pickTake(pack, event);
     const line = (pack.lines[event] || [])[take];
     const file = VP.clipPath(pack.id, event, take);
-    const haveFile = V.hasFile(file);
-    const kmOk = haveFile || V.hasKhmer() || S.forceKm;
-    if (!line || S.voice === "en" || !kmOk) return builder ? speak(builder, urgent, clips) : undefined;
+    if (!line || S.voice === "en" || !V.hasFile(file)) return builder ? speak(builder, urgent, clips) : undefined;
     lastTalk = Date.now();
-    const sty = pack.tts || {};
-    const parts = [haveFile ? { lang: "km", clips: [file] } : { lang: "km", text: line, pitch: sty.pitch, rate: sty.rate }];
+    const parts = [{ lang: "km", clips: [file] }];
     if (S.voice === "both" && builder) parts.push({ lang: "en", text: builder("en") });
     V.say(parts, urgent);
   }
+
 
   // =====================================================================
   // GPS
@@ -1614,9 +1625,9 @@
     const parts = ["start_route", p.lines.chatter ? "chatter" : "turn_right_200m"].map((ev) => {
       const i = VP.pickTake(p, ev), f = VP.clipPath(p.id, ev, i);
       const sty = p.tts || {};
-      return V.hasFile(f) ? { lang: "km", clips: [f] } : { lang: V.hasKhmer() || S.forceKm ? "km" : "en", text: V.hasKhmer() || S.forceKm ? p.lines[ev][i] : I.ALERTS.en.test, pitch: sty.pitch, rate: sty.rate };
+      return V.hasFile(f) ? { lang: "km", clips: [f] } : null;
     });
-    V.say(parts, true);
+    V.say(parts.filter(Boolean), true);
   }
 
   // renewal reminder 3 days before the end

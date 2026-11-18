@@ -14,5 +14,5 @@ window.CAMNAV_CONFIG = {
   priceUsd: 1,
   // true = every voice character is open for everyone (no Pro needed). Set to false to lock them behind Pro again.
   freeVoices: true,
-  appVersion: "2.1.1",
+  appVersion: "2.2",
 };

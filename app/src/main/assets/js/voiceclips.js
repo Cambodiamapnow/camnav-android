@@ -65,6 +65,7 @@
   add("arrive_right", "គោលដៅរបស់អ្នកនៅខាងស្តាំ", "Your destination is on the right");
   add("now", "ឥឡូវនេះ", "now");
   add("then", "បន្ទាប់មក", "then");
+  add("onto", "ចូលផ្លូវ", "onto");
 
   add("slogan", "បើកបរដោយសុវត្ថិភាព", "Drive safely");
   add("reroute", "កំពុងរកផ្លូវថ្មី", "Rerouting");
@@ -90,7 +91,7 @@
   add("road_no_overtake", "ហាមវ៉ាជែង", "No overtaking");
   add("helmet", "សូមពាក់មួកសុវត្ថិភាព ទាំងអ្នកបើកបរ និងអ្នកជិះពីក្រោយ", "Please wear a helmet, rider and passenger");
   add("seatbelt", "សូមពាក់ខ្សែក្រវាត់សុវត្ថិភាព", "Please fasten your seat belt");
-  add("test", "សួស្តី! នេះជាសំឡេងណែនាំផ្លូវរបស់ ខេមណាវ។ សូមបើកបរដោយសុវត្ថិភាព", "Hello! This is the CamNAV voice. Please drive safely");
+  add("test", "សួស្តី! នេះជាសំឡេងណែនាំផ្លូវរបស់ ខេម៉ែប។ សូមបើកបរដោយសុវត្ថិភាព", "Hello! This is the K-Map voice. Please drive safely");
 
   // ---------- builders: what to play for a given moment ----------
   /** Distance clip for the voice (snapped to the clips that exist). */
