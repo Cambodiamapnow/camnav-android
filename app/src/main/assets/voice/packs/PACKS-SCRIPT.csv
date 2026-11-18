@@ -5,45 +5,146 @@ voice/packs/standard/turn_right_200m.mp3,standard,turn_right_200m,នៅខា�
 voice/packs/standard/traffic_ahead.mp3,standard,traffic_ahead,ប្រយ័ត្ន! មានការស្ទះចរាចរណ៍នៅខាងមុខ ប្រព័ន្ធកំពុងរកផ្លូវវាងជូនអ្នក។
 voice/packs/standard/flood_ahead.mp3,standard,flood_ahead,ប្រយ័ត្ន! មានទឹកលិចផ្លូវនៅខាងមុខ សូមបន្ថយល្បឿន។
 voice/packs/standard/arrived.mp3,standard,arrived,អ្នកបានមកដល់គោលដៅហើយ។ សូមអរគុណ!
+voice/packs/standard/halfway.mp3,standard,halfway,អ្នកបានធ្វើដំណើរពាក់កណ្តាលផ្លូវហើយ។
+voice/packs/standard/almost_there.mp3,standard,almost_there,ជិតដល់គោលដៅហើយ។
+voice/packs/standard/break_time.mp3,standard,break_time,អ្នកបានបើកបរមួយម៉ោងហើយ។ សូមឈប់សម្រាកបន្តិច។
 voice/packs/funny_guy/start_route.mp3,funny_guy,start_route,ហេហេ! ចេញដំណើរហើយ! ពាក់មួកសុវត្ថិភាពផង ក្បាលយើងមានតែមួយ គ្មានស្ពែរទេណា!
+voice/packs/funny_guy/start_route_2.mp3,funny_guy,start_route,តោះ! ម៉ាស៊ីនក្តៅ ចិត្តក៏ក្តៅ តែល្បឿនកុំឱ្យក្តៅពេកណា!
 voice/packs/funny_guy/turn_left_200m.mp3,funny_guy,turn_left_200m,២០០ ម៉ែត្រទៀតបត់ឆ្វេង! កុំបត់ទៅផ្ទះអតីតសង្សារវិញណា!
 voice/packs/funny_guy/turn_right_200m.mp3,funny_guy,turn_right_200m,២០០ ម៉ែត្រទៀតបត់ស្តាំ! ស្តាំ... ដៃដែលកាន់ស្លាបព្រាហ្នឹងហើយ!
 voice/packs/funny_guy/traffic_ahead.mp3,funny_guy,traffic_ahead,ស្ទះទៀតហើយ! ឡានដើរតម្រង់ជួរដូចស្រមោច... ចាំបន្តិចទៅ កុំស្រែកដាក់គេណា!
+voice/packs/funny_guy/traffic_ahead_2.mp3,funny_guy,traffic_ahead,ស្ទះទៀតហើយ! បើដើរវិញ ប្រហែលដល់មុនហើយមើលទៅ!
 voice/packs/funny_guy/flood_ahead.mp3,funny_guy,flood_ahead,ខាងមុខទឹកលិច! បើមិនចង់ក្លាយជាទូកទេ ជិះយឺតៗណា!
 voice/packs/funny_guy/arrived.mp3,funny_guy,arrived,ដល់ហើយ! ពូកែណាស់! ឥឡូវទៅញ៉ាំបាយទៅ ខ្ញុំក៏ឃ្លានដែរ!
+voice/packs/funny_guy/arrived_2.mp3,funny_guy,arrived,ដល់ហើយ! ពិន្ទុពេញមួយរយ! ខ្ញុំកាត់មួយពិន្ទុ ព្រោះអ្នកមិនដែលសើចនឹងរឿងកំប្លែងខ្ញុំ!
+voice/packs/funny_guy/overspeed.mp3,funny_guy,overspeed,បន្ថយល្បឿន! អ្នកបើកលឿនជាងអ៊ីនធឺណិតផ្ទះខ្ញុំទៅទៀត!
+voice/packs/funny_guy/overspeed_2.mp3,funny_guy,overspeed,ហ្ហា! លឿនពេកហើយ! យើងមិនមែនប្រណាំងយកពានទេ យឺតៗមក!
+voice/packs/funny_guy/camera_ahead.mp3,funny_guy,camera_ahead,ស្ងៀមៗ... មានកាមេរ៉ាល្បឿននៅខាងមុខ! ញញឹមផង ហើយបើកតាមល្បឿនកំណត់!
+voice/packs/funny_guy/camera_ahead_2.mp3,funny_guy,camera_ahead,កាមេរ៉ាខាងមុខ! ថតរូបបាន តែកុំឱ្យជាប់ពិន័យណា!
+voice/packs/funny_guy/bump_ahead.mp3,funny_guy,bump_ahead,ដុំបន្ថយល្បឿននៅខាងមុខ! យឺតៗ កុំឱ្យបាយក្នុងពោះលោតចេញ!
+voice/packs/funny_guy/school_ahead.mp3,funny_guy,school_ahead,តំបន់សាលារៀន! បន្ថយល្បឿន! ក្មេងៗកំពុងរៀន... ហើយខ្ញុំក៏នៅរៀនបើកបរដែរ!
+voice/packs/funny_guy/rerouting.mp3,funny_guy,rerouting,អូខេ... អ្នកមិនស្តាប់ខ្ញុំទេ! មិនអីទេ ខ្ញុំរកផ្លូវថ្មីឱ្យ!
+voice/packs/funny_guy/rerouting_2.mp3,funny_guy,rerouting,ផ្លូវនេះក៏ល្អដែរ! ខ្ញុំកំពុងរកផ្លូវថ្មី... ចាំបន្តិច!
+voice/packs/funny_guy/halfway.mp3,funny_guy,halfway,បានពាក់កណ្តាលផ្លូវហើយ! នៅកន្លះទៀត ដូចញ៉ាំនំបញ្ចុកកន្លះចាន!
+voice/packs/funny_guy/almost_there.mp3,funny_guy,almost_there,ជិតដល់ហើយ! ត្រៀមរៀបសក់ ញញឹម ដល់ហើយ!
+voice/packs/funny_guy/break_time.mp3,funny_guy,break_time,បើកមួយម៉ោងហើយ! ឈប់សម្រាក ផឹកទឹកសិនទៅ ខ្ញុំក៏ហត់ដែរ!
+voice/packs/funny_guy/chatter.mp3,funny_guy,chatter,ដឹងទេ ហេតុអ្វីមាន់ឆ្លងផ្លូវ? ព្រោះគ្មានអ្នកនាំផ្លូវដូចខ្ញុំ!
+voice/packs/funny_guy/chatter_2.mp3,funny_guy,chatter,ផ្លូវស្រឡះល្អណាស់! នៅខាងស្តាំបន្តិច ទុកឱ្យគេវ៉ាផង!
+voice/packs/funny_guy/chatter_3.mp3,funny_guy,chatter,ខ្ញុំជាអ្នកនាំផ្លូវដែលកំប្លែងជាងគេ... ហើយក៏ជាអ្នកតែម្នាក់គត់ដែលអ្នកមាន!
+voice/packs/funny_guy/chatter_4.mp3,funny_guy,chatter,កុំភ្លេចផឹកទឹក! ខ្លួនយើងដូចម៉ូតូដែរ ត្រូវការសាំង... តែជាទឹក!
 voice/packs/war_chief/start_route.mp3,war_chief,start_route,ទាហានទាំងអស់! ពាក់មួកសុវត្ថិភាព! ចាប់ចង្កូតឱ្យជាប់! យើងចេញសមរភូមិ... ទៅផ្សារ!
+voice/packs/war_chief/start_route_2.mp3,war_chief,start_route,ទ័ពត្រៀមរួចរាល់! ពិនិត្យសាំង ពិនិត្យហ្វ្រាំង... ចេញដំណើរ!
 voice/packs/war_chief/turn_left_200m.mp3,war_chief,turn_left_200m,២០០ ម៉ែត្រទៀត វាយលុកទៅខាងឆ្វេង! បើកភ្លើងស៊ីញ៉ូផង អ្នកចម្បាំងពិតគោរពច្បាប់!
 voice/packs/war_chief/turn_right_200m.mp3,war_chief,turn_right_200m,២០០ ម៉ែត្រទៀត ទ័ពយើងបត់ស្តាំ! ទៅមុខ! កុំបកក្រោយ!
 voice/packs/war_chief/traffic_ahead.mp3,war_chief,traffic_ahead,ខ្មាំងស្ទះផ្លូវ! ទាហានទាំងអស់ អត់ធ្មត់! អ្នកចម្បាំងពិត មិនបុកឡានគេទេ!
+voice/packs/war_chief/traffic_ahead_2.mp3,war_chief,traffic_ahead,ខ្មាំងច្រើនណាស់នៅខាងមុខ! យើងរង់ចាំឱកាស! អ្នកចម្បាំងឆ្លាត មិនវ៉ាតាមចិញ្ចើមផ្លូវទេ!
 voice/packs/war_chief/flood_ahead.mp3,war_chief,flood_ahead,ទឹកជំនន់នៅខាងមុខ! បន្ថយល្បឿន! យើងជាទាហាន មិនមែនជាត្រីទេ!
 voice/packs/war_chief/arrived.mp3,war_chief,arrived,ជ័យជម្នះ! យើងដល់គោលដៅហើយ! ឥឡូវ... សម្រាកផឹកកាហ្វេសិន!
+voice/packs/war_chief/arrived_2.mp3,war_chief,arrived,បេសកកម្មជោគជ័យ! ទាហានទទួលបានមេដាយ... នំបញ្ចុកមួយចាន!
+voice/packs/war_chief/overspeed.mp3,war_chief,overspeed,ទាហាន! លឿនពេកហើយ! បន្ថយល្បឿនភ្លាម! នេះជាបញ្ជា!
+voice/packs/war_chief/overspeed_2.mp3,war_chief,overspeed,ហ្វ្រាំងបន្តិច ទាហាន! មេទ័ពពិតមិនបើកលឿនហួសច្បាប់ទេ!
+voice/packs/war_chief/camera_ahead.mp3,war_chief,camera_ahead,ស៊ើបការណ៍រាយការណ៍៖ កាមេរ៉ាល្បឿននៅខាងមុខ! រក្សាល្បឿនកំណត់!
+voice/packs/war_chief/camera_ahead_2.mp3,war_chief,camera_ahead,ភ្នែកខ្មាំងនៅខាងមុខ! កាមេរ៉ាល្បឿន! ទាហានទាំងអស់ គោរពល្បឿនកំណត់!
+voice/packs/war_chief/bump_ahead.mp3,war_chief,bump_ahead,ឧបសគ្គនៅខាងមុខ! ដុំបន្ថយល្បឿន! យឺតៗ ឆ្លងកាត់ដោយសុវត្ថិភាព!
+voice/packs/war_chief/school_ahead.mp3,war_chief,school_ahead,តំបន់សាលារៀន! ទាហានពិតការពារកុមារ! បន្ថយល្បឿន!
+voice/packs/war_chief/rerouting.mp3,war_chief,rerouting,ផែនការផ្លាស់ប្តូរ! មេទ័ពកំពុងគូរផែនទីថ្មី!
+voice/packs/war_chief/rerouting_2.mp3,war_chief,rerouting,កុំភ័យ! យើងវាយលុកតាមផ្លូវថ្មី!
+voice/packs/war_chief/halfway.mp3,war_chief,halfway,ពាក់កណ្តាលសមរភូមិ! កម្លាំងនៅពេញ! ទៅមុខទៀត!
+voice/packs/war_chief/almost_there.mp3,war_chief,almost_there,គោលដៅនៅជិតហើយ! ទាហាន ត្រៀមខ្លួនចុះចត!
+voice/packs/war_chief/break_time.mp3,war_chief,break_time,ទាហានបើកមួយម៉ោងហើយ! សម្រាកបន្តិច ផឹកទឹក! ទ័ពហត់ វាយមិនឈ្នះទេ!
+voice/packs/war_chief/chatter.mp3,war_chief,chatter,ផ្លូវស្ងប់ស្ងាត់ពេក... ល្អហើយ! សុខសន្តិភាព!
+voice/packs/war_chief/chatter_2.mp3,war_chief,chatter,ទាហាន! ដៃនៅលើចង្កូត! ភ្នែកមើលផ្លូវ! ល្អណាស់!
+voice/packs/war_chief/chatter_3.mp3,war_chief,chatter,រឿងព្រេងនិទានថា... មានអ្នកចម្បាំងម្នាក់ មិនដែលលើសល្បឿន។ អ្នកនោះគឺអ្នក!
+voice/packs/war_chief/chatter_4.mp3,war_chief,chatter,រាយការណ៍ស្ថានការណ៍៖ ផ្លូវស្រឡះ អាកាសធាតុល្អ ទាហានសង្ហា!
 voice/packs/tuktuk_uncle/start_route.mp3,tuktuk_uncle,start_route,តោះក្មួយ! ពាក់មួកសុវត្ថិភាពឱ្យជាប់ ពូរកផ្លូវកាត់ឱ្យ ធានាថាមិនឱ្យស្ទះដូចថ្ងៃសុក្រទេ!
 voice/packs/tuktuk_uncle/turn_left_200m.mp3,tuktuk_uncle,turn_left_200m,២០០ ម៉ែត្រទៀតបត់ឆ្វេងណាក្មួយ ប្រយ័ត្នហួសផ្លូវកាត់ពូ!
 voice/packs/tuktuk_uncle/turn_right_200m.mp3,tuktuk_uncle,turn_right_200m,ត្រៀមខ្លួនបត់ស្តាំ ២០០ ម៉ែត្រទៀត ស៊ីញ៉ូឱ្យហើយទៅក្មួយ!
 voice/packs/tuktuk_uncle/traffic_ahead.mp3,tuktuk_uncle,traffic_ahead,អូហូ! ខាងមុខស្ទះណែនណាន់តាន់តាប់ហើយ ជឿពូ បត់ចូលផ្លូវលំតាមពូមក!
 voice/packs/tuktuk_uncle/flood_ahead.mp3,tuktuk_uncle,flood_ahead,ឈប់សិនក្មួយ! ខាងមុខទឹកលិចដូចទន្លេហើយ ប្រយ័ត្នរលត់ម៉ាស៊ីនណា!
 voice/packs/tuktuk_uncle/arrived.mp3,tuktuk_uncle,arrived,ដល់ហើយក្មួយ! សុវត្ថិភាពដល់គោលដៅ កុំភ្លេចប៉ាវកាហ្វេ Developer មួយកែវផង!
+voice/packs/tuktuk_uncle/overspeed.mp3,tuktuk_uncle,overspeed,ក្មួយ! លឿនពេកហើយ! តុកតុកពូដេញមិនទាន់ទេ! បន្ថយល្បឿនមក!
+voice/packs/tuktuk_uncle/camera_ahead.mp3,tuktuk_uncle,camera_ahead,កាមេរ៉ានៅខាងមុខក្មួយ! ពូស្គាល់កន្លែងនេះ បើកតាមល្បឿនកំណត់ទៅ!
+voice/packs/tuktuk_uncle/bump_ahead.mp3,tuktuk_uncle,bump_ahead,ដុំបន្ថយល្បឿន! យឺតៗក្មួយ កុំឱ្យភ្ញៀវលោតប៉ះដំបូល!
+voice/packs/tuktuk_uncle/school_ahead.mp3,tuktuk_uncle,school_ahead,សាលារៀនខាងមុខក្មួយ បន្ថយល្បឿន ក្មេងៗរត់ឆ្លងផ្លូវញឹកញាប់!
+voice/packs/tuktuk_uncle/rerouting.mp3,tuktuk_uncle,rerouting,គ្មានបញ្ហាទេក្មួយ! ពូស្គាល់ផ្លូវកាត់គ្រប់ច្រកល្ហក!
+voice/packs/tuktuk_uncle/halfway.mp3,tuktuk_uncle,halfway,ពាក់កណ្តាលផ្លូវហើយក្មួយ! ល្អណាស់ ដូចតុកតុកពូអីចឹង លឿនតែមិនប្រញាប់!
+voice/packs/tuktuk_uncle/almost_there.mp3,tuktuk_uncle,almost_there,ជិតដល់ហើយក្មួយ! ត្រៀមលុយ... អត់ទេ ពូលេងទេ ឥតគិតថ្លៃ!
+voice/packs/tuktuk_uncle/break_time.mp3,tuktuk_uncle,break_time,បើកមួយម៉ោងហើយក្មួយ! ឈប់ផឹកកាហ្វេទឹកដោះគោទឹកកកមួយកែវសិន!
+voice/packs/tuktuk_uncle/chatter.mp3,tuktuk_uncle,chatter,ក្មួយ... ពូបើកតុកតុកម្ភៃឆ្នាំ មិនដែលវង្វេងទេ! មែនទែន... វង្វេងតែពីរដងទេ!
+voice/packs/tuktuk_uncle/chatter_2.mp3,tuktuk_uncle,chatter,ផ្លូវល្អណាស់ថ្ងៃនេះ! ពូចូលចិត្តផ្លូវបែបនេះ ស្រឡះដូចចិត្តពូ!
 voice/packs/caring_mom/start_route.mp3,caring_mom,start_route,កូនអើយ! ពាក់មួកសុវត្ថិភាពហើយនៅ? ញ៉ាំបាយហើយនៅ? យកអាវរងារទៅផង! ហ្នឹងហើយ ចេញទៅ!
+voice/packs/caring_mom/start_route_2.mp3,caring_mom,start_route,ចេញហើយ? ទូរស័ព្ទសាកថ្មហើយនៅ? មួកពាក់ហើយ? លុយមានទេ? ម៉ាក់ឱ្យបន្ថែម... អត់ទេ ម៉ាក់លេងទេ!
 voice/packs/caring_mom/turn_left_200m.mp3,caring_mom,turn_left_200m,២០០ ម៉ែត្រទៀតបត់ឆ្វេងកូន! ម៉ាក់ប្រាប់ច្រើនដងហើយណា ឆ្វេង!
 voice/packs/caring_mom/turn_right_200m.mp3,caring_mom,turn_right_200m,២០០ ម៉ែត្រទៀតបត់ស្តាំ! ហើយកុំលេងទូរស័ព្ទ ម៉ាក់ឃើញណា!
 voice/packs/caring_mom/traffic_ahead.mp3,caring_mom,traffic_ahead,ស្ទះហើយមើល! ម៉ាក់ប្រាប់ឱ្យចេញពីព្រលឹម មិនស្តាប់! ឥឡូវចាំទៅ!
+voice/packs/caring_mom/traffic_ahead_2.mp3,caring_mom,traffic_ahead,ស្ទះទៀតហើយ! កុំរអ៊ូណាកូន... ម៉ាក់ជាអ្នករអ៊ូតែម្នាក់គត់ក្នុងផ្ទះនេះ!
 voice/packs/caring_mom/flood_ahead.mp3,caring_mom,flood_ahead,ទឹកលិចកូន! ជិះយឺតៗ! ហើយស្បែកជើងសើម កុំយកចូលផ្ទះណា!
 voice/packs/caring_mom/arrived.mp3,caring_mom,arrived,ដល់ហើយកូន! ផ្ញើសារប្រាប់ម៉ាក់ផង! ម៉ាក់ចាំតាំងពីព្រឹក!
+voice/packs/caring_mom/arrived_2.mp3,caring_mom,arrived,ដល់ហើយ! ម៉ាក់មោទនភាពណាស់! ឥឡូវ តេមកម៉ាក់ផង... ឥឡូវនេះ!
+voice/packs/caring_mom/overspeed.mp3,caring_mom,overspeed,កូន! លឿនពេកហើយ! ម៉ាក់រាប់ដល់បី... មួយ... ពីរ... បន្ថយល្បឿនមក!
+voice/packs/caring_mom/overspeed_2.mp3,caring_mom,overspeed,បន្ថយល្បឿនភ្លាម! ម៉ាក់មិនបានចិញ្ចឹមកូនធំ ដើម្បីឱ្យបើកលឿនបែបនេះទេ!
+voice/packs/caring_mom/camera_ahead.mp3,caring_mom,camera_ahead,កាមេរ៉ាល្បឿននៅខាងមុខ! បើជាប់ពិន័យ ម៉ាក់មិនបង់ឱ្យទេណា!
+voice/packs/caring_mom/bump_ahead.mp3,caring_mom,bump_ahead,ដុំបន្ថយល្បឿនកូន! យឺតៗ ម៉ាក់ទើបតែដាក់ពងមាន់ក្នុងកាបូបកូន!
+voice/packs/caring_mom/school_ahead.mp3,caring_mom,school_ahead,សាលារៀនខាងមុខ! បន្ថយល្បឿន! នឹកឃើញកាលកូននៅតូច ម៉ាក់ដឹកទៅសាលារាល់ព្រឹក... ធំហើយកូនម៉ាក់!
+voice/packs/caring_mom/rerouting.mp3,caring_mom,rerouting,វង្វេងទៀតហើយ? ដូចប៉ាកូនមែន! មិនអីទេ ម៉ាក់រកផ្លូវថ្មីឱ្យ!
+voice/packs/caring_mom/halfway.mp3,caring_mom,halfway,ពាក់កណ្តាលផ្លូវហើយកូន! ផឹកទឹកផងណា បបូរមាត់ស្ងួតហើយមើល!
+voice/packs/caring_mom/almost_there.mp3,caring_mom,almost_there,ជិតដល់ហើយកូន! ដល់ហើយផ្ញើសារប្រាប់ម៉ាក់ផង កុំភ្លេចដូចលើកមុន!
+voice/packs/caring_mom/break_time.mp3,caring_mom,break_time,បើកមួយម៉ោងហើយកូន! ឈប់សម្រាក ញ៉ាំអីបន្តិចសិន! ម៉ាក់ដឹងថាកូនមិនទាន់ញ៉ាំ!
+voice/packs/caring_mom/chatter.mp3,caring_mom,chatter,កូន... ពេលណាមកលេងផ្ទះម៉ាក់? ម៉ាក់ធ្វើសម្លម្ជូរទុកឱ្យ!
+voice/packs/caring_mom/chatter_2.mp3,caring_mom,chatter,ម៉ាក់ឃើញកូនបើកបរល្អណាស់ថ្ងៃនេះ! ល្អជាងប៉ាកូនទៅទៀត!
+voice/packs/caring_mom/chatter_3.mp3,caring_mom,chatter,កូនអើយ ពេលណារៀបការ? ម៉ាក់សួរលេងទេ... មើលផ្លូវទៅ!
+voice/packs/caring_mom/chatter_4.mp3,caring_mom,chatter,កុំលេងទូរស័ព្ទណា! ម៉ាក់ដឹង ម៉ាក់ឃើញ ព្រោះម៉ាក់ជាម៉ាក់!
 voice/packs/hype_coach/start_route.mp3,hype_coach,start_route,ថ្ងៃនេះជាថ្ងៃល្អរបស់អ្នក! តោះចេញដំណើរទៅរកភាពជោគជ័យ ផ្លូវស្រឡះស្អាតណាស់!
 voice/packs/hype_coach/turn_left_200m.mp3,hype_coach,turn_left_200m,អស្ចារ្យណាស់! ២០០ ម៉ែត្រទៀតបត់ឆ្វេង យើងជិតឈ្នះការស្ទះចរាចរណ៍ហើយ!
 voice/packs/hype_coach/turn_right_200m.mp3,hype_coach,turn_right_200m,បន្តទៅមុខទៀត! ២០០ ម៉ែត្រទៀតបត់ស្តាំ អ្នកបើកបរបានល្អបំផុត!
 voice/packs/hype_coach/traffic_ahead.mp3,hype_coach,traffic_ahead,កុំបារម្ភ! ឧបសគ្គបន្តិចបន្តួចនៅខាងមុខ យើងនឹងរកផ្លូវវាងដ៏ឆ្លាតវៃជូនអ្នកភ្លាម!
 voice/packs/hype_coach/flood_ahead.mp3,hype_coach,flood_ahead,ប្រយ័ត្នទឹកលិចខាងមុខ! បង្វែរទិសដៅបន្តិច ដើម្បីបន្តដំណើរទៅមុខដោយរលូន!
 voice/packs/hype_coach/arrived.mp3,hype_coach,arrived,ជោគជ័យ! អ្នកបានមកដល់គោលដៅទាន់ពេលវេលា សូមឱ្យថ្ងៃនេះជួបតែសំណាងល្អ!
+voice/packs/hype_coach/overspeed.mp3,hype_coach,overspeed,ថាមពលល្អ! តែល្បឿនលើសហើយ! អ្នកឈ្នះពិតគោរពច្បាប់ បន្ថយល្បឿន!
+voice/packs/hype_coach/camera_ahead.mp3,hype_coach,camera_ahead,កាមេរ៉ាខាងមុខ! បង្ហាញថាអ្នកជាអ្នកបើកបរល្អបំផុត!
+voice/packs/hype_coach/bump_ahead.mp3,hype_coach,bump_ahead,ដុំបន្ថយល្បឿន! យឺតៗ! ឆ្លងកាត់ដូចអ្នកជំនាញ!
+voice/packs/hype_coach/school_ahead.mp3,hype_coach,school_ahead,តំបន់សាលារៀន! បន្ថយល្បឿន! ការពារអនាគតរបស់ប្រទេស!
+voice/packs/hype_coach/rerouting.mp3,hype_coach,rerouting,គ្មានបញ្ហា! អ្នកឈ្នះតែងតែរកផ្លូវថ្មី!
+voice/packs/hype_coach/halfway.mp3,hype_coach,halfway,ពាក់កណ្តាលហើយ! អ្នកពូកែណាស់! បន្តទៀត!
+voice/packs/hype_coach/almost_there.mp3,hype_coach,almost_there,ជិតដល់គោលដៅហើយ! អ្នកធ្វើបាន!
+voice/packs/hype_coach/break_time.mp3,hype_coach,break_time,មួយម៉ោងហើយ! អ្នកជំនាញក៏សម្រាកដែរ! ផឹកទឹក ដកដង្ហើមវែងៗ!
+voice/packs/hype_coach/chatter.mp3,hype_coach,chatter,អ្នកកំពុងបើកបរដោយសុវត្ថិភាព! នេះជាជ័យជម្នះតូចៗរាល់ថ្ងៃ!
+voice/packs/hype_coach/chatter_2.mp3,hype_coach,chatter,ដង្ហើមចូល... ដង្ហើមចេញ... អ្នកអស្ចារ្យណាស់ថ្ងៃនេះ!
 voice/packs/grandpa/start_route.mp3,grandpa,start_route,ចៅអើយ... ពាក់មួកសុវត្ថិភាពសិន។ សម័យតា ជិះកង់ទៅផ្សារដប់គីឡូ មិនដែលត្អូញទេ!
+voice/packs/grandpa/start_route_2.mp3,grandpa,start_route,តោះចៅ... ចេញដំណើរ! ចាំបន្តិច តាពាក់វ៉ែនតាសិន... ហ្នឹងហើយ!
 voice/packs/grandpa/turn_left_200m.mp3,grandpa,turn_left_200m,២០០ ម៉ែត្រទៀតបត់ឆ្វេង... ឬស្តាំ? អូ ឆ្វេងហ្នឹងហើយ តាចាំត្រូវ!
 voice/packs/grandpa/turn_right_200m.mp3,grandpa,turn_right_200m,២០០ ម៉ែត្រទៀតបត់ស្តាំចៅ... យឺតៗ ជង្គង់តាឈឺហើយ!
 voice/packs/grandpa/traffic_ahead.mp3,grandpa,traffic_ahead,ស្ទះទៀតហើយ... សម័យតា មានតែរទេះគោ ក៏មិនស្ទះដូចនេះដែរ!
+voice/packs/grandpa/traffic_ahead_2.mp3,grandpa,traffic_ahead,ស្ទះទៀតហើយចៅ... ចាំបន្តិចទៅ តាដេកមួយភ្លែតសិន...
 voice/packs/grandpa/flood_ahead.mp3,grandpa,flood_ahead,ទឹកលិចហើយចៅ! ជិះយឺតៗ... តាហែលទឹកមិនកើតទេណា!
 voice/packs/grandpa/arrived.mp3,grandpa,arrived,ដល់ហើយចៅ! ល្អណាស់... ឥឡូវ ទិញនំឱ្យតាមួយផង!
+voice/packs/grandpa/arrived_2.mp3,grandpa,arrived,ដល់ហើយ! តាថា... ដល់ឆាប់ជាងតាគិតទៅទៀត!
+voice/packs/grandpa/overspeed.mp3,grandpa,overspeed,ចៅអើយ! លឿនពេកហើយ! បេះដូងតាលោតដូចស្គរ! បន្ថយល្បឿនមក!
+voice/packs/grandpa/overspeed_2.mp3,grandpa,overspeed,យឺតៗចៅ... លឿនមិនមែនជាសំណាងទេ សុវត្ថិភាពទើបជាសំណាង។
+voice/packs/grandpa/camera_ahead.mp3,grandpa,camera_ahead,ចៅ... មានកាមេរ៉ានៅខាងមុខ! សម័យតា គ្មានកាមេរ៉ាទេ មានតែប៉ូលិសឈរក្រោមដើមឈើ!
+voice/packs/grandpa/bump_ahead.mp3,grandpa,bump_ahead,ដុំបន្ថយល្បឿនខាងមុខ! យឺតៗ... ធ្មេញតាជាធ្មេញក្លែងណាចៅ!
+voice/packs/grandpa/school_ahead.mp3,grandpa,school_ahead,សាលារៀននៅខាងមុខ... បន្ថយល្បឿនចៅ។ ពីមុនតាដើរទៅសាលាប្រាំគីឡូ គ្មានស្បែកជើងផង!
+voice/packs/grandpa/rerouting.mp3,grandpa,rerouting,អូ... វង្វេងហើយ? មិនអីទេចៅ តាក៏វង្វេងរាល់ថ្ងៃដែរ!
+voice/packs/grandpa/halfway.mp3,grandpa,halfway,ពាក់កណ្តាលផ្លូវហើយចៅ... ជង្គង់តាថាដល់ហើយ តែផែនទីថាមិនទាន់!
+voice/packs/grandpa/almost_there.mp3,grandpa,almost_there,ជិតដល់ហើយចៅ! ត្រៀមខ្លួន... ហើយកុំភ្លេចកាបូបតាផង!
+voice/packs/grandpa/break_time.mp3,grandpa,break_time,មួយម៉ោងហើយចៅ... ឈប់សម្រាកសិន ផឹកតែក្តៅមួយកែវ។ តាក៏ត្រូវការបន្ទប់ទឹកដែរ!
+voice/packs/grandpa/chatter.mp3,grandpa,chatter,តាមើលចៅបើកបរ... ល្អណាស់! ដូចតាកាលនៅក្មេង... តែតាសង្ហាជាង!
+voice/packs/grandpa/chatter_2.mp3,grandpa,chatter,ចៅ... ផ្លូវនេះ ពីមុនជាវាលស្រែ។ ឥឡូវមានឡានច្រើនជាងក្របី!
+voice/packs/grandpa/chatter_3.mp3,grandpa,chatter,តាភ្លេចហើយ... យើងទៅណាចៅ? អូ ផែនទីដឹង! ល្អហើយ!
+voice/packs/grandpa/chatter_4.mp3,grandpa,chatter,ចៅអើយ... ជីវិតដូចផ្លូវដែរ ពេលខ្លះស្ទះ ពេលខ្លះស្រឡះ។ ឱ្យតែបើកយឺតៗ ដល់ហើយ។
 voice/packs/little_sister/start_route.mp3,little_sister,start_route,តោះបង ចេញដំណើរ! ប្អូនជួយនាំផ្លូវ កុំភ្លេចពាក់មួកសុវត្ថិភាពណា!
 voice/packs/little_sister/turn_left_200m.mp3,little_sister,turn_left_200m,បងៗ ២០០ ម៉ែត្រទៀតបត់ឆ្វេងណា ប្អូនចាំមើលបង!
 voice/packs/little_sister/turn_right_200m.mp3,little_sister,turn_right_200m,២០០ ម៉ែត្រទៀតបត់ស្តាំណាបង ត្រៀមខ្លួនបានហើយ!
 voice/packs/little_sister/traffic_ahead.mp3,little_sister,traffic_ahead,អូយ ខាងមុខស្ទះហើយបង កុំខឹងណា ស្តាប់ចម្រៀងបន្តិចទៅ!
 voice/packs/little_sister/flood_ahead.mp3,little_sister,flood_ahead,បងប្រយ័ត្ន! ខាងមុខមានទឹកលិច ជិះយឺតៗណាបង!
 voice/packs/little_sister/arrived.mp3,little_sister,arrived,ដល់ហើយបង! ពូកែណាស់ ប្អូនសប្បាយចិត្តជាមួយបង!
+voice/packs/little_sister/overspeed.mp3,little_sister,overspeed,បង! លឿនពេកហើយ ប្អូនខ្លាច! បន្ថយល្បឿនបន្តិចណាបង!
+voice/packs/little_sister/camera_ahead.mp3,little_sister,camera_ahead,បងៗ មានកាមេរ៉ានៅខាងមុខ! បើកតាមល្បឿនកំណត់ណា!
+voice/packs/little_sister/bump_ahead.mp3,little_sister,bump_ahead,ដុំបន្ថយល្បឿន! យឺតៗបង ប្អូនកំពុងញ៉ាំការ៉េម!
+voice/packs/little_sister/school_ahead.mp3,little_sister,school_ahead,សាលារៀនខាងមុខបង! បន្ថយល្បឿនណា!
+voice/packs/little_sister/rerouting.mp3,little_sister,rerouting,អូយ វង្វេងហើយបង! មិនអីទេ ប្អូនរកផ្លូវថ្មីឱ្យ!
+voice/packs/little_sister/halfway.mp3,little_sister,halfway,ពាក់កណ្តាលផ្លូវហើយបង! ពូកែណាស់!
+voice/packs/little_sister/almost_there.mp3,little_sister,almost_there,ជិតដល់ហើយបង! យេ!
+voice/packs/little_sister/break_time.mp3,little_sister,break_time,បងបើកមួយម៉ោងហើយ! ឈប់ទិញភេសជ្ជៈផងបង ប្អូនស្រេកទឹក!
+voice/packs/little_sister/chatter.mp3,little_sister,chatter,បង... ប្អូនចូលចិត្តជិះជាមួយបងណាស់!
+voice/packs/little_sister/chatter_2.mp3,little_sister,chatter,បងៗ ពេលដល់ ទិញនំឱ្យប្អូនមួយផងណា!

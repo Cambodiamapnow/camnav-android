@@ -14,7 +14,7 @@
   const DEFAULTS = {
     voice: "km", kmVoice: "natural", lang: "km", rate: 1.0, headingUp: true, simKmh: 50, forceKm: false,
     tiles: "dark", nightAuto: true, vehicle: "car", speedWarn: 5,
-    showSignals: true, showCameras: true, showReports: true, showSigns: true, reminders: true, voicePack: "standard",
+    showSignals: true, showCameras: true, showReports: true, showSigns: true, reminders: true, chatter: true, voicePack: "standard",
     router: "https://router.project-osrm.org",
     overpass: "https://overpass-api.de/api/interpreter",
   };
@@ -255,7 +255,8 @@
     const langs = S.voice === "both" ? (kmOk ? ["km", "en"] : ["en"]) : S.voice === "km" ? [kmOk ? "km" : "en"] : ["en"];
     return langs.map((lang) => (lang === "km" && natural ? { lang, clips } : { lang, text: builder(lang) }));
   }
-  const speak = (builder, urgent, clips) => V.say(voiceParts(builder, clips), urgent);
+  let lastTalk = 0; // when the app last said anything (for the characters' small talk)
+  const speak = (builder, urgent, clips) => { lastTalk = Date.now(); V.say(voiceParts(builder, clips), urgent); };
 
   /** The selected voice pack (falls back to standard when Pro has ended). */
   function activePack() {
@@ -269,14 +270,16 @@
   function packSpeak(event, builder, urgent, clips) {
     if (S.voice === "off" || !V.supported) return;
     const pack = activePack();
-    const line = pack.lines[event];
-    const file = VP.clipPath(pack.id, event);
+    const take = VP.pickTake(pack, event);
+    const line = (pack.lines[event] || [])[take];
+    const file = VP.clipPath(pack.id, event, take);
     const haveFile = V.hasFile(file);
     const kmOk = haveFile || V.hasKhmer() || S.forceKm;
-    if (!line || S.voice === "en" || !kmOk) return speak(builder, urgent, clips);
+    if (!line || S.voice === "en" || !kmOk) return builder ? speak(builder, urgent, clips) : undefined;
+    lastTalk = Date.now();
     const sty = pack.tts || {};
     const parts = [haveFile ? { lang: "km", clips: [file] } : { lang: "km", text: line, pitch: sty.pitch, rate: sty.rate }];
-    if (S.voice === "both") parts.push({ lang: "en", text: builder("en") });
+    if (S.voice === "both" && builder) parts.push({ lang: "en", text: builder("en") });
     V.say(parts, urgent);
   }
 
@@ -855,6 +858,7 @@
     checkSpeed(now);
     checkAhead();
     checkSlowTraffic(now);
+    checkMoments(now);
 
     updateNavUI(false);
     if (now - nav.lastDraw > 1000) { nav.lastDraw = now; redrawRoutes(); }
@@ -865,7 +869,7 @@
   async function reroute(p) {
     nav.rerouting = true;
     toast(t("rerouting"));
-    speak((lang) => I.ALERTS[lang].reroute, true, VC.alertClips.reroute());
+    packSpeak("rerouting", (lang) => I.ALERTS[lang].reroute, true, VC.alertClips.reroute());
     try {
       const rs = await fetchRoutes([p.lon, p.lat], [dest.lon, dest.lat], p.heading, false);
       route = rs[0]; route.road = RI.create(); routes = [route]; sel = 0;
@@ -877,6 +881,26 @@
     nav.rerouting = false;
   }
 
+  // ---- trip moments for voice characters: halfway, almost there, 1-hour break, small talk ----
+  function checkMoments(now) {
+    if (sim || nav.arrived || S.voice === "off") return;
+    nav.startedAt = nav.startedAt || now;
+    const pack = activePack();
+    if (route.total > 4000 && !nav.halfSaid && nav.along > route.total / 2) {
+      nav.halfSaid = true; packSpeak("halfway", null, false); return;
+    }
+    if (route.total > 2500 && !nav.nearSaid && nav.remaining < 700 && nav.remaining > 150) {
+      nav.nearSaid = true; packSpeak("almost_there", null, false); return;
+    }
+    const hours = Math.floor((now - nav.startedAt) / 3600000);
+    if (hours >= 1 && hours > (nav.breakSaid || 0)) { nav.breakSaid = hours; packSpeak("break_time", null, false); return; }
+    // small talk: only on a quiet, straight stretch, never close to a turn
+    if (S.chatter !== false && pack.lines.chatter && nav.distTo > 1500 && now - lastTalk > 240000
+        && now - nav.startedAt > 180000 && now - (nav.lastChat || 0) > 420000 && (nav.speed || 0) > 2) {
+      nav.lastChat = now; packSpeak("chatter", null, false);
+    }
+  }
+
   // ---- speed limit + overspeed warning ----
   function checkSpeed(now) {
     const lim = nav.limit, kmh = nav.speed * 3.6;
@@ -886,7 +910,7 @@
     $("speedBox").classList.toggle("over", !!warnNow);
     if (warnNow && now - nav.lastOverWarn > 45000) {
       nav.lastOverWarn = now;
-      speak((lang) => I.ALERTS[lang].overspeed(lim.v), false, VC.alertClips.overspeed(lim.v));
+      packSpeak("overspeed", (lang) => I.ALERTS[lang].overspeed(lim.v), false, VC.alertClips.overspeed(lim.v));
     }
   }
 
@@ -926,9 +950,11 @@
         nav.alerted.add(it.id);
         if (it.kind === "camera") {
           const v = it.v || (nav.limit && nav.limit.v) || null;
-          speak((lang) => I.ALERTS[lang].camera(ahead, v), false, VC.alertClips.camera(ahead, v));
+          packSpeak("camera_ahead", (lang) => I.ALERTS[lang].camera(ahead, v), false, VC.alertClips.camera(ahead, v));
         } else if (ROAD_META[it.kind]) {
-          if (it.voice) speak((lang) => I.ALERTS[lang].road[it.kind], false, VC.alertClips.road(it.kind));
+          const pev = it.kind === "bump" ? "bump_ahead" : it.kind === "school" ? "school_ahead" : null;
+          if (it.voice && pev) packSpeak(pev, (lang) => I.ALERTS[lang].road[it.kind], false, VC.alertClips.road(it.kind));
+          else if (it.voice) speak((lang) => I.ALERTS[lang].road[it.kind], false, VC.alertClips.road(it.kind));
         } else if (it.kind === "jam" || it.kind === "flood") {
           packSpeak(it.kind === "jam" ? "traffic_ahead" : "flood_ahead", (lang) => I.ALERTS[lang].report[it.kind], false, VC.alertClips.report(it.kind));
         } else speak((lang) => I.ALERTS[lang].report[it.kind], false, VC.alertClips.report(it.kind));
@@ -1263,6 +1289,7 @@
       <div class="field"><label>${esc(t("speedWarn"))}</label>${seg([[-1, t("warnOff")], [0, t("warnAt")], [5, "+" + num(5)], [10, "+" + num(10)]], S.speedWarn, "warn")}</div>
       <label class="switch"><span>${esc(t("headingUp"))}</span><input type="checkbox" id="sHead" ${S.headingUp ? "checked" : ""}></label>
       <label class="switch"><span>${esc(t("reminders"))}</span><input type="checkbox" id="sRemind" ${S.reminders ? "checked" : ""}></label>
+      <label class="switch"><span>${esc(t("chatter"))}</span><input type="checkbox" id="sChatter" ${S.chatter !== false ? "checked" : ""}></label>
       <div class="small">${esc(t("motoNoExpress"))}</div>
       <div class="btnLine"><button id="sRules">${icon("gavel")} ${esc(t("rules"))}</button></div>
       <div class="field"><label>${esc(t("demoSpeed"))}: <span id="sSimV">${num(S.simKmh)}</span> ${esc(t("kmh"))}</label><input type="range" id="sSim" min="20" max="200" step="10" value="${S.simKmh}"></div>
@@ -1283,6 +1310,7 @@
     $("sRate").oninput = (e) => { S.rate = +e.target.value; V.setRate(S.rate); saveSettings(); };
     $("sHead").onchange = (e) => { S.headingUp = e.target.checked; saveSettings(); };
     $("sRemind").onchange = (e) => { S.reminders = e.target.checked; saveSettings(); };
+    $("sChatter").onchange = (e) => { S.chatter = e.target.checked; saveSettings(); };
     $("sRules").onclick = () => openRules();
     $("sSim").oninput = (e) => { S.simKmh = +e.target.value; $("sSimV").textContent = num(S.simKmh); saveSettings(); };
     $("sRouter").onchange = (e) => { S.router = e.target.value.trim() || DEFAULTS.router; saveSettings(); };
@@ -1550,7 +1578,7 @@
     P.querySelectorAll("[data-share]").forEach((b) => (b.onclick = (e) => {
       e.stopPropagation();
       const p = VP.byId(b.dataset.share);
-      shareText("🔊 " + p.name.km + " – CamNAV នាំផ្លូវ\n\n“" + p.lines.start_route + "”\n\n#CamNAV #នាំផ្លូវ #Cambodia");
+      shareText("🔊 " + p.name.km + " – CamNAV នាំផ្លូវ\n\n“" + p.lines.start_route[0] + "”\n\n#CamNAV #នាំផ្លូវ #Cambodia");
     }));
     P.querySelectorAll(".pack").forEach((el) => (el.onclick = () => {
       const p = VP.byId(el.dataset.p);
@@ -1564,10 +1592,10 @@
   function previewPack(id) {
     V.unlock();
     const p = VP.byId(id);
-    const parts = ["start_route", "turn_right_200m"].map((ev) => {
-      const f = VP.clipPath(p.id, ev);
+    const parts = ["start_route", p.lines.chatter ? "chatter" : "turn_right_200m"].map((ev) => {
+      const i = VP.pickTake(p, ev), f = VP.clipPath(p.id, ev, i);
       const sty = p.tts || {};
-      return V.hasFile(f) ? { lang: "km", clips: [f] } : { lang: V.hasKhmer() || S.forceKm ? "km" : "en", text: V.hasKhmer() || S.forceKm ? p.lines[ev] : I.ALERTS.en.test, pitch: sty.pitch, rate: sty.rate };
+      return V.hasFile(f) ? { lang: "km", clips: [f] } : { lang: V.hasKhmer() || S.forceKm ? "km" : "en", text: V.hasKhmer() || S.forceKm ? p.lines[ev][i] : I.ALERTS.en.test, pitch: sty.pitch, rate: sty.rate };
     });
     V.say(parts, true);
   }
