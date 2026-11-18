@@ -7,12 +7,19 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: eleven-voices
+  cancel-in-progress: true
 jobs:
   voices:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: ffmpeg
+        timeout-minutes: 6
+        run: |
+          if command -v ffmpeg >/dev/null; then ffmpeg -version | head -1; exit 0; fi
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg)
       - run: python3 tools/split_eleven.py | tee voice-report.txt
       - name: Commit clips
         run: |

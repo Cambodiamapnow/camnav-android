@@ -10,7 +10,71 @@
   "set": "clips",
   "pack": "standard",
   "from": 50,
-  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/vBvA1b5iioWIFvsf2p9w/Ykc7fJq74HdNHvPo53Ph/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=wgnR574ZuookT6oMHY_Hl_QJjXM=",
-  "note": "rerun with 99 phrases"
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/vBvA1b5iioWIFvsf2p9w/Ykc7fJq74HdNHvPo53Ph/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=wgnR574ZuookT6oMHY_Hl_QJjXM="
+ },
+ "funny_guy_clips_1": {
+  "set": "clips",
+  "pack": "funny_guy",
+  "from": 0,
+  "to": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/EJawGe6DJA0M9ja6hNPC/lO6m0DHAhxRoWW2Po4av/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=V6LJHJu7hAXekPKFBN2dRtAXedo="
+ },
+ "funny_guy_clips_2": {
+  "set": "clips",
+  "pack": "funny_guy",
+  "from": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/eYZZf95JxDkny58HRpAh/jb9015LNEXxlZ7WMIerl/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=9aiSs28gVd_Z163ydd8WTgBSX2c="
+ },
+ "war_chief_clips_1": {
+  "set": "clips",
+  "pack": "war_chief",
+  "from": 0,
+  "to": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/yE8QynPuIcvg9njYoxTc/ZnTN81pbfFRUV96XxR7H/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=m43kwm52LyeF_Chm_c53h06VP34="
+ },
+ "war_chief_clips_2": {
+  "set": "clips",
+  "pack": "war_chief",
+  "from": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/RcQLE6FYkgKaqYeLMBNA/6sRLNPkphwcYQcaISuEd/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=i_xA8MslHO3j1MtBK0736xbxPhQ="
+ },
+ "grandpa_clips_1": {
+  "set": "clips",
+  "pack": "grandpa",
+  "from": 0,
+  "to": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/HoCjmPk0gZjh3W8TO8AY/cxVyxs2jklaXkQrijpvc/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=lTG_VQpXLnPBgNpJTTtR5wpXPI0="
+ },
+ "grandpa_clips_2": {
+  "set": "clips",
+  "pack": "grandpa",
+  "from": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/H8vgBBZVqUZjLTrsaiDh/8xr7sw2xpdHrsbj7GF7c/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=ramfeAF1g72yZciwIYggUFA7BEs="
+ },
+ "caring_mom_clips_1": {
+  "set": "clips",
+  "pack": "caring_mom",
+  "from": 0,
+  "to": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/OKPxmRXVfcOvIIPJcmhr/WvGAuCpewgY9uOu9gsZT/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=Aa27yV_r3BhN5AaW-81KNyxZPKk="
+ },
+ "caring_mom_clips_2": {
+  "set": "clips",
+  "pack": "caring_mom",
+  "from": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/omo3TApzYC2mmeonEsd2/7I4IvkT21jCVOkqVQB8J/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=qaD46UTAzUyUVpRpHBZTc82TbBw="
+ },
+ "monk_clips_1": {
+  "set": "clips",
+  "pack": "monk",
+  "from": 0,
+  "to": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/Sv3vGj5bRTkTwcSl6FZ0/CzBJs2QmgoqqhMjCQT0W/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=nGrI_xhOqq3ym8FgvICSGyqG7fk="
+ },
+ "monk_clips_2": {
+  "set": "clips",
+  "pack": "monk",
+  "from": 50,
+  "url": "https://elevenlabsusercontent.com/database/workspace/06b7c7141a90479cbeb68a09c01ee649/content_generation/AM51delM9YDONI8YECRL/DlqE1zz4lWWDPW451uKO/content.mp3?Expires=1795006800&KeyName=assets-cdn-key-1&Signature=qoAULaKar83l0iLNEkk3iXxJeU4="
  }
 }
