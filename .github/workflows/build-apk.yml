@@ -6,6 +6,9 @@ on:
       - .github/workflows/cambodia-data.yml
       - .github/workflows/supabase-deploy.yml
       - tools/check_rng.py
+      - tools/eleven-batch.json
+      - tools/split_eleven.py
+      - .github/workflows/eleven-voices.yml
       - supabase/**
   workflow_dispatch:
 

@@ -1,0 +1,23 @@
+name: ElevenLabs voices into the app
+# Runs when tools/eleven-batch.json changes: downloads the ElevenLabs recordings,
+# cuts them into one clip per line and commits them to the app.
+on:
+  push:
+    paths: ["tools/eleven-batch.json"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  voices:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: python3 tools/split_eleven.py | tee voice-report.txt
+      - name: Commit clips
+        run: |
+          git config user.name "CamNAV voice bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add app/src/main/assets/voice/packs
+          git diff --cached --quiet && echo "nothing new" || git commit -m "ElevenLabs voices for the voice characters" -m "$(tail -12 voice-report.txt)"
+          git push
