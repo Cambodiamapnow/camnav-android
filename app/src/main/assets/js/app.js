@@ -389,7 +389,7 @@
   function renderHome() {
     if (view !== "home") $("q").value = "";
     clearResultMarkers(); setPlaceMarker(null); activeCat = null; renderChips();
-    let h = renewalBanner() + `<div class="brand"><img src="icons/icon-192.png" alt=""><div><b>CamNAV – នាំផ្លូវ</b><small>បើកបរដោយសុវត្ថិភាព · Drive safely</small></div></div><div class="quick">`;
+    let h = renewalBanner() + `<div class="brand"><img src="icons/icon-192.png" alt=""><div><b>K-Map – នាំផ្លូវ</b><small>បើកបរដោយសុវត្ថិភាព · Drive safely</small></div></div><div class="quick">`;
     h += quickBtn("home", "home", t("home"), saved.home ? saved.home.name : t("tapToSet"));
     h += quickBtn("work", "work", t("work"), saved.work ? saved.work.name : t("tapToSet"));
     h += quickBtn("rules", "gavel", t("rulesShort"), S.vehicle === "moto" ? t("moto") : t("car"));
@@ -1300,7 +1300,7 @@
         <div class="small">${esc(!BLE.supported() ? t("bleNotSupported") : BLE.isConnected() ? "🟢 " + t("bleOn") : "⚪ " + t("bleOff"))}</div></div>
       <div class="field"><label>${esc(t("routerUrl"))}</label><input type="text" id="sRouter" value="${esc(S.router)}" spellcheck="false"></div>
       <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>
-      <div class="note">CamNAV – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · OpenFreeMap · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
+      <div class="note">K-Map – នាំផ្លូវ · បើកបរដោយសុវត្ថិភាព<br>© OpenStreetMap contributors · OpenFreeMap · OSRM · Nominatim · Overpass · Open-Meteo</div>`;
     const P = $("modalPanel");
     P.querySelectorAll("[data-lang]").forEach((b) => (b.onclick = () => { S.lang = b.dataset.lang; saveSettings(); relabel(); openSettings(); }));
     P.querySelectorAll("[data-kmv]").forEach((b) => (b.onclick = () => { S.kmVoice = b.dataset.kmv; saveSettings(); openSettings(); }));
@@ -1475,7 +1475,7 @@
     const cfg = window.CAMNAV_CONFIG || {};
     const P = $("modalPanel");
     const qr = qrcode(0, "M"); qr.addData(cfg.khqrStatic); qr.make();
-    const q = { amount: cfg.priceUsd || 1, bill_number: "", brand: cfg.payeeBrand || "CamNAV", account: cfg.payeeAccountName || "" };
+    const q = { amount: cfg.priceUsd || 1, bill_number: "", brand: cfg.payeeBrand || "K-Map", account: cfg.payeeAccountName || "" };
     P.innerHTML = `<div class="paywall">
       <div class="khqrCard"><div class="khqrHead">KHQR</div>
         <div class="khqrName big">${esc(q.brand)}</div>
@@ -1515,7 +1515,7 @@
     const qr = qrcode(0, "M"); qr.addData(q.qr); qr.make();
     P.innerHTML = `<div class="paywall">
       <div class="khqrCard"><div class="khqrHead">KHQR</div>
-        <div class="khqrName">CamNAV · ☕</div><div class="khqrAmt">$${Number(q.amount).toFixed(2)}</div>
+        <div class="khqrName">K-Map · ☕</div><div class="khqrAmt">$${Number(q.amount).toFixed(2)}</div>
         <div class="khqrCode">${qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true })}</div></div>
       <div class="note center" id="payStatus">${esc(t("scanToPay"))}</div>
       <button class="wideBtn primary" id="wSave">${icon("download")} ${esc(t("saveQr"))}</button>
@@ -1549,16 +1549,16 @@
       g.fillStyle = "#fff"; g.fillRect(0, 0, 600, 760);
       g.fillStyle = "#e1232e"; g.fillRect(0, 0, 600, 90);
       g.fillStyle = "#fff"; g.font = "bold 44px Roboto, sans-serif"; g.textAlign = "center"; g.fillText("KHQR", 300, 62);
-      g.fillStyle = "#202124"; g.font = "bold 34px Roboto, sans-serif"; g.fillText((q.brand || "CamNAV") + " · $" + Number(q.amount).toFixed(2), 300, 140);
+      g.fillStyle = "#202124"; g.font = "bold 34px Roboto, sans-serif"; g.fillText((q.brand || "K-Map") + " · $" + Number(q.amount).toFixed(2), 300, 140);
       g.imageSmoothingEnabled = false; g.drawImage(img, 75, 170, 450, 450);
       g.fillStyle = "#5f6368"; g.font = "22px Roboto, sans-serif"; g.fillText(q.account ? "Account: " + q.account : (q.bill_number || ""), 300, 680);
-      g.fillText("CamNAV – នាំផ្លូវ", 300, 720);
+      g.fillText("K-Map – នាំផ្លូវ", 300, 720);
       const data = c.toDataURL("image/png");
       if (window.AndroidApp && window.AndroidApp.saveImage) {
-        const ok = window.AndroidApp.saveImage(data, "CamNAV-KHQR-" + (q.bill_number || Date.now()) + ".png");
+        const ok = window.AndroidApp.saveImage(data, "K-Map-KHQR-" + (q.bill_number || Date.now()) + ".png");
         toast(ok ? t("qrSaved") : t("qrSaveFail"), 4000);
       } else {
-        const a = document.createElement("a"); a.href = data; a.download = "CamNAV-KHQR.png"; a.click();
+        const a = document.createElement("a"); a.href = data; a.download = "K-Map-KHQR.png"; a.click();
       }
     };
     img.src = qr.createDataURL(8, 2);
@@ -1581,7 +1581,7 @@
     P.querySelectorAll("[data-share]").forEach((b) => (b.onclick = (e) => {
       e.stopPropagation();
       const p = VP.byId(b.dataset.share);
-      shareText("🔊 " + p.name.km + " – CamNAV នាំផ្លូវ\n\n“" + p.lines.start_route[0] + "”\n\n#CamNAV #នាំផ្លូវ #Cambodia");
+      shareText("🔊 " + p.name.km + " – K-Map នាំផ្លូវ\n\n“" + p.lines.start_route[0] + "”\n\n#KMap #នាំផ្លូវ #Cambodia");
     }));
     P.querySelectorAll(".pack").forEach((el) => (el.onclick = () => {
       const p = VP.byId(el.dataset.p);

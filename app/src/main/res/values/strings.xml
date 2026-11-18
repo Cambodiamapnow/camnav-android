@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Name under the icon on the home screen (kept short so Android does not cut it off) -->
-    <string name="app_name">CamNAV</string>
-    <string name="app_full_name">CamNAV – នាំផ្លូវ</string>
+    <string name="app_name">K-Map</string>
+    <string name="app_full_name">K-Map – នាំផ្លូវ</string>
     <string name="slogan">បើកបរដោយសុវត្ថិភាព</string>
 </resources>
