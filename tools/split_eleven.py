@@ -14,7 +14,10 @@ for l in lines: by_pack.setdefault(l["pack"], []).append(l)
 phrases = json.loads(subprocess.check_output(["node", "-e", "process.stdout.write(JSON.stringify(require('./app/src/main/assets/js/voiceclips.js').PHRASES))"], cwd=ROOT))
 
 def dur(path):
-    return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path]).decode().strip())
+    err = subprocess.run(["ffmpeg", "-hide_banner", "-i", path, "-f", "null", "-"], capture_output=True, text=True).stderr
+    t = re.findall(r"time=(\d+):(\d+):([\d.]+)", err)
+    h, m, sec = t[-1]
+    return int(h) * 3600 + int(m) * 60 + float(sec)
 
 def silences(path, noise="-38dB", d=0.3):
     err = subprocess.run(["ffmpeg", "-hide_banner", "-i", path, "-af", f"silencedetect=noise={noise}:d={d}", "-f", "null", "-"], capture_output=True, text=True).stderr
