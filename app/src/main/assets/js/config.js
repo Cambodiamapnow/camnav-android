@@ -12,4 +12,6 @@ window.CAMNAV_CONFIG = {
   payeeAccountName: "PISEY CHANTHA",
   khqrStatic: "00020101021129450016abaakhppxxx@abaa01090130370440208ABA Bank40600006abaP2P0112483A33969AA7020901303704403090130370450404Dual5204599953031165802KH5913PISEY CHANTHA6010Phnom Penh630473CB",
   priceUsd: 1,
+  // true = every voice character is open for everyone (no Pro needed). Set to false to lock them behind Pro again.
+  freeVoices: true,
 };

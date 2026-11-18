@@ -261,7 +261,7 @@
   /** The selected voice pack (falls back to standard when Pro has ended). */
   // owner/tester unlock: all voice characters open on this phone (code checked by its SHA-256 only)
   const DEV_HASH = "614a6ed24bd6adf6862d5322842298075991cae7b39a3c1cb94ee0500336ef19";
-  const voicesOpen = () => CL.isPro() || store.get("devVoices", false) === true;
+  const voicesOpen = () => (window.CAMNAV_CONFIG || {}).freeVoices === true || CL.isPro() || store.get("devVoices", false) === true;
   function activePack() {
     const p = VP.byId(S.voicePack || "standard");
     return p.pro && !voicesOpen() ? VP.byId("standard") : p;
@@ -1573,7 +1573,7 @@
       return `<div class="pack ${on ? "on" : ""}" data-p="${p.id}">
         <div class="packIcon" style="background:${p.color}">${p.emoji}</div>
         <div class="packTx"><b>${esc(p.name[S.lang] || p.name.en)}</b><small>${esc(p.desc[S.lang] || p.desc.en)}</small>
-          <span class="badge ${p.pro ? "pro" : "free"}">${p.pro ? (locked ? "🔒 PRO $1" : "PRO") : esc(t("free"))}</span></div>
+          <span class="badge ${p.pro && !voicesOpen() ? "pro" : "free"}">${p.pro && !voicesOpen() ? "🔒 PRO $1" : esc(t("free"))}</span></div>
         <div class="packBtns"><button data-play="${p.id}" aria-label="Preview">${icon("play_arrow", "fill")}</button>
           <button data-share="${p.id}" aria-label="Share">${icon("share")}</button></div></div>`;
     }).join("") + `</div><div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
