@@ -608,6 +608,7 @@
       });
       add(r.road.bumps, "bump", 150); add(r.road.schools, "school", 80); add(r.road.rail, "rail", 40);
       add(r.road.tolls, "toll", 20); add(r.road.signs, "stop", 120);
+      add(r.road.hazards, "hazard", 60); add(r.road.crossings, "crossing", 120);
     }
   }
   const ROAD_META = {
@@ -617,6 +618,12 @@
     toll: { icon: "toll", color: "#1a73e8" },
     stop: { icon: "front_hand", color: "#d93025" },
     give_way: { icon: "change_history", color: "#d93025" },
+    crossing: { icon: "directions_walk", color: "#1a73e8" },
+    hazard: { icon: "warning", color: "#d93025" },
+    curve: { icon: "turn_sharp_right", color: "#e8710a" },
+    junction_danger: { icon: "fork_right", color: "#d93025" },
+    animal: { icon: "pets", color: "#a0522d" },
+    no_overtake: { icon: "block", color: "#d93025" },
     signal: { icon: "traffic", color: "#3c4043" },
   };
 
@@ -769,6 +776,14 @@
       near((rd.signs || []).filter((x) => x.kind === "stop"), "stop", 150, true);
       near((rd.signs || []).filter((x) => x.kind === "give_way"), "give_way", 120, false);
       if (S.showSignals) near(rd.signals, "signal", 150, false);
+      near(rd.crossings, "crossing", 80, false);
+      // OSM hazard=* values → our kinds
+      const hz = (k) => (/curve/.test(k) ? "curve" : /junction|intersection/.test(k) ? "junction_danger" : /animal|cattle|cow|deer/.test(k) ? "animal" : "hazard");
+      for (const x of rd.hazards || []) { const a = x.along - nav.along; if (a > 0 && a < 400) items.push({ id: x.id, kind: hz(x.kind || ""), along: x.along, warn: 400, voice: true }); }
+      // inside a no-overtaking stretch → steady chip, said once when it starts
+      for (const z of rd.noOvertake || []) {
+        if (nav.along >= z.from - 100 && nav.along <= z.to) items.push({ id: z.id, kind: "no_overtake", along: Math.max(z.from, nav.along + 1), warn: 200, voice: true });
+      }
     }
     const shownAlerts = [];
     nav.cameraAhead = 0;
@@ -978,15 +993,23 @@
     openModal();
   }
 
+  function signGuide(R) {
+    const rows = [["camera", "photo_camera", "#e37400"]].concat(Object.entries(ROAD_META).map(([k, m]) => [k, m.icon, m.color]))
+      .concat([["police", "local_police", "#1a73e8"], ["jam", "traffic", "#e8710a"], ["flood", "flood", "#1e8e9e"]]);
+    return `<div class="note">${esc(R.signsIntro)}</div><div class="list">` + rows.map(([k, ic, col]) =>
+      `<div class="item"><span class="ic" style="background:${col};color:#fff">${icon(ic, "fill")}</span><span class="tx"><b>${esc(t("reports")[k] || k)}</b><small>${esc((I.ALERTS[S.lang].road || {})[k] || (I.ALERTS[S.lang].report || {})[k] || "")}</small></span></div>`).join("") +
+      `<div class="item"><span class="limit" style="width:36px;height:36px;border-width:4px"><b style="font-size:13px">40</b></span><span class="tx"><b>${esc(t("speedLimit"))}</b><small>${esc(t("estLimit"))}</small></span></div></div>`;
+  }
+
   function openRules(tab) {
     tab = tab || (S.vehicle === "moto" ? "moto" : "car");
     const R = I.RULES[S.lang] || I.RULES.en;
     const li = (arr) => `<div class="list">` + arr.map((x) => `<div class="item"><span class="ic">${icon("check_circle", "fill")}</span><span class="tx" style="white-space:normal">${esc(x)}</span></div>`).join("") + `</div>`;
     $("modalPanel").innerHTML = `<h3>${icon("gavel")} ${esc(t("rules"))}</h3>
-      ${seg([["car", R.car_t], ["moto", R.moto_t]], tab, "rtab")}
-      <div class="secTitle">${esc(tab === "moto" ? R.moto_t : R.car_t)}</div>${li(R[tab])}
+      ${seg([["car", R.car_t], ["moto", R.moto_t], ["signs", R.signs_t]], tab, "rtab")}
+      ${tab === "signs" ? signGuide(R) : `<div class="secTitle">${esc(tab === "moto" ? R.moto_t : R.car_t)}</div>${li(R[tab])}
       <div class="secTitle">${esc(R.common_t)}</div>${li(R.common)}
-      <div class="note">${esc(R.intro)}</div>
+      <div class="note">${esc(R.intro)}</div>`}
       <div class="btnLine"><button class="primary" id="mClose">${esc(t("close"))}</button></div>`;
     $("modalPanel").querySelectorAll("[data-rtab]").forEach((b) => (b.onclick = () => openRules(b.dataset.rtab)));
     $("mClose").onclick = closeModal;
@@ -1129,7 +1152,7 @@
     }).catch(() => {});
   } else document.documentElement.classList.add("icons-ready");
 
-  setTimeout(() => { $("splash").classList.add("gone"); setTimeout(() => $("splash").remove(), 600); }, 1300);
+  setTimeout(() => { const sp = $("splash"); if (sp) { sp.classList.add("gone"); setTimeout(() => sp.remove(), 600); } }, 1300);
 
   V.setRate(S.rate);
   relabel();

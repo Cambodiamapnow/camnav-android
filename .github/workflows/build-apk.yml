@@ -78,4 +78,5 @@ jobs:
             CamNAV.apk
             preview-dark.png
             preview-light.png
+            preview-log.txt
           make_latest: true

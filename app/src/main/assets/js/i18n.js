@@ -22,7 +22,7 @@
       exit: "Exit", overview: "Overview", arrivedTitle: "You have arrived", done: "Done",
       min: "min", hr: "hr", km: "km", m: "m", kmh: "km/h",
       speedLimit: "Speed limit", estLimit: "Estimated from Cambodian law (no sign in map data)",
-      slowTraffic: "Slow traffic? Report a jam", report: "Report", reports: { police: "Police", accident: "Crash", jam: "Traffic jam", hazard: "Hazard", flood: "Flood", camera: "Speed camera", bump: "Speed bump", school: "School zone", rail: "Railway crossing", toll: "Toll booth", stop: "Stop sign", give_way: "Give way", signal: "Traffic light" },
+      slowTraffic: "Slow traffic? Report a jam", report: "Report", reports: { police: "Police", accident: "Crash", jam: "Traffic jam", hazard: "Hazard", flood: "Flood", camera: "Speed camera", bump: "Speed bump", school: "School zone", rail: "Railway crossing", toll: "Toll booth", stop: "Stop sign", give_way: "Give way", signal: "Traffic light", crossing: "Pedestrian crossing", hazard: "Danger ahead", curve: "Sharp curve", junction_danger: "Dangerous junction", animal: "Animal crossing", no_overtake: "No overtaking" },
       reportSaved: "Report added. Thanks!", reportNote: "Reports are kept on this phone for now. Sharing them with all drivers needs a server.", clearReports: "Clear my reports",
       shareEta: "I'm on my way to {dest}. Arriving around {time} ({left}).", copied: "Copied — paste it in a message",
       layers: "Map type", mapDefault: "Default", mapOsm: "Khmer labels", mapDark: "Dark (CamNAV)", mapLight: "Light", mapDetails: "Map details",
@@ -50,7 +50,7 @@
       exit: "ចាកចេញ", overview: "មើលទាំងមូល", arrivedTitle: "អ្នកបានមកដល់ហើយ", done: "រួចរាល់",
       min: "នាទី", hr: "ម៉ោង", km: "គ.ម", m: "ម", kmh: "គ.ម/ម៉",
       speedLimit: "ល្បឿនកំណត់", estLimit: "ប៉ាន់ស្មានតាមច្បាប់ចរាចរណ៍កម្ពុជា (គ្មានស្លាកក្នុងទិន្នន័យផែនទី)",
-      slowTraffic: "ចរាចរណ៍យឺត? រាយការណ៍ការស្ទះ", report: "រាយការណ៍", reports: { police: "ប៉ូលិស", accident: "គ្រោះថ្នាក់", jam: "ស្ទះចរាចរណ៍", hazard: "ឧបសគ្គ", flood: "ទឹកលិច", camera: "កាមេរ៉ាល្បឿន", bump: "ដុំបន្ថយល្បឿន", school: "តំបន់សាលារៀន", rail: "ផ្លូវរថភ្លើងកាត់", toll: "ស្ថានីយបង់ថ្លៃផ្លូវ", stop: "ស្លាកឈប់", give_way: "ផ្តល់សិទ្ធិ", signal: "ភ្លើងស្តុប" },
+      slowTraffic: "ចរាចរណ៍យឺត? រាយការណ៍ការស្ទះ", report: "រាយការណ៍", reports: { police: "ប៉ូលិស", accident: "គ្រោះថ្នាក់", jam: "ស្ទះចរាចរណ៍", hazard: "ឧបសគ្គ", flood: "ទឹកលិច", camera: "កាមេរ៉ាល្បឿន", bump: "ដុំបន្ថយល្បឿន", school: "តំបន់សាលារៀន", rail: "ផ្លូវរថភ្លើងកាត់", toll: "ស្ថានីយបង់ថ្លៃផ្លូវ", stop: "ស្លាកឈប់", give_way: "ផ្តល់សិទ្ធិ", signal: "ភ្លើងស្តុប", crossing: "កន្លែងឆ្លងផ្លូវ", hazard: "គ្រោះថ្នាក់ខាងមុខ", curve: "ផ្លូវកោងខ្លាំង", junction_danger: "ផ្លូវប្រសព្វគ្រោះថ្នាក់", animal: "សត្វឆ្លងផ្លូវ", no_overtake: "ហាមវ៉ាជែង" },
       reportSaved: "បានបន្ថែមរបាយការណ៍។ អរគុណ!", reportNote: "បច្ចុប្បន្ន របាយការណ៍រក្សាទុកតែលើទូរស័ព្ទនេះ។ ការចែករំលែកជាមួយអ្នកបើកបរទាំងអស់ត្រូវការម៉ាស៊ីនមេ។", clearReports: "លុបរបាយការណ៍របស់ខ្ញុំ",
       shareEta: "ខ្ញុំកំពុងធ្វើដំណើរទៅ {dest}។ នឹងមកដល់ប្រហែលម៉ោង {time} ({left})។", copied: "បានចម្លង — បិទភ្ជាប់ក្នុងសារ",
       layers: "ប្រភេទផែនទី", mapDefault: "លំនាំដើម", mapOsm: "ឈ្មោះខ្មែរ", mapDark: "ងងឹត (CamNAV)", mapLight: "ភ្លឺ", mapDetails: "ព័ត៌មានលើផែនទី",
@@ -207,7 +207,7 @@
       test: "សួស្តី! នេះជាសំឡេងណែនាំផ្លូវជាភាសាខ្មែរ។ ក្នុងចម្ងាយ ២០០ ម៉ែត្រទៀត បត់ស្តាំ",
       camera: (d, v) => "កាមេរ៉ាល្បឿននៅខាងមុខ ក្នុងចម្ងាយ " + distText(d, "km") + (v ? "។ ល្បឿនកំណត់ " + kmNum(v) : ""),
       overspeed: (v) => "សូមបន្ថយល្បឿន។ ល្បឿនកំណត់ " + kmNum(v) + " គីឡូម៉ែត្រក្នុងមួយម៉ោង",
-      road: { bump: "មានដុំបន្ថយល្បឿននៅខាងមុខ", school: "តំបន់សាលារៀននៅខាងមុខ សូមបន្ថយល្បឿន", rail: "ផ្លូវរថភ្លើងកាត់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", toll: "ស្ថានីយបង់ថ្លៃផ្លូវនៅខាងមុខ", stop: "ស្លាកឈប់នៅខាងមុខ" },
+      road: { bump: "មានដុំបន្ថយល្បឿននៅខាងមុខ", school: "តំបន់សាលារៀននៅខាងមុខ សូមបន្ថយល្បឿន", rail: "ផ្លូវរថភ្លើងកាត់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", toll: "ស្ថានីយបង់ថ្លៃផ្លូវនៅខាងមុខ", stop: "ស្លាកឈប់នៅខាងមុខ", hazard: "គ្រោះថ្នាក់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", curve: "ផ្លូវកោងខ្លាំងនៅខាងមុខ សូមបន្ថយល្បឿន", junction_danger: "ផ្លូវប្រសព្វគ្រោះថ្នាក់នៅខាងមុខ", animal: "ប្រយ័ត្នសត្វឆ្លងផ្លូវ", no_overtake: "ហាមវ៉ាជែង" },
       helmet: "សូមពាក់មួកសុវត្ថិភាព ទាំងអ្នកបើកបរ និងអ្នកជិះពីក្រោយ",
       seatbelt: "សូមពាក់ខ្សែក្រវាត់សុវត្ថិភាព",
       report: {
@@ -226,7 +226,7 @@
       test: "Hello! This is English voice guidance. In 200 meters, turn right",
       camera: (d, v) => "Speed camera in " + distText(d, "en") + (v ? ". Speed limit " + v : ""),
       overspeed: (v) => "Please slow down. The speed limit is " + v,
-      road: { bump: "Speed bump ahead", school: "School zone ahead, slow down", rail: "Railway crossing ahead, take care", toll: "Toll booth ahead", stop: "Stop sign ahead" },
+      road: { bump: "Speed bump ahead", school: "School zone ahead, slow down", rail: "Railway crossing ahead, take care", toll: "Toll booth ahead", stop: "Stop sign ahead", hazard: "Danger ahead, take care", curve: "Sharp curve ahead, slow down", junction_danger: "Dangerous junction ahead", animal: "Watch out for animals crossing", no_overtake: "No overtaking" },
       helmet: "Please wear a helmet, rider and passenger",
       seatbelt: "Please fasten your seat belt",
       report: {
@@ -251,7 +251,8 @@
         "ត្រូវមានប័ណ្ណបើកបរ និងឯកសារយានយន្តត្រឹមត្រូវ"],
       car: ["អ្នកបើកបរ និងអ្នកជិះកៅអីមុខ ត្រូវពាក់ខ្សែក្រវាត់សុវត្ថិភាព", "កុមារគួរអង្គុយកៅអីក្រោយ"],
       moto: ["អ្នកបើកបរ និងអ្នកជិះពីក្រោយ ត្រូវពាក់មួកសុវត្ថិភាព (ពិន័យម្នាក់ៗ)", "ម៉ូតូមិនត្រូវបានអនុញ្ញាតលើផ្លូវល្បឿនលឿន (ភ្នំពេញ–ព្រះសីហនុ)", "បើកភ្លើងហ្វាពេលយប់ ហើយកុំបើកបរទន្ទឹមគ្នា"],
-      car_t: "ឡាន", moto_t: "ម៉ូតូ", common_t: "ទាំងអស់គ្នា",
+      car_t: "ឡាន", moto_t: "ម៉ូតូ", common_t: "ទាំងអស់គ្នា", signs_t: "ស្លាកសញ្ញា",
+      signsIntro: "ស្លាកសញ្ញា និងព័ត៌មានផ្លូវដែល CamNAV តាមដាន (ពី OpenStreetMap និងរបាយការណ៍អ្នកបើកបរ)។ CamNAV ព្រមានអ្នកមុនពេលទៅដល់។",
     },
     en: {
       intro: "A short summary of key Cambodian traffic rules to help you drive safely. Not legal advice — always follow road signs and traffic police. Fine amounts can change.",
@@ -262,7 +263,8 @@
         "Carry a valid driving licence and vehicle papers"],
       car: ["Driver and front passenger must wear seat belts", "Children are safest in the back seat"],
       moto: ["Rider and passenger must both wear helmets (each can be fined)", "Motorbikes are not allowed on the expressway (Phnom Penh–Sihanoukville)", "Lights on at night and don't ride side by side"],
-      car_t: "Car", moto_t: "Motorbike", common_t: "Everyone",
+      car_t: "Car", moto_t: "Motorbike", common_t: "Everyone", signs_t: "Signs",
+      signsIntro: "Signs and road features CamNAV tracks (from OpenStreetMap and driver reports). CamNAV warns you before you reach them.",
     },
   };
 

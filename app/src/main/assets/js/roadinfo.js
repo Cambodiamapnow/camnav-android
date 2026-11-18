@@ -71,6 +71,7 @@
       `node(around:${Math.ceil(stepM / 2) + 35},${line})["highway"~"^(speed_camera|traffic_signals|stop|give_way|crossing)$"];` +
       `node(around:${Math.ceil(stepM / 2) + 25},${line})["traffic_calming"]["traffic_calming"!="no"];` +
       `node(around:${Math.ceil(stepM / 2) + 30},${line})["railway"="level_crossing"];` +
+      `node(around:${Math.ceil(stepM / 2) + 30},${line})["hazard"];` +
       `nwr(around:${Math.ceil(stepM / 2) + 40},${line})["barrier"="toll_booth"];` +
       `nwr(around:${Math.ceil(stepM / 2) + 90},${line})["amenity"~"^(school|kindergarten)$"];` +
       ");out tags geom qt;";
@@ -100,7 +101,7 @@
   function process(route, data, grid) {
     grid = grid || buildGrid(route);
     const out = { limits: [], classes: [], junctions: [], cameras: [], signals: [],
-      bumps: [], signs: [], crossings: [], rail: [], tolls: [], schools: [] };
+      bumps: [], signs: [], crossings: [], rail: [], tolls: [], schools: [], hazards: [], noOvertake: [] };
     const centre = (el) => {
       if (el.type === "node") return [el.lon, el.lat];
       if (el.center) return [el.center.lon, el.center.lat];
@@ -126,6 +127,7 @@
         else if (tags.railway === "level_crossing" && loc.off < 25) out.rail.push(item);
         else if (tags.barrier === "toll_booth" && loc.off < 60) out.tolls.push(item);
         else if ((tags.amenity === "school" || tags.amenity === "kindergarten") && loc.off < 120) out.schools.push(Object.assign(item, { name: tags["name:en"] || tags.name || "" }));
+        else if (tags.hazard && loc.off < 40) out.hazards.push(Object.assign(item, { kind: tags.hazard }));
         else if (tags.highway === "crossing" && loc.off < 15) out.crossings.push(item);
         continue;
       }
@@ -164,6 +166,8 @@
         const v = parseMaxspeed(tags["maxspeed:forward"] || tags.maxspeed);
         if (v) out.limits.push({ id: "w" + el.id, from: runFrom, to: runTo, v });
         out.classes.push({ id: "w" + el.id, from: runFrom, to: runTo, hw: tags.highway });
+        const ot = tags["overtaking:forward"] || tags.overtaking;
+        if (ot === "no") out.noOvertake.push({ id: "o" + el.id, from: runFrom, to: runTo });
       } else if (touches) {
         // a side street meeting the route: used to tell town from open road
         const near = locs.filter((l) => l && l.off < 15).sort((x, y) => x.off - y.off)[0];
@@ -175,8 +179,8 @@
   }
 
   /** Fresh container for a route; add chunks with addChunk(). */
-  const POINT_KINDS = ["cameras", "signals", "bumps", "signs", "crossings", "rail", "tolls", "schools"];
-  const ALL_KINDS = ["limits", "classes", "junctions"].concat(POINT_KINDS);
+  const POINT_KINDS = ["cameras", "signals", "bumps", "signs", "crossings", "rail", "tolls", "schools", "hazards"];
+  const ALL_KINDS = ["limits", "classes", "junctions", "noOvertake"].concat(POINT_KINDS);
   function create() {
     const r = { loadedTo: 0, loading: false };
     for (const k of ALL_KINDS) r[k] = [];

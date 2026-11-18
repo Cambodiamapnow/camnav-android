@@ -82,6 +82,11 @@
   add("road_rail", "ផ្លូវរថភ្លើងកាត់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", "Railway crossing ahead, take care");
   add("road_toll", "ស្ថានីយបង់ថ្លៃផ្លូវនៅខាងមុខ", "Toll booth ahead");
   add("road_stop", "ស្លាកឈប់នៅខាងមុខ", "Stop sign ahead");
+  add("road_hazard", "គ្រោះថ្នាក់នៅខាងមុខ សូមប្រុងប្រយ័ត្ន", "Danger ahead, take care");
+  add("road_curve", "ផ្លូវកោងខ្លាំងនៅខាងមុខ សូមបន្ថយល្បឿន", "Sharp curve ahead, slow down");
+  add("road_junction_danger", "ផ្លូវប្រសព្វគ្រោះថ្នាក់នៅខាងមុខ", "Dangerous junction ahead");
+  add("road_animal", "ប្រយ័ត្នសត្វឆ្លងផ្លូវ", "Watch out for animals crossing");
+  add("road_no_overtake", "ហាមវ៉ាជែង", "No overtaking");
   add("helmet", "សូមពាក់មួកសុវត្ថិភាព ទាំងអ្នកបើកបរ និងអ្នកជិះពីក្រោយ", "Please wear a helmet, rider and passenger");
   add("seatbelt", "សូមពាក់ខ្សែក្រវាត់សុវត្ថិភាព", "Please fasten your seat belt");
   add("test", "សួស្តី! នេះជាសំឡេងណែនាំផ្លូវរបស់ ខេមណាវ។ សូមបើកបរដោយសុវត្ថិភាព", "Hello! This is the CamNAV voice. Please drive safely");

@@ -15,7 +15,7 @@ const server = http.createServer((req, res) => {
   });
 }).listen(8099);
 
-const browser = await puppeteer.launch({ executablePath: process.env.CHROME || "/usr/bin/google-chrome", args: ["--no-sandbox", "--use-gl=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"] });
+const browser = await puppeteer.launch({ executablePath: process.env.CHROME || "/usr/bin/google-chrome", args: ["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"] });
 const shots = [["dark", "km", "preview-dark.png"], ["light", "en", "preview-light.png"]];
 let errors = [];
 for (const [tiles, lang, file] of shots) {
@@ -39,4 +39,5 @@ for (const [tiles, lang, file] of shots) {
 await browser.close();
 server.close();
 console.log("page errors:", errors.length ? errors.join("\n") : "none");
+fs.writeFileSync("preview-log.txt", errors.length ? errors.join("\n") : "no page errors\n");
 if (errors.some((e) => /style|layer|expression/i.test(e))) process.exit(1);

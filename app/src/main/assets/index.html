@@ -27,6 +27,11 @@
   <div class="spSlogan">បើកបរដោយសុវត្ថិភាព</div>
   <div class="spSub">Drive safely</div>
 </div>
+<script>
+  // close the welcome screen even if something below fails to start
+  setTimeout(function () { var s = document.getElementById("splash"); if (s) { s.classList.add("gone"); setTimeout(function () { s.remove(); }, 600); } }, 1500);
+  window.addEventListener("error", function (e) { window.__bootErrors = (window.__bootErrors || []).concat(String(e.message)); });
+</script>
 
 <!-- ============ TOP: search + category chips ============ -->
 <div id="top">
