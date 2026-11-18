@@ -10,11 +10,28 @@ android {
         applicationId 'com.camnav.app'
         minSdk 24
         targetSdk 34
-        versionCode 16
-        versionName '2.1'
+        versionCode 17
+        versionName '2.1.1'
+    }
+
+    // one fixed key for every build (kept privately in the GitHub build cache, see build-apk.yml),
+    // so a new APK installs over the old one
+    def ks = System.getenv('KMAP_KEYSTORE')
+    signingConfigs {
+        kmap {
+            if (ks && file(ks).exists()) {
+                storeFile file(ks)
+                storePassword 'kmapkey'
+                keyAlias 'kmap'
+                keyPassword 'kmapkey'
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            if (ks && file(ks).exists()) signingConfig signingConfigs.kmap
+        }
         release {
             minifyEnabled false
         }

@@ -83,8 +83,17 @@ jobs:
       - name: Keep one signing key for every build (so new APKs install over old ones)
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: kmap-signing-key-v1
+          path: ~/kmap-signing
+          key: kmap-signing-key-v2
+      - name: Make the signing key the first time
+        run: |
+          mkdir -p ~/kmap-signing
+          if [ ! -f ~/kmap-signing/kmap.jks ]; then
+            keytool -genkeypair -keystore ~/kmap-signing/kmap.jks -storepass kmapkey -keypass kmapkey -alias kmap \
+              -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=K-Map, O=KMAP, C=KH"
+            echo "new signing key made"
+          else echo "reusing the saved signing key"; fi
+          echo "KMAP_KEYSTORE=$HOME/kmap-signing/kmap.jks" >> "$GITHUB_ENV"
       - name: Build the APK
         run: |
           chmod +x ./gradlew
