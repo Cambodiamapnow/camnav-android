@@ -74,6 +74,7 @@ jobs:
           ELEVEN_VOICE_LITTLE_SISTER: ${{ vars.ELEVEN_VOICE_LITTLE_SISTER }}
           ELEVEN_VOICE_FUNNY_GUY: ${{ vars.ELEVEN_VOICE_FUNNY_GUY }}
           ELEVEN_VOICE_WAR_CHIEF: ${{ vars.ELEVEN_VOICE_WAR_CHIEF }}
+          ELEVEN_VOICE_MONK: ${{ vars.ELEVEN_VOICE_MONK }}
         run: python3 tools/make_khmer_voice.py
 
       - name: Build the APK

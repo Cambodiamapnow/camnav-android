@@ -92,6 +92,7 @@ PACK_VOICES = {
     "grandpa": ("km-KH-PisethNeural", "-12%"),
     "funny_guy": ("km-KH-PisethNeural", "+10%"),
     "war_chief": ("km-KH-PisethNeural", "-5%"),
+    "monk": ("km-KH-PisethNeural", "-15%"),
     "little_sister": ("km-KH-SreymomNeural", "+10%"),
 }
 
